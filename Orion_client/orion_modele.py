@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 ##  version 2022 14 mars - jmd
 
+from abc import ABC
 import random
 import ast
 from id import *
 from helper import Helper as hlp
+from abc import ABC, abstractmethod
 
 class Batiment():
     def __init__(self, id, id_planete, pdv, niveau, proprietaire):
@@ -14,13 +16,14 @@ class Batiment():
         self.niveau = niveau
         self.proprietaire = proprietaire
         
-class Extraction(Batiment):
+class Extraction(Batiment, ABC):
     def __init__(self, id, id_planete, pdv, niveau, proprietaire, ressources_max, taux_extraction):
         super().__init__(id, id_planete, pdv, niveau, proprietaire)
         
         self.ressource_max = ressources_max
         self.taux_extraction = taux_extraction
     
+    @abstractmethod
     def recolte(self):
         pass
 
@@ -37,7 +40,11 @@ class Mine(Extraction):
         
         self.roche = roche
         self.metal = metal
+    
+    def recolte(self):
+        ... # ecrire code
         
+    
     def choose_mining(self):
         pass
 
