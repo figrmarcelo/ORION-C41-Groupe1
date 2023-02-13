@@ -6,7 +6,88 @@ import ast
 from id import *
 from helper import Helper as hlp
 
+class Batiment():
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire):
+        self.id = id
+        self.id_planete = id_planete
+        self.pdv = pdv
+        self.niveau = niveau
+        self.proprietaire = proprietaire
+        
+class Extraction(Batiment):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire, ressources_max, taux_extraction):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire)
+        
+        self.ressource_max = ressources_max
+        self.taux_extraction = taux_extraction
+    
+    def recolte(self):
+        pass
 
+class Centrale(Extraction):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire, ressources_max, taux_extraction, energie):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+        
+        self.energie = energie
+
+
+class Mine(Extraction):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire, ressources_max, taux_extraction, roche, metal):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+        
+        self.roche = roche
+        self.metal = metal
+        
+    def choose_mining(self):
+        pass
+
+class Usine(Batiment):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire, liste_construction):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire)
+        
+        self.liste_construction = liste_construction
+    
+    def afficher_construction(self):
+        pass
+    
+    def construire(self):
+        pass
+    
+class Canon(Batiment):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire, puissance):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire)
+        
+        self.puissance = puissance
+        
+    def tir_defense(self):
+        pass
+
+class Balise(Batiment):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire, position):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire)
+        
+        self.position = position
+        
+    def get_position(self):
+        return self.position
+
+class CentreRecherche(Batiment):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire)
+        
+    def upgrade(self):
+        pass
+    
+class AccelerateurParticule(Batiment):
+    def __init__(self, id, id_planete, pdv, niveau, proprietaire):
+        super().__init__(id, id_planete, pdv, niveau, proprietaire)    
+    
+    def end_game(self):
+        pass   
+        
+        
+        
+        
 class Porte_de_vers():
     def __init__(self, parent, x, y, couleur, taille):
         self.parent = parent
