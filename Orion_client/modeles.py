@@ -50,13 +50,11 @@ class Artefact:
     }
     
     @classmethod
-    def activate_bonus(cls, res: Ressource):
+    def activate_bonus(cls, dict: dict):
         key, value = random.choice(list(cls.liste_bonus.items()))
-        res[key] += value
+        dict[key] += value
         
-    
-        
-        
+      
 if __name__ == '__main__':
     # test
     r1 = Ressource(1, 2, 3)
