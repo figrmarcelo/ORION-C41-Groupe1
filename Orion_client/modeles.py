@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import random
+
 
 class Ressource(dict):
     """Classe **Ressource** représentant les ressources du jeu.
@@ -31,7 +33,7 @@ class Ressource(dict):
             self['energie'] + other['energie']
         )
 
-    def __sub__(self, other: Ressource | dict) -> Ressource:
+    def __sub__(self, other: Ressource | dict[str, int]) -> Ressource:
         """Soustrait deux ressources"""
         return Ressource(
             self['pierre'] - other['pierre'],
@@ -40,9 +42,32 @@ class Ressource(dict):
         )
 
 
-# test
-r1 = Ressource(1, 2, 3)
-r2 = Ressource(4, 5, 6)
+class Artefact:
+    liste_bonus = {
+        'pierre': random.randint(100, 1000),
+        'metal': random.randint(100, 1000),
+        'energie': random.randint(100, 1000)
+    }
+    
+    @classmethod
+    def activate_bonus(cls, res: Ressource):
+        key, value = random.choice(list(cls.liste_bonus.items()))
+        res[key] += value
+        
+    
+        
+        
+if __name__ == '__main__':
+    # test
+    r1 = Ressource(1, 2, 3)
+    r2 = Ressource(4, 5, 6)
 
-print(r1 + r2)
-print(r1 - r2)
+    print(r1 + r2)
+    print(r1 - r2)
+    
+    r = Ressource(10, 20, 30)
+    
+    Artefact.activate_bonus(r)
+    print(r)
+
+
