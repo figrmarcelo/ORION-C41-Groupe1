@@ -147,7 +147,55 @@ class Vue():
         return self.cadrepartie
 
     def creer_cadre_outils(self):
-        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="blue")
+        # self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="blue")
+        # self.cadreoutils.pack(side=LEFT, fill=Y)
+
+        # self.cadreinfo = Frame(self.cadreoutils, width=200, height=200, bg="darkgrey")
+        # self.cadreinfo.pack(fill=BOTH)
+
+        # self.cadreinfogen = Frame(self.cadreinfo, width=200, height=200, bg="grey50")
+        # self.cadreinfogen.pack(fill=BOTH)
+        # self.labid = Label(self.cadreinfogen, text="Inconnu")
+        # self.labid.bind("<Button>", self.centrer_planemetemere)
+        # self.labid.pack()
+        # self.btnmini = Button(self.cadreinfogen, text="MINI")
+        # self.btnmini.bind("<Button>", self.afficher_mini)
+        # self.btnmini.pack()
+
+        # self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
+        # self.btncreervaisseau = Button(self.cadreinfochoix, text="Vaisseau")
+        # self.btncreervaisseau.bind("<Button>", self.creer_vaisseau)
+        # self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
+        # self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+
+        # self.btncreervaisseau.pack()
+        # self.btncreercargo.pack()
+
+        # self.cadreinfoliste = Frame(self.cadreinfo)
+
+        # self.scroll_liste_Y = Scrollbar(self.cadreinfoliste, orient=VERTICAL)
+        # self.info_liste = Listbox(self.cadreinfoliste, width=20, height=6, yscrollcommand=self.scroll_liste_Y.set)
+        # self.info_liste.bind("<Button-3>", self.centrer_liste_objet)
+        # self.info_liste.grid(column=0, row=0, sticky=W + E + N + S)
+        # self.scroll_liste_Y.grid(column=1, row=0, sticky=N + S)
+
+        # self.cadreinfoliste.columnconfigure(0, weight=1)
+        # self.cadreinfoliste.rowconfigure(0, weight=1)
+
+        # self.cadreinfoliste.pack(side=BOTTOM, expand=1, fill=BOTH)
+
+        # self.cadreminimap = Frame(self.cadreoutils, height=200, width=200, bg="black")
+        # self.canevas_minimap = Canvas(self.cadreminimap, width=self.taille_minimap, height=self.taille_minimap,
+        #                               bg="pink")
+        # self.canevas_minimap.bind("<Button>", self.positionner_minicanevas)
+        # self.canevas_minimap.pack()
+        # self.cadreminimap.pack(side=BOTTOM)
+
+        # self.cadres["jeu"] = self.cadrepartie
+        # # fonction qui affiche le nombre d'items sur le jeu
+        # self.canevas.bind("<Shift-Button-3>", self.calc_objets)
+        
+        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="darkgrey")
         self.cadreoutils.pack(side=LEFT, fill=Y)
 
         self.cadreinfo = Frame(self.cadreoutils, width=200, height=200, bg="darkgrey")
