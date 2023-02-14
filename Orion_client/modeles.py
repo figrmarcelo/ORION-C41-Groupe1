@@ -4,7 +4,7 @@ import random
 
 
 class Ressource(dict):
-    """Classe **Ressource** représentant les ressources du jeu.
+    """Classe Ressource représentant les ressources du jeu.
 
     La classe contient des pierres, des métaux et de l'énergie.
 
@@ -21,12 +21,15 @@ class Ressource(dict):
     """
 
     def __init__(self, pierre: int = 0, metal: int = 0, energie: int = 0):
+        """Constructeur de Ressource"""
+        
         self['pierre'] = int(pierre)
         self['metal'] = int(metal)
         self['energie'] = int(energie)
 
     def __add__(self, other: Ressource | dict[str, int]) -> Ressource:
         """Additionne deux ressources"""
+        
         return Ressource(
             self['pierre'] + other['pierre'],
             self['metal'] + other['metal'],
@@ -35,6 +38,7 @@ class Ressource(dict):
 
     def __sub__(self, other: Ressource | dict[str, int]) -> Ressource:
         """Soustrait deux ressources"""
+        
         return Ressource(
             self['pierre'] - other['pierre'],
             self['metal'] - other['metal'],
@@ -43,16 +47,25 @@ class Ressource(dict):
 
 
 class Artefact:
-    liste_bonus = {
-        'pierre': random.randint(100, 1000),
-        'metal': random.randint(100, 1000),
-        'energie': random.randint(100, 1000)
-    }
+    liste_bonus: Ressource = Ressource(
+        random.randint(100, 1000),
+        random.randint(100, 1000),
+        random.randint(100, 1000)
+    )
     
     @classmethod
-    def activate_bonus(cls, dict: dict):
+    def activate_bonus(cls, res: Ressource):
+        """Active un bonus.
+        
+        Génère une clé et une valeur aléatoire pour ensuite
+        l'insérer dans les ressources.
+        
+        Args:
+            res (Ressource): ressources
+        """
         key, value = random.choice(list(cls.liste_bonus.items()))
-        dict[key] += value
+        print(f'Vous avez gagné {value} {key}')
+        res[key] += value
         
       
 if __name__ == '__main__':
