@@ -11,76 +11,190 @@ from __future__ import annotations
 
 
 class Batiment():
-    def __init__(self, id_batiment, pdv, niveau, proprietaire):
+    """
+    Classe batiment --> classe parent pour les batiments d'une planete. 
+    
+    Parameters
+    ----------
+    id : int
+        ID d'un batiment. Generation d'ID avec la methode 'get_prochain_id()'
+    planete : objet planete
+        Sert a identifier dans quel planete le batiment est construit
+        
+    pdv : int
+        Point de vie d'un batiment. Sert lorsque la planete ce fait attaquer.
+        
+    niveau : int
+        Niveau d'un batiment.
+        
+    proprietaire : objet Joueur
+        Proprietaire du batiment.
+        
+    id_batiment : int
+        Sert a identifier le type de batiment
+        
+    """
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
         self.id = get_prochain_id()
-        self.id_planete = get_prochain_id()
+        self.planete = planete
         self.pdv = pdv
         self.niveau = niveau
         self.proprietaire = proprietaire
         self.id_batiment = id_batiment
             
         
-        
-
-        
 class Extraction(Batiment):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(id_batiment, pdv, niveau, proprietaire)
+    """
+    Classe Extraction --> classe qui sert de parent aux classe Centrale, MineMetal et MinePierre
+    
+    Parameters
+    ----------
+    ressource_max : int
+        ...
+        
+    taux_extraction : int
+        Quantité de ressoure generé par seconde
+    
+
+    Args:
+    ----------
+        Batiment: Child de la classe Parent Batiment
+    """
+    
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
         self.ressource_max = ressources_max
         self.taux_extraction = taux_extraction
-    
-    def recolte(self):
-        if self.id_batiment == "centrale":
-            pass
-        elif self.id_batiment == "mine_metal":
-            pass
-        elif self.id_batiment == "mine_roche":
-            pass
-        
-        
-    # def recolte(self, text, value, res: type[Ressource]) -> None:
-    #     key = text
-    #     res[key] += int(value)
 
 
 class Centrale(Extraction):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+    """
+    Classe Centrale --> Classe du batiment Centrale. S'occupe de generer ressource 'energie'
+    
+    Parameters
+    ----------
+    nb.energie : int
+        Nombre d'energie produite et stocké dans le batiment Centrale
+
+    Args:
+    ----------
+        Extraction : Child de la classe Extraction
+    """
+    
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
         
         self.nb_energie = 0
+        
+    def recolte(self, proprietaire):
+        """
+        Cette methode s'occupe de recolter les ressources produite
+        dans la Centrale et les transferer au joueur proprietaire
+
+        Args:
+            proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
+        """
+        if self.planete.ressource["energie"] > 0: #SI la quantité d'énergie > 0 (Si il reste de l'energie dans la planete)
+            if self.nb_energie > self.planete.ressource["energie"]: #SI le nombre d'energie stocké > que celui disponible dans la planete...
+                proprietaire.ressource["energie"] += self.planete.ressource["energie"]#transfer de la qte dispo dans la planete only
+            else: #sinon, transfer du nombre d'energie stocké
+                proprietaire.ressource["energie"] += self.nb_energie
+                self.planete.ressource["energie"] -= self.nb_energie
+            self.nb_energie = 0 #On reset le nombre d'energie à 0, car deja transferé au joueur
+            
 
 
 class MineMetal(Extraction):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+    """
+    Classe MineMetal --> Classe du batiment Mine de metal. S'occupe de generer ressource 'metal'
+    
+    Parameters
+    ----------
+    nb.metal : int
+        Nombre de metal produit et stocké dans le batiment Centrale
+
+    Args:
+        Extraction : Child de la classe Extraction
+    """
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
         
         self.nb_metal = 0
-    
-
-class MineRoche(Extraction):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
         
-        self.nb_roche = 0
+    def recolte(self, proprietaire):
+        """
+        Cette methode s'occupe de recolter les ressources produite
+        dans la Mine de metal et les transferer au joueur proprietaire
+
+        Args:
+            proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
+        """
+        if self.planete.ressource["metal"] > 0:#SI la quantité de metal > 0 (Si il reste du metal dans la planete)
+            if self.nb_metal > self.planete.ressource["metal"]: #SI le nombre de metal stocké > que celui disponible dans la planete...
+                proprietaire.ressource["metal"] += self.planete.ressource["metal"] #transfer de la qte dispo dans la planete only
+            else: #sinon, transfer du nombre de metal stocké
+                proprietaire.ressource["metal"] += self.nb_metal
+                self.planete.ressource["metal"] -= self.nb_metal
+            self.nb_metal = 0 #On reset le nombre de metal à 0, car deja transferé au joueur
+
+
+class MinePierre(Extraction):
+    """
+    Classe MinePierre --> Classe du batiment Mine de pierre. S'occupe de generer ressource 'pierre'
     
+    Parameters
+    ----------
+    nb.pierre : int
+        Nombre de pierre produite et stocké dans le batiment Centrale
+
+    Args:
+        Extraction : Child de la classe Extraction
+    """
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+        
+        self.nb_pierre = 0
+    
+    def recolte(self, proprietaire):
+        """
+        Cette methode s'occupe de recolter les ressources produite
+        dans la Mine de pierre et les transferer au joueur proprietaire
+
+        Args:
+            proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
+        """
+        if self.planete.ressource["pierre"] > 0: #SI la quantité de pierre > 0 (Si il reste du metal dans la planete)
+            if self.nb_metal > self.planete.ressource["pierre"]: #SI le nombre de pierre stocké > que celui disponible dans la planete...
+                proprietaire.ressource["pierre"] += self.planete.ressource["pierre"] #transfer de la qte dispo dans la planete only
+            else: #sinon, transfer du nombre de pierre stocké
+                proprietaire.ressource["pierre"] += self.nb_pierre
+                self.planete.ressource["pierre"] -= self.nb_pierre
+            self.nb_pierre = 0 #On reset le nombre de pierre à 0, car deja transferé au joueur
+
 
 class Usine(Batiment):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, liste_construction):
-        super().__init__(id_batiment, pdv, niveau, proprietaire)
+    
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, liste_construction):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
         self.liste_construction = liste_construction
     
     def afficher_construction(self):
-        pass
+        #test
+        choix = "mine"
+        return choix
     
     def construire(self):
+        #test
+        self.afficher_construction()
+        self.planete.liste_batiments.append()
         pass
 
     
 class Canon(Batiment):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, puissance):
-        super().__init__(id_batiment, pdv, niveau, proprietaire)
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, puissance):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
         self.puissance = puissance
         
@@ -89,8 +203,8 @@ class Canon(Batiment):
 
 
 class Balise(Batiment):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, position):
-        super().__init__(id_batiment, pdv, niveau, proprietaire)
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, position):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
         self.position = position
         
@@ -99,19 +213,22 @@ class Balise(Batiment):
 
 
 class CentreRecherche(Batiment):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(id_batiment, pdv, niveau, proprietaire)
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
     def upgrade(self):
         pass
     
     
 class AccelerateurParticule(Batiment):
-    def __init__(self, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(id_batiment, pdv, niveau, proprietaire)    
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
+        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)    
     
     def end_game(self):
         pass   
+        
+        
+        
         
         
         
@@ -153,9 +270,12 @@ class Etoile():
         self.x = x
         self.y = y
         self.taille = random.randrange(4, 8)
-        self.ressources = {"metal": 1000,
+        self.ressource = {"metal": 1000,
                            "energie": 10000,
-                           "existentielle": 100}
+                           "pierre": 100}
+        
+        
+        self.liste_batiments = [] #ajout d'une liste batiments. Batiments d'une planete
 
 
 class Vaisseau():
@@ -174,6 +294,9 @@ class Vaisseau():
         self.angle_cible = 0
         self.arriver = {"Etoile": self.arriver_etoile,
                         "Porte_de_vers": self.arriver_porte}
+        
+        
+        
 
     def jouer_prochain_coup(self, trouver_nouveau=0):
         if self.cible != 0:
@@ -245,6 +368,18 @@ class Joueur():
                        "Cargo": {}}
         self.actions = {"creervaisseau": self.creervaisseau,
                         "ciblerflotte": self.ciblerflotte}
+        
+        
+        
+        self.ressource = { #ajout d'un dictionnaire ressource. Sert a gerer les ressources d'un joueur.
+            "pierre"  : 0,
+            "metal"   : 0,
+            "energie" : 0
+        }
+        
+        
+        
+        
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
