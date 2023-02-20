@@ -147,54 +147,6 @@ class Vue():
         return self.cadrepartie
 
     def creer_cadre_outils(self):
-        # self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="blue")
-        # self.cadreoutils.pack(side=LEFT, fill=Y)
-
-        # self.cadreinfo = Frame(self.cadreoutils, width=200, height=200, bg="darkgrey")
-        # self.cadreinfo.pack(fill=BOTH)
-
-        # self.cadreinfogen = Frame(self.cadreinfo, width=200, height=200, bg="grey50")
-        # self.cadreinfogen.pack(fill=BOTH)
-        # self.labid = Label(self.cadreinfogen, text="Inconnu")
-        # self.labid.bind("<Button>", self.centrer_planemetemere)
-        # self.labid.pack()
-        # self.btnmini = Button(self.cadreinfogen, text="MINI")
-        # self.btnmini.bind("<Button>", self.afficher_mini)
-        # self.btnmini.pack()
-
-        # self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
-        # self.btncreervaisseau = Button(self.cadreinfochoix, text="Vaisseau")
-        # self.btncreervaisseau.bind("<Button>", self.creer_vaisseau)
-        # self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
-        # self.btncreercargo.bind("<Button>", self.creer_vaisseau)
-
-        # self.btncreervaisseau.pack()
-        # self.btncreercargo.pack()
-
-        # self.cadreinfoliste = Frame(self.cadreinfo)
-
-        # self.scroll_liste_Y = Scrollbar(self.cadreinfoliste, orient=VERTICAL)
-        # self.info_liste = Listbox(self.cadreinfoliste, width=20, height=6, yscrollcommand=self.scroll_liste_Y.set)
-        # self.info_liste.bind("<Button-3>", self.centrer_liste_objet)
-        # self.info_liste.grid(column=0, row=0, sticky=W + E + N + S)
-        # self.scroll_liste_Y.grid(column=1, row=0, sticky=N + S)
-
-        # self.cadreinfoliste.columnconfigure(0, weight=1)
-        # self.cadreinfoliste.rowconfigure(0, weight=1)
-
-        # self.cadreinfoliste.pack(side=BOTTOM, expand=1, fill=BOTH)
-
-        # self.cadreminimap = Frame(self.cadreoutils, height=200, width=200, bg="black")
-        # self.canevas_minimap = Canvas(self.cadreminimap, width=self.taille_minimap, height=self.taille_minimap,
-        #                               bg="pink")
-        # self.canevas_minimap.bind("<Button>", self.positionner_minicanevas)
-        # self.canevas_minimap.pack()
-        # self.cadreminimap.pack(side=BOTTOM)
-
-        # self.cadres["jeu"] = self.cadrepartie
-        # # fonction qui affiche le nombre d'items sur le jeu
-        # self.canevas.bind("<Shift-Button-3>", self.calc_objets)
-        
         self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="darkgrey")
         self.cadreoutils.pack(side=LEFT, fill=Y)
 
@@ -209,6 +161,11 @@ class Vue():
         self.btnmini = Button(self.cadreinfogen, text="MINI")
         self.btnmini.bind("<Button>", self.afficher_mini)
         self.btnmini.pack()
+
+        self.cadreinfoglobale = self.afficher_info_generales(self.cadreoutils)
+        self.cadreinfoglobale.pack()
+
+        self.levelUp = self.afficher_level_up(self.cadreoutils)
 
         self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
         self.btncreervaisseau = Button(self.cadreinfochoix, text="Vaisseau")
@@ -242,6 +199,35 @@ class Vue():
         self.cadres["jeu"] = self.cadrepartie
         # fonction qui affiche le nombre d'items sur le jeu
         self.canevas.bind("<Shift-Button-3>", self.calc_objets)
+
+    def afficher_info_generales(self, source):
+        frame = Frame(source, width=200, height=200, bg="darkgrey")
+
+        labelNiveau = Label(frame, text="Niveau : 0", bg="darkgrey")
+        labelExp = Label(frame, text="0 XP", bg="darkgrey")
+        labelMetal = Label(frame, text="Metal : 0", bg="darkgrey")
+        labelRoche = Label(frame, text="Roche : 0", bg="darkgrey")
+        labelEnergie = Label(frame, text="Energie : 0", bg="darkgrey")
+        labelPlanetes = Label(frame, text="Planete conquise : 0", bg="darkgrey")
+        labelNbVaisseau = Label(frame, text="Vaisseau : 0", bg="darkgrey")
+
+        labelNiveau.place(relx=.5, rely=.05, anchor="center")
+        labelExp.place(relx=.5, rely=.15, anchor="center")
+        labelMetal.place(relx=.1, rely=.25)
+        labelRoche.place(relx=.1, rely=.35)
+        labelEnergie.place(relx=.1, rely=.45)
+        labelPlanetes.place(relx=.1, rely=.65)
+        labelNbVaisseau.place(relx=.1, rely=.75)
+
+        return frame
+
+    def afficher_level_up (self, source):
+        frame = Frame(source, width=200, height=100, bg="darkgrey")
+        up = Button(frame, text="LEVEL UP", width=50, height=25)
+        up.place(anchor="center", rely=.5, relx=.5)
+
+        return frame
+
 
     def connecter_serveur(self):
         self.btninscrirejoueur.config(state=NORMAL)
@@ -518,9 +504,15 @@ class Vue():
             print("Region inconnue")
             self.ma_selection = None
             self.canevas.delete("marqueur")
+            self.levelUp.pack_forget()
+            self.cadreinfochoix.pack_forget()
+            self.cadreinfoglobale.pack()
 
     def montrer_etoile_selection(self):
         self.cadreinfochoix.pack(fill=BOTH)
+        self.cadreinfoglobale.pack_forget()
+        self.levelUp.pack(fill=BOTH)
+
 
     def montrer_flotte_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)
