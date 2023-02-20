@@ -222,7 +222,7 @@ class Vue():
         return frame
 
     def afficher_level_up (self, source):
-        frame = Frame(source, width=200, height=100, bg="darkgrey")
+        frame = Frame(source, width=100, height=50, bg="darkgrey")
         up = Button(frame, text="LEVEL UP", width=50, height=25)
         up.place(anchor="center", rely=.5, relx=.5)
 
@@ -492,6 +492,7 @@ class Vue():
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile":
+                    print(t[2])
                     self.montrer_etoile_selection()
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
@@ -511,7 +512,7 @@ class Vue():
     def montrer_etoile_selection(self):
         self.cadreinfochoix.pack(fill=BOTH)
         self.cadreinfoglobale.pack_forget()
-        self.levelUp.pack(fill=BOTH)
+        self.levelUp.pack(pady=50)
 
 
     def montrer_flotte_selection(self):

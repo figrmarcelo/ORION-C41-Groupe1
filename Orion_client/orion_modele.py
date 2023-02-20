@@ -49,6 +49,8 @@ class Etoile():
                            "existentielle": 100}
 
 
+
+
 class Vaisseau():
     def __init__(self, parent, nom, x, y):
         self.parent = parent
