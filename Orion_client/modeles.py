@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import random
-from this import d
 
 
 class Ressource(dict):
@@ -77,9 +76,10 @@ class Artefact:
         print(f'Vous avez gagné {value} {key}')
         res[key] += value
         
-      
+
+# TEST    
 if __name__ == '__main__':
-    # test
+    
     r1 = Ressource(1, 2, 3)
     r2 = Ressource(4, 5, 6)
 
@@ -87,8 +87,3 @@ if __name__ == '__main__':
     print(r1 - r2)
     
     r = Ressource(10, 20, 30) * 5
-    
-
-    print(r)
-
-

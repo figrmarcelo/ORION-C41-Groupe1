@@ -11,36 +11,6 @@ from helper import Helper as hlp
 from modeles import Ressource
 
 
-class Porte_de_vers():
-    def __init__(self, parent, x, y, couleur, taille):
-        self.parent = parent
-        self.id = get_prochain_id()
-        self.x = x
-        self.y = y
-        self.pulsemax = taille
-        self.pulse = random.randrange(self.pulsemax)
-        self.couleur = couleur
-
-    def jouer_prochain_coup(self):
-        self.pulse += 1
-        if self.pulse >= self.pulsemax:
-            self.pulse = 0
-
-
-class Trou_de_vers():
-    def __init__(self, x1, y1, x2, y2):
-        self.id = get_prochain_id()
-        taille = random.randrange(6, 20)
-        self.porte_a = Porte_de_vers(self, x1, y1, "red", taille)
-        self.porte_b = Porte_de_vers(self, x2, y2, "orange", taille)
-        self.liste_transit = []  # pour mettre les vaisseaux qui ne sont plus dans l'espace mais maintenant l'hyper-espace
-
-    def jouer_prochain_coup(self):
-        self.porte_a.jouer_prochain_coup()
-        self.porte_b.jouer_prochain_coup()
-
-
-
 class Astre():
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
         self.id: int = get_prochain_id()
@@ -48,21 +18,48 @@ class Astre():
         self.x = x
         self.y = y
         self.taille = taille
-    
-    
+       
+
+class PorteDeVers(Astre):
+    def __init__(self, parent, x: int, y: int, couleur: str, taille: str):
+        super().__init__(parent, x, y, taille)
+        self.pulse = random.randrange(self.taille)
+        self.couleur = couleur
+
+    def jouer_prochain_coup(self) -> None:
+        self.pulse += 1
+        if self.pulse >= self.taille:
+            self.pulse = 0
+
+
+class TrouDeVers():
+    def __init__(self, x1, y1, x2, y2):
+        self.id = get_prochain_id()
+        taille = random.randrange(6, 20)
+        self.porte_a = PorteDeVers(self, x1, y1, "red", taille)
+        self.porte_b = PorteDeVers(self, x2, y2, "orange", taille)
+        self.liste_transit = []  # pour mettre les vaisseaux qui ne sont plus dans l'espace mais maintenant l'hyper-espace
+
+    def jouer_prochain_coup(self) -> None:
+        self.porte_a.jouer_prochain_coup()
+        self.porte_b.jouer_prochain_coup()
+
+  
 class Etoile(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(4, 8))
         self.proprietaire: str = ""
-        self.ressources: Ressource(
+        self.ressources: Ressource = Ressource(
             random.randint(100, 500), 
             random.randint(100, 500), 
             random.randint(100, 500)
             ) * self.taille
-        
+
+       
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
-        super().__init__(parent, x, y, random.randint(12, 20))
+        super().__init__(parent, x, y, random.randint(20, 40))
+        self.couleur = "green"
 
 
 class Vaisseau():
@@ -82,19 +79,19 @@ class Vaisseau():
         self.arriver = {"Etoile": self.arriver_etoile,
                         "Porte_de_vers": self.arriver_porte}
 
-    def jouer_prochain_coup(self, trouver_nouveau=0):
+    def jouer_prochain_coup(self, trouver_nouveau=0) -> None:
         if self.cible != 0:
             return self.avancer()
         elif trouver_nouveau:
             cible = random.choice(self.parent.parent.etoiles)
             self.acquerir_cible(cible, "Etoile")
 
-    def acquerir_cible(self, cible, type_cible):
+    def acquerir_cible(self, cible, type_cible) -> None:
         self.type_cible = type_cible
         self.cible = cible
         self.angle_cible = hlp.calcAngle(self.x, self.y, self.cible.x, self.cible.y)
 
-    def avancer(self):
+    def avancer(self) -> list:
         if self.cible != 0:
             x = self.cible.x
             y = self.cible.y
@@ -104,7 +101,7 @@ class Vaisseau():
                 rep = self.arriver[type_obj]()
                 return rep
 
-    def arriver_etoile(self):
+    def arriver_etoile(self) -> list[str, int]:
         self.parent.log.append(
             ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
         if not self.cible.proprietaire:
@@ -113,7 +110,7 @@ class Vaisseau():
         self.cible = 0
         return ["Etoile", cible]
 
-    def arriver_porte(self):
+    def arriver_porte(self) -> list[str, int]:
         self.parent.log.append(["Arrive:", self.parent.parent.cadre_courant, "Porte", self.id, self.cible.id, ])
         cible = self.cible
         trou = cible.parent
@@ -242,9 +239,11 @@ class Modele():
         self.joueurs = {}
         self.actions_a_faire = {}
         self.etoiles = []
+        self.nuages = []
         self.trou_de_vers = []
         self.cadre_courant = None
         self.creeretoiles(joueurs, 1)
+        self.creer_nuages()
         nb_trou = int((self.hauteur * self.largeur) / 5000000)
         self.creer_troudevers(nb_trou)
 
@@ -255,8 +254,19 @@ class Modele():
             y1 = random.randrange(self.hauteur - (2 * bordure)) + bordure
             x2 = random.randrange(self.largeur - (2 * bordure)) + bordure
             y2 = random.randrange(self.hauteur - (2 * bordure)) + bordure
-            self.trou_de_vers.append(Trou_de_vers(x1, y1, x2, y2))
+            self.trou_de_vers.append(TrouDeVers(x1, y1, x2, y2))
 
+    def creer_nuages(self):
+        bordure = 10
+        for i in range(100):
+            for j in range(len(self.etoiles)):
+                x = random.randrange(self.largeur - (2 * bordure)) + bordure
+                y = random.randrange(self.hauteur - (2 * bordure)) + bordure  
+                if x == self.etoiles[j].x and y == self.etoiles[j].y:
+                    j = 0
+ 
+            self.nuages.append(Nuage(self, x, y))
+    
     def creeretoiles(self, joueurs, ias=0):
         bordure = 10
         for i in range(self.nb_etoiles):

@@ -9,6 +9,8 @@ import math
 
 import random
 
+from orion_modele import Etoile
+
 
 class Vue():
     def __init__(self, parent, urlserveur, mon_nom, msg_initial):
@@ -283,7 +285,24 @@ class Vue():
         self.afficher_decor(modele)
 
     ####################################################################################################
-
+    def afficher_astres(self, astres, nom: str, color=None, outline=None):
+        for i in astres:
+            color = i.couleur if not color else color
+            outline = i.couleur if not color else outline
+            
+            t = i.taille * self.zoom
+            self.canevas.create_oval(
+                i.x - t, i.y - t, 
+                i.x + t, i.y + t,
+                fill=color, outline=outline,
+                tags=(
+                    i.proprietaire if isinstance(i, Etoile) else None,
+                    str(i.id), 
+                    nom,
+                )
+            )
+    
+    
     def positionner_minicanevas(self, evt):
         x = evt.x
         y = evt.y
@@ -307,12 +326,13 @@ class Vue():
             n = random.randrange(3) + 1
             col = random.choice(["LightYellow", "azure1", "pink"])
             self.canevas.create_oval(x, y, x + n, y + n, fill=col, tags=("fond",))
+            
         # affichage des etoiles
-        for i in mod.etoiles:
-            t = i.taille * self.zoom
-            self.canevas.create_oval(i.x - t, i.y - t, i.x + t, i.y + t,
-                                     fill="grey80", outline=col,
-                                     tags=(i.proprietaire, str(i.id), "Etoile",))
+        self.afficher_astres(mod.etoiles, "Etoile", "Grey50", col)
+        # affichage des nuages 
+        self.afficher_astres(mod.nuages, "Nuage")
+            
+            
         # affichage des etoiles possedees par les joueurs
         for i in mod.joueurs.keys():
             for j in mod.joueurs[i].etoilescontrolees:
