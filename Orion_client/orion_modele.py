@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 ##  version 2022 14 mars - jmd
 
-from abc import ABC
 import random
 import ast
 from id import *
 from helper import Helper as hlp
-#from abc import ABC, abstractmethod
 from __future__ import annotations
+from threading import Timer
+import time
 
 
 class Batiment():
@@ -102,6 +102,14 @@ class Centrale(Extraction):
                 proprietaire.ressource["energie"] += self.nb_energie
                 self.planete.ressource["energie"] -= self.nb_energie
             self.nb_energie = 0 #On reset le nombre d'energie à 0, car deja transferé au joueur
+    
+    def generer(self):
+        self.proprietaire.ressource["energie"] += self.taux_extraction * self.niveau
+        time.sleep(1)
+        
+        #faire un thread pour la generation
+        
+    
             
 
 
@@ -137,6 +145,12 @@ class MineMetal(Extraction):
                 proprietaire.ressource["metal"] += self.nb_metal
                 self.planete.ressource["metal"] -= self.nb_metal
             self.nb_metal = 0 #On reset le nombre de metal à 0, car deja transferé au joueur
+            
+    def generer(self):
+        self.proprietaire.ressource["metal"] += self.taux_extraction * self.niveau
+        time.sleep(1)
+        
+        #faire un thread pour la generation
 
 
 class MinePierre(Extraction):
@@ -171,6 +185,12 @@ class MinePierre(Extraction):
                 proprietaire.ressource["pierre"] += self.nb_pierre
                 self.planete.ressource["pierre"] -= self.nb_pierre
             self.nb_pierre = 0 #On reset le nombre de pierre à 0, car deja transferé au joueur
+            
+    def generer(self):
+        self.proprietaire.ressource["pierre"] += self.taux_extraction * self.niveau
+        time.sleep(1)
+        
+        #faire un thread pour la generation
 
 
 class Usine(Batiment):
@@ -182,24 +202,24 @@ class Usine(Batiment):
     
     def afficher_construction(self):
         #test
-        choix = "mine"
-        return choix
+        
+        choix = "mine" #prendre le input de l'user
+        return choix #return input
     
     def construire(self):
         #test
-        self.afficher_construction()
-        self.planete.liste_batiments.append()
-        pass
+        self.planete.liste_batiments.append(self.afficher_construction())
 
     
-class Canon(Batiment):
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, puissance):
+class Canon(Batiment): #defenses
+    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
         super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
-        self.puissance = puissance
+        self.puissance = niveau * 1.5
         
-    def tir_defense(self):
-        pass
+    def tir_defense(self, vaisseau):
+        while vaisseau.pdv > 0:
+            ...
 
 
 class Balise(Batiment):
@@ -216,8 +236,12 @@ class CentreRecherche(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
         super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
         
-    def upgrade(self):
-        pass
+    def upgrade(self, batiment, ressourceUpgrade):
+        if batiment.proprietaire == self.proprietaire:
+            if self.proprietaire.ressource["metal"] >= ressourceUpgrade["metal"] & self.proprietaire.ressource["pierre"] >= ressourceUpgrade["pierre"]:
+                pass #upgrade batiment.niveau... etc 
+                
+                
     
     
 class AccelerateurParticule(Batiment):
@@ -294,6 +318,10 @@ class Vaisseau():
         self.angle_cible = 0
         self.arriver = {"Etoile": self.arriver_etoile,
                         "Porte_de_vers": self.arriver_porte}
+        
+        self.niveau = 1 #ajout de niveau du vaisseau
+        
+        self.pdv = 100 * self.niveau #ajout de point de vie du vaisseau
         
         
         
