@@ -13,11 +13,11 @@ from orion_vue import *
 
 class Controleur():
     def __init__(self):
-        self.mon_nom = self.generer_nom()  # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
-        self.joueur_createur = 0  # 1 quand un joueur "Créer une partie", peut Demarrer la partie
-        self.cadrejeu = 0  # compte les tours dans la boucle de jeu (bouclersurjeu)
+        self.mon_nom: str = self.generer_nom()  # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
+        self.joueur_createur: int = 0  # 1 quand un joueur "Créer une partie", peut Demarrer la partie
+        self.cadrejeu: int = 0  # compte les tours dans la boucle de jeu (bouclersurjeu)
         self.actionsrequises = []  # les actions envoyées au serveur
-        self.joueurs = []  # liste des noms de joueurs pour le lobby
+        self.joueurs: list[str] = []  # liste des noms de joueurs pour le lobby
 
         self.prochainsplash = None  # requis pour sortir de cette boucle et passer au lobby du jeu
         self.onjoue = 1  # indicateur que le jeu se poursuive - sinon on attend qu'un autre joueur nous rattrape
