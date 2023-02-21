@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from this import d
 
 
 class Ressource(dict):
@@ -38,11 +39,20 @@ class Ressource(dict):
 
     def __sub__(self, other: Ressource | dict[str, int]) -> Ressource:
         """Soustrait deux ressources"""
-        
+       
         return Ressource(
             self['pierre'] - other['pierre'],
             self['metal'] - other['metal'],
             self['energie'] - other['energie']
+        )
+        
+    def __mul__(self, other: int) -> Ressource: 
+        """Multiplie les ressources"""
+        
+        return Ressource(
+            self['pierre'] * other,
+            self['metal'] * other,
+            self['energie'] * other
         )
 
 
@@ -76,9 +86,9 @@ if __name__ == '__main__':
     print(r1 + r2)
     print(r1 - r2)
     
-    r = Ressource(10, 20, 30)
+    r = Ressource(10, 20, 30) * 5
     
-    Artefact.activate_bonus(r)
+
     print(r)
 
 

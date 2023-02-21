@@ -5,6 +5,9 @@ import random
 import ast
 from id import *
 from helper import Helper as hlp
+from __future__ import annotations
+
+from modeles import Ressource
 
 
 class Porte_de_vers():
@@ -36,31 +39,42 @@ class Trou_de_vers():
         self.porte_b.jouer_prochain_coup()
 
 
-class Etoile():
-    def __init__(self, parent, x, y):
-        self.id = get_prochain_id()
+
+class Astre():
+    def __init__(self, parent: Modele, x: int, y: int, taille: int):
+        self.id: int = get_prochain_id()
         self.parent = parent
-        self.proprietaire = ""
         self.x = x
-        self.y = y
-        self.taille = random.randrange(4, 8)
-        self.ressources = {"metal": 1000,
-                           "energie": 10000,
-                           "existentielle": 100}
+        self.x = y
+        self.taille = taille
+    
+    
+class Etoile(Astre):
+    def __init__(self, parent: Modele, x: int, y: int):
+        super().__init__(parent, x, y, random.randrange(4, 8))
+        self.ressources: Ressource(
+            random.randint(100, 500), 
+            random.randint(100, 500), 
+            random.randint(100, 500)
+            ) * self.taille
+        
+class Nuage(Astre):
+    def __init__(self, parent: Modele, x: int, y: int):
+        super().__init__(parent, x, y, random.randrange(12, 8))
 
 
 class Vaisseau():
-    def __init__(self, parent, nom, x, y):
+    def __init__(self, parent: Joueur, nom: str, x: int , y: int):
         self.parent = parent
-        self.id = get_prochain_id()
+        self.id: int = get_prochain_id()
         self.proprietaire = nom
         self.x = x
         self.y = y
-        self.espace_cargo = 0
-        self.energie = 100
-        self.taille = 5
-        self.vitesse = 2
-        self.cible = 0
+        self.espace_cargo: int = 0
+        self.energie: int = 100
+        self.taille: int = 5
+        self.vitesse: int = 2
+        self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
         self.arriver = {"Etoile": self.arriver_etoile,
