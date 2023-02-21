@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 ##  version 2022 14 mars - jmd
+from __future__ import annotations
 
 import random
 import ast
 from id import *
 from helper import Helper as hlp
-from __future__ import annotations
+
 
 from modeles import Ressource
 
@@ -45,13 +46,14 @@ class Astre():
         self.id: int = get_prochain_id()
         self.parent = parent
         self.x = x
-        self.x = y
+        self.y = y
         self.taille = taille
     
     
 class Etoile(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(4, 8))
+        self.proprietaire: str = ""
         self.ressources: Ressource(
             random.randint(100, 500), 
             random.randint(100, 500), 
@@ -60,7 +62,7 @@ class Etoile(Astre):
         
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
-        super().__init__(parent, x, y, random.randrange(12, 8))
+        super().__init__(parent, x, y, random.randint(12, 20))
 
 
 class Vaisseau():
