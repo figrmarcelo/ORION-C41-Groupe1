@@ -517,6 +517,7 @@ class Vue():
                 if t[2] == "Etoile":
                     print(t[2])
                     print(self.ma_selection[1]) # get la planete selectionee
+                    print(self.modele.getEtoileById(self.ma_selection[1]))
                     self.montrer_etoile_selection()
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
@@ -531,6 +532,7 @@ class Vue():
             self.canevas.delete("marqueur")
             self.levelUp.pack_forget()
             self.cadreinfochoix.pack_forget()
+            self.batiment.pack_forget()
             self.cadreinfoglobale.pack()
 
     def montrer_etoile_selection(self):

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 ##  version 2022 14 mars - jmd
-
+from __future__ import annotations
 import random
 import ast
 from id import *
 from helper import Helper as hlp
-from __future__ import annotations
+
 
 from modeles import Ressource
 
@@ -45,18 +45,23 @@ class Astre():
         self.id: int = get_prochain_id()
         self.parent = parent
         self.x = x
-        self.x = y
+        self.y = y
         self.taille = taille
+
+    def getId(self):
+        return self.id
     
     
 class Etoile(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(4, 8))
-        self.ressources: Ressource(
-            random.randint(100, 500), 
-            random.randint(100, 500), 
+        self.proprietaire: str = ""
+        self.ressources: Ressource = Ressource(
+            random.randint(100, 500),
+            random.randint(100, 500),
             random.randint(100, 500)
             ) * self.taille
+
         
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
@@ -247,6 +252,13 @@ class Modele():
         self.creeretoiles(joueurs, 1)
         nb_trou = int((self.hauteur * self.largeur) / 5000000)
         self.creer_troudevers(nb_trou)
+
+    def getEtoileById(self, id):
+        for i in range(len(self.etoiles)):
+            if id == self.etoiles[i].getId():
+                return self.etoiles[i].ressources
+
+
 
     def creer_troudevers(self, n):
         bordure = 10

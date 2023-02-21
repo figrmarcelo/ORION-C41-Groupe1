@@ -55,6 +55,8 @@ class Ressource(dict):
             self['energie'] * other
         )
 
+    def get(self):
+        return self.get('Pierre')
 
 class Artefact:
     liste_bonus: Ressource = Ressource(
