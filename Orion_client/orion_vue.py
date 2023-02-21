@@ -144,6 +144,10 @@ class Vue():
         self.creer_cadre_outils()
 
         self.cadrejeu.pack(side=LEFT, expand=1, fill=BOTH)
+
+        self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu)
+        self.cadreinfoglobale.grid(row=1, sticky="nsew")
+
         return self.cadrepartie
 
     def creer_cadre_outils(self):
@@ -162,8 +166,7 @@ class Vue():
         self.btnmini.bind("<Button>", self.afficher_mini)
         self.btnmini.pack()
 
-        self.cadreinfoglobale = self.afficher_info_generales(self.cadreoutils)
-        self.cadreinfoglobale.pack()
+
 
         self.batiment = self.afficher_batiments(self.cadreoutils)
 
@@ -203,23 +206,23 @@ class Vue():
         self.canevas.bind("<Shift-Button-3>", self.calc_objets)
 
     def afficher_info_generales(self, source):
-        frame = Frame(source, width=200, height=200, bg="darkgrey")
+        frame = Frame(source, width=400, height=30, bg="black")
 
         labelNiveau = Label(frame, text="Niveau : 0", bg="darkgrey")
         labelExp = Label(frame, text="0 XP", bg="darkgrey")
-        labelMetal = Label(frame, text="Metal : 0", bg="darkgrey")
-        labelRoche = Label(frame, text="Roche : 0", bg="darkgrey")
-        labelEnergie = Label(frame, text="Energie : 0", bg="darkgrey")
+        labelMetal = Label(frame, text="Me : 0", bg="darkgrey")
+        labelRoche = Label(frame, text="Ro : 0", bg="darkgrey")
+        labelEnergie = Label(frame, text="En : 0", bg="darkgrey")
         labelPlanetes = Label(frame, text="Planete conquise : 0", bg="darkgrey")
         labelNbVaisseau = Label(frame, text="Vaisseau : 0", bg="darkgrey")
 
-        labelNiveau.place(relx=.5, rely=.05, anchor="center")
-        labelExp.place(relx=.5, rely=.15, anchor="center")
-        labelMetal.place(relx=.1, rely=.25)
-        labelRoche.place(relx=.1, rely=.35)
-        labelEnergie.place(relx=.1, rely=.45)
-        labelPlanetes.place(relx=.1, rely=.65)
-        labelNbVaisseau.place(relx=.1, rely=.75)
+        labelNiveau.place(relx=.05, rely=.5, anchor="center")
+        labelExp.place(relx=.15, rely=.5, anchor="center")
+        labelMetal.place(relx=.35, rely=.5, anchor="center")
+        labelRoche.place(relx=.4, rely=.5, anchor="center")
+        labelEnergie.place(relx=.45, rely=.5, anchor="center")
+        labelPlanetes.place(relx=.75, rely=.5, anchor="center")
+        labelNbVaisseau.place(relx=.9, rely=.5, anchor="center")
 
         return frame
 
@@ -533,11 +536,10 @@ class Vue():
             self.levelUp.pack_forget()
             self.cadreinfochoix.pack_forget()
             self.batiment.pack_forget()
-            self.cadreinfoglobale.pack()
+            
 
     def montrer_etoile_selection(self):
         self.cadreinfochoix.pack(fill=BOTH)
-        self.cadreinfoglobale.pack_forget()
         self.batiment.pack()
         self.levelUp.pack(pady=5)
 
