@@ -239,7 +239,7 @@ class CentreRecherche(Batiment):
     def upgrade(self, batiment, ressourceUpgrade):
         if batiment.proprietaire == self.proprietaire:
             if self.proprietaire.ressource["metal"] >= ressourceUpgrade["metal"] & self.proprietaire.ressource["pierre"] >= ressourceUpgrade["pierre"]:
-                pass #upgrade batiment.niveau... etc 
+                pass #upgrade batiment.niveau... etc
                 
                 
     
