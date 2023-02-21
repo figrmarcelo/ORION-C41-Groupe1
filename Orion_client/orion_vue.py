@@ -165,6 +165,8 @@ class Vue():
         self.cadreinfoglobale = self.afficher_info_generales(self.cadreoutils)
         self.cadreinfoglobale.pack()
 
+        self.batiment = self.afficher_batiments(self.cadreoutils)
+
         self.levelUp = self.afficher_level_up(self.cadreoutils)
 
         self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
@@ -223,11 +225,32 @@ class Vue():
 
     def afficher_level_up (self, source):
         frame = Frame(source, width=100, height=50, bg="darkgrey")
-        up = Button(frame, text="LEVEL UP", width=50, height=25)
+        up = Button(frame, text="LEVEL UP", width=50, height=3)
         up.place(anchor="center", rely=.5, relx=.5)
 
         return frame
 
+    def afficher_batiments(self, source):
+        frame = Frame(source, width=200, height=200, bg="darkgrey")
+
+        mine = Button(frame, text="Mine", width=6, height=2)
+        centrale = Button(frame, text="Centrale", width=6, height=2)
+        usine = Button(frame, text="Usine", width=6, height=2)
+        canon = Button(frame, text="Canon", width=6, height=2)
+        balise = Button(frame, text="Balise", width=6, height=2)
+        centreRecherche = Button(frame, text="CdR", width=6, height=2)
+
+        titre = Label(frame, text="BATIMENTS", bg="darkgrey")
+        titre.place(anchor="center", rely=.1, relx=.5)
+
+        mine.place(anchor="center", relx=.3, rely=.35)
+        centrale.place(anchor="center", relx=.7, rely=.35)
+        usine.place(anchor="center", relx=.3, rely=.60)
+        canon.place(anchor="center", relx=.7, rely=.60)
+        balise.place(anchor="center", relx=.3, rely=.85)
+        centreRecherche.place(anchor="center", relx=.7, rely=.85)
+
+        return frame
 
     def connecter_serveur(self):
         self.btninscrirejoueur.config(state=NORMAL)
@@ -493,6 +516,7 @@ class Vue():
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile":
                     print(t[2])
+                    print(self.ma_selection[1]) # get la planete selectionee
                     self.montrer_etoile_selection()
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
@@ -512,7 +536,8 @@ class Vue():
     def montrer_etoile_selection(self):
         self.cadreinfochoix.pack(fill=BOTH)
         self.cadreinfoglobale.pack_forget()
-        self.levelUp.pack(pady=50)
+        self.batiment.pack()
+        self.levelUp.pack(pady=5)
 
 
     def montrer_flotte_selection(self):
