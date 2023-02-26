@@ -114,7 +114,7 @@ class Vue():
         self.cadrepartie = Frame(self.cadre_app, width=600, height=200, bg="yellow")
         self.cadrejeu = Frame(self.cadrepartie, width=600, height=200, bg="teal")
 
-        self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL)
+        self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL, bg="grey11")
         self.scrollY = Scrollbar(self.cadrejeu, orient=VERTICAL)
         self.canevas = Canvas(self.cadrejeu, width=800, height=600,
                               xscrollcommand=self.scrollX.set,
@@ -146,7 +146,7 @@ class Vue():
         self.cadrejeu.pack(side=LEFT, expand=1, fill=BOTH)
 
         self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu)
-        self.cadreinfoglobale.grid(row=1, sticky="nsew")
+        self.cadreinfoglobale.grid(row=2, sticky="nsew")
 
         return self.cadrepartie
 
@@ -162,11 +162,6 @@ class Vue():
         self.labid = Label(self.cadreinfogen, text="Inconnu")
         self.labid.bind("<Button>", self.centrer_planemetemere)
         self.labid.pack()
-        self.btnmini = Button(self.cadreinfogen, text="MINI")
-        self.btnmini.bind("<Button>", self.afficher_mini)
-        self.btnmini.pack()
-
-
 
         self.batiment = self.afficher_batiments(self.cadreoutils)
 
@@ -196,7 +191,8 @@ class Vue():
 
         self.cadreminimap = Frame(self.cadreoutils, height=200, width=200, bg="black")
         self.canevas_minimap = Canvas(self.cadreminimap, width=self.taille_minimap, height=self.taille_minimap,
-                                      bg="pink")
+                                      bg="black")
+
         self.canevas_minimap.bind("<Button>", self.positionner_minicanevas)
         self.canevas_minimap.pack()
         self.cadreminimap.pack(side=BOTTOM)
@@ -206,21 +202,21 @@ class Vue():
         self.canevas.bind("<Shift-Button-3>", self.calc_objets)
 
     def afficher_info_generales(self, source):
-        frame = Frame(source, width=400, height=30, bg="black")
+        frame = Frame(source, width=400, height=30, bg="grey11")
 
-        labelNiveau = Label(frame, text="Niveau : 0", bg="darkgrey")
-        labelExp = Label(frame, text="0 XP", bg="darkgrey")
-        labelMetal = Label(frame, text="Me : 0", bg="darkgrey")
-        labelRoche = Label(frame, text="Ro : 0", bg="darkgrey")
-        labelEnergie = Label(frame, text="En : 0", bg="darkgrey")
-        labelPlanetes = Label(frame, text="Planete conquise : 0", bg="darkgrey")
-        labelNbVaisseau = Label(frame, text="Vaisseau : 0", bg="darkgrey")
+        labelNiveau = Label(frame, text="Niveau : 0", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelExp = Label(frame, text="0 XP", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelMetal = Label(frame, text="Me : 0", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelRoche = Label(frame, text="Ro : 0", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelEnergie = Label(frame, text="En : 0", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelPlanetes = Label(frame, text="Planete conquise : 0", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelNbVaisseau = Label(frame, text="Vaisseau : 0", bg="grey11", fg="green", font='helvetica 10 bold')
 
         labelNiveau.place(relx=.05, rely=.5, anchor="center")
         labelExp.place(relx=.15, rely=.5, anchor="center")
         labelMetal.place(relx=.35, rely=.5, anchor="center")
-        labelRoche.place(relx=.4, rely=.5, anchor="center")
-        labelEnergie.place(relx=.45, rely=.5, anchor="center")
+        labelRoche.place(relx=.45, rely=.5, anchor="center")
+        labelEnergie.place(relx=.55, rely=.5, anchor="center")
         labelPlanetes.place(relx=.75, rely=.5, anchor="center")
         labelNbVaisseau.place(relx=.9, rely=.5, anchor="center")
 
@@ -254,6 +250,9 @@ class Vue():
         centreRecherche.place(anchor="center", relx=.7, rely=.85)
 
         return frame
+
+    def afficher_ressources_planete(self, res):
+        pass
 
     def connecter_serveur(self):
         self.btninscrirejoueur.config(state=NORMAL)
@@ -359,6 +358,8 @@ class Vue():
         xl = self.canevas.winfo_width()
         yl = self.canevas.winfo_height()
 
+
+
     def afficher_decor(self, mod):
         # on cree un arriere fond de petites etoieles NPC pour le look
         for i in range(len(mod.etoiles) * 50):
@@ -383,25 +384,26 @@ class Vue():
                 # on affiche dans minimap
                 minix = j.x / self.modele.largeur * self.taille_minimap
                 miniy = j.y / self.modele.hauteur * self.taille_minimap
-                self.canevas_minimap.create_rectangle(minix, miniy, minix + 3, miniy + 3,
-                                                      fill=mod.joueurs[i].couleur,
+                self.canevas_minimap.create_rectangle(minix, miniy, minix + 5, miniy + 5,
+                                                      fill=mod.joueurs[i].couleur, outline=mod.joueurs[i].couleur,
                                                       tags=(j.proprietaire, str(j.id), "Etoile"))
 
-    def afficher_mini(self, evt):  # univers(self, mod):
+
+    def afficher_mini(self):  # univers(self, mod):
         self.canevas_minimap.delete("mini")
         for j in self.modele.etoiles:
             minix = j.x / self.modele.largeur * self.taille_minimap
             miniy = j.y / self.modele.hauteur * self.taille_minimap
             self.canevas_minimap.create_rectangle(minix, miniy, minix + 0, miniy + 0,
-                                                  fill="black",
-                                                  tags=("mini", "Etoile"))
+                                                   fill="yellow", outline="white",
+                                                   tags=("mini", "Etoile"))
         # # affichage des etoiles possedees par les joueurs
-        # for i in mod.joueurs.keys():
-        #     for j in mod.joueurs[i].etoilescontrolees:
-        #         t = j.taille * self.zoom
-        #         self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
-        #                                  fill=mod.joueurs[i].couleur,
-        #                                  tags=(j.proprietaire, str(j.id),  "Etoile"))
+        #for i in mod.joueurs.keys():
+        #   for j in mod.joueurs[i].etoilescontrolees:
+        #        t = j.taille * self.zoom
+        #        self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
+        #                                 fill=mod.joueurs[i].couleur,
+        #                                 tags=(j.proprietaire, str(j.id),  "Etoile"))
 
     def centrer_planemetemere(self, evt):
         self.centrer_objet(self.modele.joueurs[self.mon_nom].etoilemere)
@@ -443,6 +445,7 @@ class Vue():
         mod = self.modele
         self.canevas.delete("artefact")
         self.canevas.delete("objet_spatial")
+        self.afficher_mini()
 
         if self.ma_selection != None:
             joueur = mod.joueurs[self.ma_selection[0]]
@@ -494,6 +497,9 @@ class Vue():
                 self.canevas.create_oval(i.x - i.pulse, i.y - i.pulse,
                                          i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2, fill="grey15",
                                          tags=("", i.id, "Porte_de_ver", "objet_spatial"))
+
+
+
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom

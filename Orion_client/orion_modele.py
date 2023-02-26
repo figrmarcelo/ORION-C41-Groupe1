@@ -56,7 +56,7 @@ class Etoile(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(4, 8))
         self.proprietaire: str = ""
-        self.ressources: Ressource = Ressource(
+        self.ressources = Ressource(
             random.randint(100, 500),
             random.randint(100, 500),
             random.randint(100, 500)
