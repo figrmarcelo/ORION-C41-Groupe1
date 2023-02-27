@@ -62,6 +62,9 @@ class Etoile(Astre):
             random.randint(100, 500)
             ) * self.taille
 
+    def getRessources(self):
+        return self.ressources.get()
+
         
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
@@ -256,7 +259,7 @@ class Modele():
     def getEtoileById(self, id):
         for i in range(len(self.etoiles)):
             if id == self.etoiles[i].getId():
-                return self.etoiles[i].ressources
+                return self.etoiles[i]
 
 
 
