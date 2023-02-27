@@ -250,8 +250,8 @@ class Modele():
         self.nb_etoiles = int((self.hauteur * self.largeur) / 500000)
         self.joueurs = {}
         self.actions_a_faire = {}
-        self.etoiles = []
-        self.nuages = []
+        self.etoiles: list[Etoile] = []
+        self.nuages: list[Nuage] = []
         self.trou_de_vers = []
         self.cadre_courant = None
         self.creeretoiles(joueurs, 1)
@@ -297,15 +297,13 @@ class Modele():
         couleurs = ["red", "blue", "lightgreen", "yellow",
                     "lightblue", "pink", "gold", "purple"]
         for i in joueurs:
-            etoile = etoile_occupee.pop(0)
+            etoile: Etoile = etoile_occupee.pop(0)
             self.joueurs[i] = Joueur(self, i, etoile, couleurs.pop(0))
-            x = etoile.x
-            y = etoile.y
+            etoile.proprietaire = i
             dist = 500
-            for e in range(5):
-                x1 = random.randrange(x - dist, x + dist)
-                y1 = random.randrange(y - dist, y + dist)
-                self.etoiles.append(Etoile(self, x1, y1))
+            x1 = random.randrange(x - dist, etoile.x + dist)
+            y1 = random.randrange(y - dist, etoile.y + dist)
+            self.etoiles.append(Etoile(self, x1, y1))
 
         # IA- creation des ias
         couleursia = ["orange", "green", "cyan",

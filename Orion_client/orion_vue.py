@@ -461,7 +461,7 @@ class Vue():
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
-        a = obj.ang
+        a = obj.ange_cible
         x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
         self.canevas.create_oval((obj.x - tailleF), (obj.y - tailleF),
@@ -483,6 +483,7 @@ class Vue():
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile":
                     self.montrer_etoile_selection()
+                
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
