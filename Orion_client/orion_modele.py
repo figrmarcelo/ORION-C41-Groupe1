@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-##  version 2022 14 mars - jmd
+# version 2022 14 mars - jmd
 from __future__ import annotations
 
 import random
@@ -18,7 +18,7 @@ class Astre():
         self.x = x
         self.y = y
         self.taille = taille
-       
+
 
 class PorteDeVers(Astre):
     def __init__(self, parent, x: int, y: int, couleur: str, taille: str):
@@ -38,24 +38,26 @@ class TrouDeVers():
         taille = random.randrange(6, 20)
         self.porte_a = PorteDeVers(self, x1, y1, "red", taille)
         self.porte_b = PorteDeVers(self, x2, y2, "orange", taille)
-        self.liste_transit = []  # pour mettre les vaisseaux qui ne sont plus dans l'espace mais maintenant l'hyper-espace
+        # pour mettre les vaisseaux qui ne sont plus dans l'espace
+        # mais maintenant l'hyper-espace
+        self.liste_transit = []
 
     def jouer_prochain_coup(self) -> None:
         self.porte_a.jouer_prochain_coup()
         self.porte_b.jouer_prochain_coup()
 
-  
+
 class Etoile(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(4, 8))
         self.proprietaire: str = ""
         self.ressources: Ressource = Ressource(
-            random.randint(100, 500), 
-            random.randint(100, 500), 
+            random.randint(100, 500),
+            random.randint(100, 500),
             random.randint(100, 500)
-            ) * self.taille
+        ) * self.taille
 
-       
+
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randint(20, 40))
@@ -63,21 +65,24 @@ class Nuage(Astre):
 
 
 class Vaisseau():
-    def __init__(self, parent: Joueur, nom: str, x: int , y: int):
+    def __init__(self, parent: Joueur, nom: str, x: int, y: int,
+                 energie: int = 100, taille: int = 5, vitesse: int = 2):
         self.parent = parent
         self.id: int = get_prochain_id()
         self.proprietaire = nom
         self.x = x
         self.y = y
-        self.espace_cargo: int = 0
-        self.energie: int = 100
-        self.taille: int = 5
-        self.vitesse: int = 2
+        self.energie = energie
+        self.taille: int = taille
+        self.vitesse: int = vitesse
         self.cible: int = 0
-        self.type_cible = None
-        self.angle_cible = 0
-        self.arriver = {"Etoile": self.arriver_etoile,
-                        "Porte_de_vers": self.arriver_porte}
+        self.type_cible: str = None
+        self.angle_cible: float = 0
+        self.arriver: dict[str, callable] = {
+            "Etoile": self.arriver_etoile,
+            "Porte_de_vers": self.arriver_porte
+        }
+        
 
     def jouer_prochain_coup(self, trouver_nouveau=0) -> None:
         if self.cible != 0:
@@ -89,13 +94,15 @@ class Vaisseau():
     def acquerir_cible(self, cible, type_cible) -> None:
         self.type_cible = type_cible
         self.cible = cible
-        self.angle_cible = hlp.calcAngle(self.x, self.y, self.cible.x, self.cible.y)
+        self.angle_cible = hlp.calcAngle(
+            self.x, self.y, self.cible.x, self.cible.y)
 
     def avancer(self) -> list:
         if self.cible != 0:
             x = self.cible.x
             y = self.cible.y
-            self.x, self.y = hlp.getAngledPoint(self.angle_cible, self.vitesse, self.x, self.y)
+            self.x, self.y = hlp.getAngledPoint(
+                self.angle_cible, self.vitesse, self.x, self.y)
             if hlp.calcDistance(self.x, self.y, x, y) <= self.vitesse:
                 type_obj = type(self.cible).__name__
                 rep = self.arriver[type_obj]()
@@ -103,7 +110,9 @@ class Vaisseau():
 
     def arriver_etoile(self) -> list[str, int]:
         self.parent.log.append(
-            ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
+            ["Arrive:", self.parent.parent.cadre_courant,
+             "Etoile", self.id, self.cible.id, self.cible.proprietaire]
+        )
         if not self.cible.proprietaire:
             self.cible.proprietaire = self.proprietaire
         cible = self.cible
@@ -111,7 +120,10 @@ class Vaisseau():
         return ["Etoile", cible]
 
     def arriver_porte(self) -> list[str, int]:
-        self.parent.log.append(["Arrive:", self.parent.parent.cadre_courant, "Porte", self.id, self.cible.id, ])
+        self.parent.log.append(
+            ["Arrive:", self.parent.parent.cadre_courant,
+             "Porte", self.id, self.cible.id, ]
+        )
         cible = self.cible
         trou = cible.parent
         if cible == trou.porte_a:
@@ -125,15 +137,9 @@ class Vaisseau():
 
 
 class Cargo(Vaisseau):
-    def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
-        self.cargo = 1000
-        self.energie = 500
-        self.taille = 6
-        self.vitesse = 1
-        self.cible = 0
-        self.ang = 0
-
+    def __init__(self, parent: Joueur, nom: str, x: int, y: int):
+        super().__init__(parent, nom, x, y, 500, 6, 1)
+        self.espace = 1000
 
 class Joueur():
     def __init__(self, parent, nom, etoilemere, couleur):
@@ -145,17 +151,22 @@ class Joueur():
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees = [etoilemere]
-        self.flotte = {"Vaisseau": {},
-                       "Cargo": {}}
+        self.flotte = {
+            "Vaisseau": {},
+            "Cargo": {},
+            "Starfigther":{}
+            }
         self.actions = {"creervaisseau": self.creervaisseau,
                         "ciblerflotte": self.ciblerflotte}
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
         if type_vaisseau == "Cargo":
-            v = Cargo(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+            v = Cargo(self, self.nom, self.etoilemere.x +
+                      10, self.etoilemere.y)
         else:
-            v = Vaisseau(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+            v = Vaisseau(self, self.nom, self.etoilemere.x +
+                         10, self.etoilemere.y)
         self.flotte[type_vaisseau][v.id] = v
 
         if self.nom == self.parent.parent.mon_nom:
@@ -225,7 +236,8 @@ class IA(Joueur):
             v = self.creervaisseau(["Vaisseau"])
             cible = random.choice(self.parent.etoiles)
             v.acquerir_cible(cible, "Etoile")
-            self.cooldown = random.randrange(self.cooldownmax) + self.cooldownmax
+            self.cooldown = random.randrange(
+                self.cooldownmax) + self.cooldownmax
         else:
             self.cooldown -= 1
 
@@ -261,12 +273,12 @@ class Modele():
         for i in range(100):
             for j in range(len(self.etoiles)):
                 x = random.randrange(self.largeur - (2 * bordure)) + bordure
-                y = random.randrange(self.hauteur - (2 * bordure)) + bordure  
+                y = random.randrange(self.hauteur - (2 * bordure)) + bordure
                 if x == self.etoiles[j].x and y == self.etoiles[j].y:
                     j = 0
- 
+
             self.nuages.append(Nuage(self, x, y))
-    
+
     def creeretoiles(self, joueurs, ias=0):
         bordure = 10
         for i in range(self.nb_etoiles):
@@ -299,7 +311,8 @@ class Modele():
         couleursia = ["orange", "green", "cyan",
                       "SeaGreen1", "turquoise1", "firebrick1"]
         for i in range(ias):
-            self.joueurs["IA_" + str(i)] = IA(self, "IA_" + str(i), etoile_occupee.pop(0), couleursia.pop(0))
+            self.joueurs["IA_" + str(i)] = IA(self, "IA_" +
+                                              str(i), etoile_occupee.pop(0), couleursia.pop(0))
 
     ##############################################################################
     def jouer_prochain_coup(self, cadre):

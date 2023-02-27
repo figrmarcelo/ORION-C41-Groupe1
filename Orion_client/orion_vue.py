@@ -4,6 +4,7 @@
 from tkinter import *
 from tkinter.simpledialog import *
 from tkinter.messagebox import *
+from orion_modele import Astre
 from helper import Helper as hlp
 import math
 
@@ -285,7 +286,10 @@ class Vue():
         self.afficher_decor(modele)
 
     ####################################################################################################
-    def afficher_astres(self, astres, nom: str, color=None, outline=None):
+    def afficher_astres(self, astres: Astre, nom: str, 
+                        color: str=None, outline: str=None):
+        
+        """Affiche les astres dans le décor"""
         for i in astres:
             color = i.couleur if not color else color
             outline = i.couleur if not color else outline
