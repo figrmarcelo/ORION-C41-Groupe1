@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-##  version 2022 14 mars - jmd
+# version 2022 14 mars - jmd
 
 from tkinter import *
 from tkinter.simpledialog import *
@@ -20,12 +20,14 @@ class Vue():
         self.root.title("Je suis " + mon_nom)
         self.mon_nom = mon_nom
         # attributs
-        self.taille_minimap = 240
-        self.zoom = 2
+        self.taille_minimap: int = 240
+        self.zoom: int = 2
         self.ma_selection = None
         self.cadre_actif = None
         # cadre principal de l'application
-        self.cadre_app = Frame(self.root, width=500, height=400, bg="red")
+        self.cadre_app: Frame = Frame(
+            self.root, width=500, height=400, bg="red")
+
         self.cadre_app.pack(expand=1, fill=BOTH)
         # # un dictionnaire pour conserver les divers cadres du jeu, creer plus bas
         self.cadres = {}
@@ -45,7 +47,7 @@ class Vue():
         if rep:
             self.root.after(500, self.root.destroy)
 
-    ####### INTERFACES GRAPHIQUES
+    # INTERFACES GRAPHIQUES
     def changer_cadre(self, nomcadre):
         cadre = self.cadres[nomcadre]
         if self.cadre_actif:
@@ -55,7 +57,8 @@ class Vue():
 
     ###### LES CADRES ############################################################################################
     def creer_cadres(self, urlserveur, mon_nom, msg_initial):
-        self.cadres["splash"] = self.creer_cadre_splash(urlserveur, mon_nom, msg_initial)
+        self.cadres["splash"] = self.creer_cadre_splash(
+            urlserveur, mon_nom, msg_initial)
         self.cadres["lobby"] = self.creer_cadre_lobby()
         self.cadres["partie"] = self.creer_cadre_partie()
 
@@ -64,58 +67,75 @@ class Vue():
     def creer_cadre_splash(self, urlserveur, mon_nom, msg_initial):
         self.cadre_splash = Frame(self.cadre_app)
         # un canvas est utilisé pour 'dessiner' les widgets de cette fenêtre voir 'create_window' plus bas
-        self.canevas_splash = Canvas(self.cadre_splash, width=600, height=480, bg="pink")
+        self.canevas_splash = Canvas(
+            self.cadre_splash, width=600, height=480, bg="pink")
         self.canevas_splash.pack()
 
         # creation ds divers widgets (champ de texte 'Entry' et boutons cliquables (Button)
-        self.etatdujeu = Label(text=msg_initial, font=("Arial", 18), borderwidth=2, relief=RIDGE)
+        self.etatdujeu = Label(text=msg_initial, font=(
+            "Arial", 18), borderwidth=2, relief=RIDGE)
         self.nomsplash = Entry(font=("Arial", 14))
         self.urlsplash = Entry(font=("Arial", 14), width=42)
-        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur)
+        self.btnurlconnect = Button(text="Connecter", font=(
+            "Arial", 12), command=self.connecter_serveur)
         # on insère les infos par défaut (nom url) et reçu au démarrage (dispo)
         self.nomsplash.insert(0, mon_nom)
         self.urlsplash.insert(0, urlserveur)
         # on les place sur le canevas_splash
-        self.canevas_splash.create_window(320, 100, window=self.etatdujeu, width=400, height=30)
-        self.canevas_splash.create_window(320, 200, window=self.nomsplash, width=400, height=30)
-        self.canevas_splash.create_window(210, 250, window=self.urlsplash, width=360, height=30)
-        self.canevas_splash.create_window(480, 250, window=self.btnurlconnect, width=100, height=30)
+        self.canevas_splash.create_window(
+            320, 100, window=self.etatdujeu, width=400, height=30)
+        self.canevas_splash.create_window(
+            320, 200, window=self.nomsplash, width=400, height=30)
+        self.canevas_splash.create_window(
+            210, 250, window=self.urlsplash, width=360, height=30)
+        self.canevas_splash.create_window(
+            480, 250, window=self.btnurlconnect, width=100, height=30)
         # les boutons d'actions
-        self.btncreerpartie = Button(text="Creer partie", font=("Arial", 12), state=DISABLED, command=self.creer_partie)
+        self.btncreerpartie = Button(text="Creer partie", font=(
+            "Arial", 12), state=DISABLED, command=self.creer_partie)
         self.btninscrirejoueur = Button(text="Inscrire joueur", font=("Arial", 12), state=DISABLED,
                                         command=self.inscrire_joueur)
         self.btnreset = Button(text="Reinitialiser partie", font=("Arial", 9), state=DISABLED,
                                command=self.reset_partie)
 
         # on place les autres boutons
-        self.canevas_splash.create_window(420, 350, window=self.btncreerpartie, width=200, height=30)
-        self.canevas_splash.create_window(420, 400, window=self.btninscrirejoueur, width=200, height=30)
-        self.canevas_splash.create_window(420, 450, window=self.btnreset, width=200, height=30)
+        self.canevas_splash.create_window(
+            420, 350, window=self.btncreerpartie, width=200, height=30)
+        self.canevas_splash.create_window(
+            420, 400, window=self.btninscrirejoueur, width=200, height=30)
+        self.canevas_splash.create_window(
+            420, 450, window=self.btnreset, width=200, height=30)
 
         # on retourne ce cadre pour l'insérer dans le dictionnaires des cadres
         return self.cadre_splash
 
-    ######## le lobby (où on attend les inscriptions)
+    # le lobby (où on attend les inscriptions)
     def creer_cadre_lobby(self):
         # le cadre lobby, pour isncription des autres joueurs, remplace le splash
         self.cadrelobby = Frame(self.cadre_app)
-        self.canevaslobby = Canvas(self.cadrelobby, width=640, height=480, bg="lightblue")
+        self.canevaslobby = Canvas(
+            self.cadrelobby, width=640, height=480, bg="lightblue")
         self.canevaslobby.pack()
         # widgets du lobby
         # un listbox pour afficher les joueurs inscrit pour la partie à lancer
         self.listelobby = Listbox(borderwidth=2, relief=GROOVE)
 
         # bouton pour lancer la partie, uniquement accessible à celui qui a creer la partie dans le splash
-        self.btnlancerpartie = Button(text="Lancer partie", state=DISABLED, command=self.lancer_partie)
+        self.btnlancerpartie = Button(
+            text="Lancer partie", state=DISABLED, command=self.lancer_partie)
         # affichage des widgets dans le canevaslobby (similaire au splash)
-        self.canevaslobby.create_window(440, 240, window=self.listelobby, width=200, height=400)
-        self.canevaslobby.create_window(200, 400, window=self.btnlancerpartie, width=100, height=30)
+        self.canevaslobby.create_window(
+            440, 240, window=self.listelobby, width=200, height=400)
+        self.canevaslobby.create_window(
+            200, 400, window=self.btnlancerpartie, width=100, height=30)
         # on retourne ce cadre pour l'insérer dans le dictionnaires des cadres
         return self.cadrelobby
 
     def creer_cadre_partie(self):
-        self.cadrepartie = Frame(self.cadre_app, width=600, height=200, bg="yellow")
-        self.cadrejeu = Frame(self.cadrepartie, width=600, height=200, bg="teal")
+        self.cadrepartie = Frame(
+            self.cadre_app, width=600, height=200, bg="yellow")
+        self.cadrejeu = Frame(self.cadrepartie, width=600,
+                              height=200, bg="teal")
 
         self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL)
         self.scrollY = Scrollbar(self.cadrejeu, orient=VERTICAL)
@@ -138,7 +158,8 @@ class Vue():
         # faire une multiselection
         self.canevas.bind("<Shift-Button-1>", self.debuter_multiselection)
         self.canevas.bind("<Shift-B1-Motion>", self.afficher_multiselection)
-        self.canevas.bind("<Shift-ButtonRelease-1>", self.terminer_multiselection)
+        self.canevas.bind("<Shift-ButtonRelease-1>",
+                          self.terminer_multiselection)
 
         # scroll avec roulette
         self.canevas.bind("<MouseWheel>", self.defiler_vertical)
@@ -150,13 +171,16 @@ class Vue():
         return self.cadrepartie
 
     def creer_cadre_outils(self):
-        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="darkgrey")
+        self.cadreoutils = Frame(
+            self.cadrepartie, width=200, height=200, bg="darkgrey")
         self.cadreoutils.pack(side=LEFT, fill=Y)
 
-        self.cadreinfo = Frame(self.cadreoutils, width=200, height=200, bg="darkgrey")
+        self.cadreinfo = Frame(self.cadreoutils, width=200,
+                               height=200, bg="darkgrey")
         self.cadreinfo.pack(fill=BOTH)
 
-        self.cadreinfogen = Frame(self.cadreinfo, width=200, height=200, bg="grey50")
+        self.cadreinfogen = Frame(
+            self.cadreinfo, width=200, height=200, bg="grey50")
         self.cadreinfogen.pack(fill=BOTH)
         self.labid = Label(self.cadreinfogen, text="Inconnu")
         self.labid.bind("<Button>", self.centrer_planemetemere)
@@ -165,7 +189,8 @@ class Vue():
         self.btnmini.bind("<Button>", self.afficher_mini)
         self.btnmini.pack()
 
-        self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
+        self.cadreinfochoix = Frame(
+            self.cadreinfo, height=200, width=200, bg="grey30")
         self.btncreervaisseau = Button(self.cadreinfochoix, text="Vaisseau")
         self.btncreervaisseau.bind("<Button>", self.creer_vaisseau)
         self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
@@ -177,7 +202,8 @@ class Vue():
         self.cadreinfoliste = Frame(self.cadreinfo)
 
         self.scroll_liste_Y = Scrollbar(self.cadreinfoliste, orient=VERTICAL)
-        self.info_liste = Listbox(self.cadreinfoliste, width=20, height=6, yscrollcommand=self.scroll_liste_Y.set)
+        self.info_liste = Listbox(
+            self.cadreinfoliste, width=20, height=6, yscrollcommand=self.scroll_liste_Y.set)
         self.info_liste.bind("<Button-3>", self.centrer_liste_objet)
         self.info_liste.grid(column=0, row=0, sticky=W + E + N + S)
         self.scroll_liste_Y.grid(column=1, row=0, sticky=N + S)
@@ -187,7 +213,8 @@ class Vue():
 
         self.cadreinfoliste.pack(side=BOTTOM, expand=1, fill=BOTH)
 
-        self.cadreminimap = Frame(self.cadreoutils, height=200, width=200, bg="black")
+        self.cadreminimap = Frame(
+            self.cadreoutils, height=200, width=200, bg="black")
         self.canevas_minimap = Canvas(self.cadreminimap, width=self.taille_minimap, height=self.taille_minimap,
                                       bg="pink")
         self.canevas_minimap.bind("<Button>", self.positionner_minicanevas)
@@ -235,7 +262,7 @@ class Vue():
 
     ##### FONCTIONS DU SPLASH #########################################################################
 
-    ###  FONCTIONS POUR SPLASH ET LOBBY INSCRIPTION pour participer a une partie
+    # FONCTIONS POUR SPLASH ET LOBBY INSCRIPTION pour participer a une partie
     def update_splash(self, etat):
         if "attente" in etat or "courante" in etat:
             self.btncreerpartie.config(state=DISABLED)
@@ -278,7 +305,8 @@ class Vue():
     def initialiser_avec_modele(self, modele):
         self.mon_nom = self.parent.mon_nom
         self.modele = modele
-        self.canevas.config(scrollregion=(0, 0, modele.largeur, modele.hauteur))
+        self.canevas.config(scrollregion=(
+            0, 0, modele.largeur, modele.hauteur))
 
         self.labid.config(text=self.mon_nom)
         self.labid.config(fg=self.modele.joueurs[self.mon_nom].couleur)
@@ -286,27 +314,25 @@ class Vue():
         self.afficher_decor(modele)
 
     ####################################################################################################
-    def afficher_astres(self, astres: Astre, nom: str, 
-                        color: str=None, outline: str=None):
-        
+    def afficher_astres(self, astres: Astre, nom: str,
+                        color: str = None, outline: str = None):
         """Affiche les astres dans le décor"""
         for i in astres:
             color = i.couleur if not color else color
             outline = i.couleur if not color else outline
-            
+
             t = i.taille * self.zoom
             self.canevas.create_oval(
-                i.x - t, i.y - t, 
+                i.x - t, i.y - t,
                 i.x + t, i.y + t,
                 fill=color, outline=outline,
                 tags=(
                     i.proprietaire if isinstance(i, Etoile) else None,
-                    str(i.id), 
+                    str(i.id),
                     nom,
                 )
             )
-    
-    
+
     def positionner_minicanevas(self, evt):
         x = evt.x
         y = evt.y
@@ -329,14 +355,14 @@ class Vue():
             y = random.randrange(int(mod.hauteur))
             n = random.randrange(3) + 1
             col = random.choice(["LightYellow", "azure1", "pink"])
-            self.canevas.create_oval(x, y, x + n, y + n, fill=col, tags=("fond",))
-            
+            self.canevas.create_oval(
+                x, y, x + n, y + n, fill=col, tags=("fond",))
+
         # affichage des etoiles
         self.afficher_astres(mod.etoiles, "Etoile", "Grey50", col)
-        # affichage des nuages 
+        # affichage des nuages
         self.afficher_astres(mod.nuages, "Nuage")
-            
-            
+
         # affichage des etoiles possedees par les joueurs
         for i in mod.joueurs.keys():
             for j in mod.joueurs[i].etoilescontrolees:
@@ -462,7 +488,8 @@ class Vue():
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
         a = obj.ange_cible
-        x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
+        x, y = hlp.getAngledPoint(
+            obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
         self.canevas.create_oval((obj.x - tailleF), (obj.y - tailleF),
                                  (obj.x + tailleF), (obj.y + tailleF), fill=joueur.couleur,
@@ -483,7 +510,7 @@ class Vue():
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile":
                     self.montrer_etoile_selection()
-                
+
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
@@ -504,7 +531,8 @@ class Vue():
 
     # Methodes pour multiselect#########################################################
     def debuter_multiselection(self, evt):
-        self.debutselect = (self.canevas.canvasx(evt.x), self.canevas.canvasy(evt.y))
+        self.debutselect = (self.canevas.canvasx(evt.x),
+                            self.canevas.canvasy(evt.y))
         x1, y1 = (self.canevas.canvasx(evt.x), self.canevas.canvasy(evt.y))
         self.selecteur_actif = self.canevas.create_rectangle(x1, y1, x1 + 1, y1 + 1, outline="red", width=2,
                                                              dash=(2, 2), tags=("", "selecteur", "", ""))
@@ -529,4 +557,4 @@ class Vue():
 
             self.canevas.delete("selecteur")
 
-    ### FIN du multiselect
+    # FIN du multiselect

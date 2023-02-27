@@ -82,7 +82,6 @@ class Vaisseau():
             "Etoile": self.arriver_etoile,
             "Porte_de_vers": self.arriver_porte
         }
-        
 
     def jouer_prochain_coup(self, trouver_nouveau=0) -> None:
         if self.cible != 0:
@@ -141,25 +140,30 @@ class Cargo(Vaisseau):
         super().__init__(parent, nom, x, y, 500, 6, 1)
         self.espace = 1000
 
+
 class Joueur():
-    def __init__(self, parent, nom, etoilemere, couleur):
-        self.id = get_prochain_id()
+    def __init__(self, parent: Modele, nom: str,
+                 etoilemere: Etoile, couleur: str):
+        self.id: int = get_prochain_id()
         self.parent = parent
         self.nom = nom
         self.etoilemere = etoilemere
-        self.etoilemere.proprietaire = self.nom
+        self.etoilemere.proprietaire: str = self.nom
         self.couleur = couleur
         self.log = []
-        self.etoilescontrolees = [etoilemere]
-        self.flotte = {
+        self.etoilescontrolees: list[Etoile] = [self.etoilemere]
+        self.flotte: dict[str, dict[int, callable]] = {
             "Vaisseau": {},
             "Cargo": {},
-            "Starfigther":{}
-            }
-        self.actions = {"creervaisseau": self.creervaisseau,
-                        "ciblerflotte": self.ciblerflotte}
+            "Starfighter": {}
+        }
 
-    def creervaisseau(self, params):
+        self.actions: list[str, callable] = {
+            "creervaisseau": self.creervaisseau,
+            "ciblerflotte": self.ciblerflotte
+        }
+
+    def creervaisseau(self, params: list[str, int]):
         type_vaisseau = params[0]
         if type_vaisseau == "Cargo":
             v = Cargo(self, self.nom, self.etoilemere.x +
@@ -243,76 +247,88 @@ class IA(Joueur):
 
 
 class Modele():
+    bordure: int = 10
+    couleurs: list[str] = ["red", "blue", "lightgreen", "yellow",
+                           "lightblue", "pink", "gold", "purple"]
+    couleursia: list[str] = ["orange", "green", "cyan",
+                             "SeaGreen1", "turquoise1", "firebrick1"]
+
     def __init__(self, parent, joueurs):
         self.parent = parent
-        self.largeur = 9000
-        self.hauteur = 9000
-        self.nb_etoiles = int((self.hauteur * self.largeur) / 500000)
+        self.largeur: int = 9000
+        self.hauteur: int = 9000
+        self.nb_etoiles: int = int((self.hauteur * self.largeur) / 500000)
         self.joueurs = {}
         self.actions_a_faire = {}
         self.etoiles: list[Etoile] = []
         self.nuages: list[Nuage] = []
-        self.trou_de_vers = []
+        self.trou_de_vers: list[TrouDeVers] = []
         self.cadre_courant = None
         self.creeretoiles(joueurs, 1)
         self.creer_nuages()
-        nb_trou = int((self.hauteur * self.largeur) / 5000000)
-        self.creer_troudevers(nb_trou)
+        nb_trous: int = int((self.hauteur * self.largeur) / 5000000)
+        self.creer_troudevers(nb_trous)
+
+    def _get_rand_pos(self) -> tuple(int, int):
+        """Retourne une position cartésienne aléatoire.
+
+        Returns
+        -------
+        tuple(int, int)
+            Position cartésienne aléatoire
+        """
+        return (
+            random.randrange(self.largeur - (2 * Modele.bordure))
+            + Modele.bordure,
+            (random.randrange(self.hauteur - (2 * Modele.bordure))
+             + Modele.bordure))
 
     def creer_troudevers(self, n):
-        bordure = 10
         for i in range(n):
-            x1 = random.randrange(self.largeur - (2 * bordure)) + bordure
-            y1 = random.randrange(self.hauteur - (2 * bordure)) + bordure
-            x2 = random.randrange(self.largeur - (2 * bordure)) + bordure
-            y2 = random.randrange(self.hauteur - (2 * bordure)) + bordure
+            x1, y1 = self._get_rand_pos()
+            x2, y2 = self._get_rand_pos()
             self.trou_de_vers.append(TrouDeVers(x1, y1, x2, y2))
 
     def creer_nuages(self):
-        bordure = 10
         for i in range(100):
             for j in range(len(self.etoiles)):
-                x = random.randrange(self.largeur - (2 * bordure)) + bordure
-                y = random.randrange(self.hauteur - (2 * bordure)) + bordure
+                x, y = self._get_rand_pos()
                 if x == self.etoiles[j].x and y == self.etoiles[j].y:
                     j = 0
-
             self.nuages.append(Nuage(self, x, y))
 
     def creeretoiles(self, joueurs, ias=0):
-        bordure = 10
         for i in range(self.nb_etoiles):
-            x = random.randrange(self.largeur - (2 * bordure)) + bordure
-            y = random.randrange(self.hauteur - (2 * bordure)) + bordure
+            x, y = self._get_rand_pos()
             self.etoiles.append(Etoile(self, x, y))
-        np = len(joueurs) + ias
-        etoile_occupee = []
-        while np:
-            p = random.choice(self.etoiles)
-            if p not in etoile_occupee:
-                etoile_occupee.append(p)
-                self.etoiles.remove(p)
-                np -= 1
 
-        couleurs = ["red", "blue", "lightgreen", "yellow",
-                    "lightblue", "pink", "gold", "purple"]
-        for i in joueurs:
-            etoile: Etoile = etoile_occupee.pop(0)
-            self.joueurs[i] = Joueur(self, i, etoile, couleurs.pop(0))
-            etoile.proprietaire = i
+        nb_joueurs_total: int = len(joueurs) + ias
+        etoiles_occupees: list[Etoile] = []
+
+        while nb_joueurs_total:
+            p = random.choice(self.etoiles)
+            if p not in etoiles_occupees:
+                etoiles_occupees.append(p)
+                self.etoiles.remove(p)
+                nb_joueurs_total -= 1
+
+        for joueur in joueurs:
+            etoile: Etoile = etoiles_occupees.pop(0)
+            joueur = Joueur(self, joueur[0], etoile, Modele.couleurs.pop(0))
+
             dist = 500
-            x1 = random.randrange(x - dist, etoile.x + dist)
-            y1 = random.randrange(y - dist, etoile.y + dist)
-            self.etoiles.append(Etoile(self, x1, y1))
+            x = random.randrange(x - dist, etoile.x + dist)
+            y = random.randrange(y - dist, etoile.y + dist)
+            self.etoiles.append(Etoile(self, x, y))
 
         # IA- creation des ias
-        couleursia = ["orange", "green", "cyan",
-                      "SeaGreen1", "turquoise1", "firebrick1"]
         for i in range(ias):
-            self.joueurs["IA_" + str(i)] = IA(self, "IA_" +
-                                              str(i), etoile_occupee.pop(0), couleursia.pop(0))
+            self.joueurs["IA_" + str(i)] = IA(
+                self, "IA_" +
+                str(i), etoiles_occupees.pop(0),
+                Modele.couleursia.pop(0)
+            )
 
-    ##############################################################################
     def jouer_prochain_coup(self, cadre):
         #  NE PAS TOUCHER LES LIGNES SUIVANTES  ################
         self.cadre_courant = cadre
@@ -322,7 +338,8 @@ class Modele():
                 self.joueurs[i[0]].actions[i[1]](i[2])
                 """
                 i a la forme suivante [nomjoueur, action, [arguments]
-                alors self.joueurs[i[0]] -> trouve l'objet représentant le joueur de ce nom
+                alors self.joueurs[i[0]] -> trouve l'objet représentant
+                le joueur de ce nom
                 """
             del self.actions_a_faire[cadre]
         # FIN DE L'INTERDICTION #################################
@@ -340,7 +357,7 @@ class Modele():
     def creer_bibittes_spatiales(self, nb_biittes=0):
         pass
 
-    #############################################################################
+    ##########################################################################
     # ATTENTION : NE PAS TOUCHER
     def ajouter_actions_a_faire(self, actionsrecues):
         cadrecle = None
