@@ -35,16 +35,20 @@ class PorteDeVers(Astre):
 class TrouDeVers():
     def __init__(self, x1, y1, x2, y2):
         self.id = get_prochain_id()
+
         taille = random.randrange(6, 20)
-        self.porte_a = PorteDeVers(self, x1, y1, "red", taille)
-        self.porte_b = PorteDeVers(self, x2, y2, "orange", taille)
+
+        self.portes = (
+            PorteDeVers(self, x1, y1, "red", taille),
+            PorteDeVers(self, x2, y2, "orange", taille)
+        )
+
         # pour mettre les vaisseaux qui ne sont plus dans l'espace
         # mais maintenant l'hyper-espace
         self.liste_transit = []
 
     def jouer_prochain_coup(self) -> None:
-        self.porte_a.jouer_prochain_coup()
-        self.porte_b.jouer_prochain_coup()
+        (porte.jouer_prochain_coup() for porte in self.portes)
 
 
 class Etoile(Astre):
@@ -124,13 +128,13 @@ class Vaisseau():
              "Porte", self.id, self.cible.id, ]
         )
         cible = self.cible
-        trou = cible.parent
-        if cible == trou.porte_a:
-            self.x = trou.porte_b.x + random.randrange(6) + 2
-            self.y = trou.porte_b.y
-        elif cible == trou.porte_b:
-            self.x = trou.porte_a.x - random.randrange(6) + 2
-            self.y = trou.porte_a.y
+        trou: TrouDeVers = cible.parent
+        if cible == trou.portes[0]:
+            self.x = trou.portes[1].x + random.randrange(6) + 2
+            self.y = trou.portes[1].y
+        elif cible == trou.portes[1]:
+            self.x = trou.portes[0].x - random.randrange(6) + 2
+            self.y = trou.portes[0].y
         self.cible = 0
         return ["Porte_de_ver", cible]
 
@@ -211,9 +215,11 @@ class Joueur():
                 rep = j.jouer_prochain_coup(chercher_nouveau)
                 if rep:
                     if rep[0] == "Etoile":
-                        # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
-                        #       quand on l'attribue aux etoilescontrolees
-                        #       et que ce passe-t-il si l'etoile a un proprietaire ???
+                        # ? est-ce qu'on doit retirer l'etoile de
+                        # ? la liste du modele
+                        # ? quand on l'attribue aux etoilescontrolees
+                        # ? et que ce passe-t-il si l'etoile a un proprietaire
+
                         self.etoilescontrolees.append(rep[1])
                         self.parent.parent.afficher_etoile(self.nom, rep[1])
                     elif rep[0] == "Porte_de_ver":
@@ -312,9 +318,9 @@ class Modele():
                 self.etoiles.remove(p)
                 nb_joueurs_total -= 1
 
-        for joueur in joueurs:
+        for i in joueurs:
             etoile: Etoile = etoiles_occupees.pop(0)
-            joueur = Joueur(self, joueur[0], etoile, Modele.couleurs.pop(0))
+            self.joueurs[i] = Joueur(self, i, etoile, Modele.couleurs.pop(0))
 
             dist = 500
             x = random.randrange(x - dist, etoile.x + dist)
@@ -354,7 +360,7 @@ class Modele():
         for i in self.trou_de_vers:
             i.jouer_prochain_coup()
 
-    def creer_bibittes_spatiales(self, nb_biittes=0):
+    def creer_bibittes_spatiales(self, nb_bibittes=0):
         pass
 
     ##########################################################################

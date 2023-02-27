@@ -29,14 +29,17 @@ class Vue():
             self.root, width=500, height=400, bg="red")
 
         self.cadre_app.pack(expand=1, fill=BOTH)
-        # # un dictionnaire pour conserver les divers cadres du jeu, creer plus bas
+        # # un dictionnaire pour conserver les divers cadres du jeu,
+        # creer plus bas
         self.cadres = {}
         self.creer_cadres(urlserveur, mon_nom, msg_initial)
         self.changer_cadre("splash")
-        # PROTOCOLE POUR INTERCEPTER LA FERMETURE DU ROOT - qui termine l'application
+        # PROTOCOLE POUR INTERCEPTER LA FERMETURE DU ROOT -
+        # qui termine l'application
         # self.root.protocol("WM_DELETE_WINDOW", self.demander_abandon)
 
-        # # sera charge apres l'initialisation de la partie, contient les donnees pour mettre l'interface a jour
+        # # sera charge apres l'initialisation de la partie,
+        # contient les donnees pour mettre l'interface a jour
         self.modele = None
         # # variable pour suivre le trace du multiselect
         self.debut_selection = []
@@ -55,7 +58,7 @@ class Vue():
         self.cadre_actif = cadre
         self.cadre_actif.pack(expand=1, fill=BOTH)
 
-    ###### LES CADRES ############################################################################################
+    # LES CADRES
     def creer_cadres(self, urlserveur, mon_nom, msg_initial):
         self.cadres["splash"] = self.creer_cadre_splash(
             urlserveur, mon_nom, msg_initial)
@@ -66,12 +69,14 @@ class Vue():
     # sera le cadre visuel initial lors du lancement de l'application
     def creer_cadre_splash(self, urlserveur, mon_nom, msg_initial):
         self.cadre_splash = Frame(self.cadre_app)
-        # un canvas est utilisé pour 'dessiner' les widgets de cette fenêtre voir 'create_window' plus bas
+        # un canvas est utilisé pour 'dessiner'
+        # les widgets de cette fenêtre voir 'create_window' plus bas
         self.canevas_splash = Canvas(
             self.cadre_splash, width=600, height=480, bg="pink")
         self.canevas_splash.pack()
 
-        # creation ds divers widgets (champ de texte 'Entry' et boutons cliquables (Button)
+        # creation ds divers widgets
+        # (champ de texte 'Entry' et boutons cliquables (Button)
         self.etatdujeu = Label(text=msg_initial, font=(
             "Arial", 18), borderwidth=2, relief=RIDGE)
         self.nomsplash = Entry(font=("Arial", 14))
@@ -93,9 +98,12 @@ class Vue():
         # les boutons d'actions
         self.btncreerpartie = Button(text="Creer partie", font=(
             "Arial", 12), state=DISABLED, command=self.creer_partie)
-        self.btninscrirejoueur = Button(text="Inscrire joueur", font=("Arial", 12), state=DISABLED,
+        self.btninscrirejoueur = Button(text="Inscrire joueur",
+                                        font=("Arial", 12),
+                                        state=DISABLED,
                                         command=self.inscrire_joueur)
-        self.btnreset = Button(text="Reinitialiser partie", font=("Arial", 9), state=DISABLED,
+        self.btnreset = Button(text="Reinitialiser partie", font=("Arial", 9),
+                               state=DISABLED,
                                command=self.reset_partie)
 
         # on place les autres boutons
@@ -111,7 +119,8 @@ class Vue():
 
     # le lobby (où on attend les inscriptions)
     def creer_cadre_lobby(self):
-        # le cadre lobby, pour isncription des autres joueurs, remplace le splash
+        # le cadre lobby, pour isncription des autres joueurs,
+        # remplace le splash
         self.cadrelobby = Frame(self.cadre_app)
         self.canevaslobby = Canvas(
             self.cadrelobby, width=640, height=480, bg="lightblue")
@@ -120,7 +129,8 @@ class Vue():
         # un listbox pour afficher les joueurs inscrit pour la partie à lancer
         self.listelobby = Listbox(borderwidth=2, relief=GROOVE)
 
-        # bouton pour lancer la partie, uniquement accessible à celui qui a creer la partie dans le splash
+        # bouton pour lancer la partie, uniquement
+        # accessible à celui qui a creer la partie dans le splash
         self.btnlancerpartie = Button(
             text="Lancer partie", state=DISABLED, command=self.lancer_partie)
         # affichage des widgets dans le canevaslobby (similaire au splash)
@@ -203,7 +213,8 @@ class Vue():
 
         self.scroll_liste_Y = Scrollbar(self.cadreinfoliste, orient=VERTICAL)
         self.info_liste = Listbox(
-            self.cadreinfoliste, width=20, height=6, yscrollcommand=self.scroll_liste_Y.set)
+            self.cadreinfoliste, width=20, height=6,
+            yscrollcommand=self.scroll_liste_Y.set)
         self.info_liste.bind("<Button-3>", self.centrer_liste_objet)
         self.info_liste.grid(column=0, row=0, sticky=W + E + N + S)
         self.scroll_liste_Y.grid(column=1, row=0, sticky=N + S)
@@ -215,8 +226,12 @@ class Vue():
 
         self.cadreminimap = Frame(
             self.cadreoutils, height=200, width=200, bg="black")
-        self.canevas_minimap = Canvas(self.cadreminimap, width=self.taille_minimap, height=self.taille_minimap,
-                                      bg="pink")
+        self.canevas_minimap = Canvas(
+            self.cadreminimap,
+            width=self.taille_minimap,
+            height=self.taille_minimap,
+            bg="pink"
+        )
         self.canevas_minimap.bind("<Button>", self.positionner_minicanevas)
         self.canevas_minimap.pack()
         self.cadreminimap.pack(side=BOTTOM)
@@ -260,7 +275,7 @@ class Vue():
             rep = rep - 0.02
         self.canevas.xview_moveto(rep)
 
-    ##### FONCTIONS DU SPLASH #########################################################################
+    # FONCTIONS DU SPLASH
 
     # FONCTIONS POUR SPLASH ET LOBBY INSCRIPTION pour participer a une partie
     def update_splash(self, etat):
@@ -286,7 +301,6 @@ class Vue():
         nom = self.nomsplash.get()
         self.parent.creer_partie(nom)
 
-    ##### FONCTION DU LOBBY #############
     def update_lobby(self, dico):
         self.listelobby.delete(0, END)
         for i in dico:
@@ -313,7 +327,6 @@ class Vue():
 
         self.afficher_decor(modele)
 
-    ####################################################################################################
     def afficher_astres(self, astres: Astre, nom: str,
                         color: str = None, outline: str = None):
         """Affiche les astres dans le décor"""
@@ -348,6 +361,24 @@ class Vue():
         xl = self.canevas.winfo_width()
         yl = self.canevas.winfo_height()
 
+    def afficher_info_joueurs(self, joueurs):
+        for i in joueurs.keys():
+            for j in joueurs[i].etoilescontrolees:
+                t = j.taille * self.zoom
+                self.canevas.create_oval(
+                    j.x - t, j.y - t, j.x + t, j.y + t,
+                    fill=joueurs[i].couleur,
+                    tags=(j.proprietaire, str(j.id), "Etoile")
+                )
+                # on affiche dans minimap
+                minix = j.x / self.modele.largeur * self.taille_minimap
+                miniy = j.y / self.modele.hauteur * self.taille_minimap
+                self.canevas_minimap.create_rectangle(
+                    minix, miniy, minix + 3, miniy + 3,
+                    fill=joueurs[i].couleur,
+                    tags=(j.proprietaire, str(j.id), "Etoile")
+                )
+
     def afficher_decor(self, mod):
         # on cree un arriere fond de petites etoieles NPC pour le look
         for i in range(len(mod.etoiles) * 50):
@@ -360,38 +391,23 @@ class Vue():
 
         # affichage des etoiles
         self.afficher_astres(mod.etoiles, "Etoile", "Grey50", col)
+
         # affichage des nuages
         self.afficher_astres(mod.nuages, "Nuage")
 
         # affichage des etoiles possedees par les joueurs
-        for i in mod.joueurs.keys():
-            for j in mod.joueurs[i].etoilescontrolees:
-                t = j.taille * self.zoom
-                self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
-                                         fill=mod.joueurs[i].couleur,
-                                         tags=(j.proprietaire, str(j.id), "Etoile"))
-                # on affiche dans minimap
-                minix = j.x / self.modele.largeur * self.taille_minimap
-                miniy = j.y / self.modele.hauteur * self.taille_minimap
-                self.canevas_minimap.create_rectangle(minix, miniy, minix + 3, miniy + 3,
-                                                      fill=mod.joueurs[i].couleur,
-                                                      tags=(j.proprietaire, str(j.id), "Etoile"))
+        self.afficher_info_joueurs(mod.joueurs)
 
     def afficher_mini(self, evt):  # univers(self, mod):
         self.canevas_minimap.delete("mini")
         for j in self.modele.etoiles:
             minix = j.x / self.modele.largeur * self.taille_minimap
             miniy = j.y / self.modele.hauteur * self.taille_minimap
-            self.canevas_minimap.create_rectangle(minix, miniy, minix + 0, miniy + 0,
-                                                  fill="black",
-                                                  tags=("mini", "Etoile"))
-        # # affichage des etoiles possedees par les joueurs
-        # for i in mod.joueurs.keys():
-        #     for j in mod.joueurs[i].etoilescontrolees:
-        #         t = j.taille * self.zoom
-        #         self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
-        #                                  fill=mod.joueurs[i].couleur,
-        #                                  tags=(j.proprietaire, str(j.id),  "Etoile"))
+            self.canevas_minimap.create_rectangle(
+                minix, miniy, minix + 0, miniy + 0,
+                fill="black",
+                tags=("mini", "Etoile")
+            )
 
     def centrer_planemetemere(self, evt):
         self.centrer_objet(self.modele.joueurs[self.mon_nom].etoilemere)
@@ -410,8 +426,17 @@ class Vue():
         self.canevas.xview_moveto(pctx)
         self.canevas.yview_moveto(pcty)
 
-    # change l'appartenance d'une etoile et donc les propriétés des dessins les représentants
     def afficher_etoile(self, joueur, cible):
+        """change l'appartenance d'une etoile et donc les propriétés
+        des dessins les représentants
+
+        Parameters
+        ----------
+        joueur : _type_
+            _description_
+        cible : _type_
+            _description_
+        """
         joueur1 = self.modele.joueurs[joueur]
         id = cible.id
         couleur = joueur1.couleur
@@ -434,7 +459,7 @@ class Vue():
         self.canevas.delete("artefact")
         self.canevas.delete("objet_spatial")
 
-        if self.ma_selection != None:
+        if self.ma_selection is not None:
             joueur = mod.joueurs[self.ma_selection[0]]
             if self.ma_selection[2] == "Etoile":
                 for i in joueur.etoilescontrolees:
@@ -442,9 +467,12 @@ class Vue():
                         x = i.x
                         y = i.y
                         t = 10 * self.zoom
-                        self.canevas.create_oval(x - t, y - t, x + t, y + t,
-                                                 dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
-                                                 tags=("multiselection", "marqueur"))
+                        self.canevas.create_oval(
+                            x - t, y - t, x + t, y + t,
+                            dash=(2, 2),
+                            outline=mod.joueurs[self.mon_nom].couleur,
+                            tags=("multiselection", "marqueur"))
+
             elif self.ma_selection[2] == "Flotte":
                 for j in joueur.flotte:
                     for i in joueur.flotte[j]:
@@ -453,9 +481,12 @@ class Vue():
                             x = i.x
                             y = i.y
                             t = 10 * self.zoom
-                            self.canevas.create_rectangle(x - t, y - t, x + t, y + t,
-                                                          dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
-                                                          tags=("multiselection", "marqueur"))
+                            self.canevas.create_rectangle(
+                                x - t, y - t, x + t, y + t,
+                                dash=(2, 2),
+                                outline=mod.joueurs[self.mon_nom].couleur,
+                                tags=("multiselection", "marqueur"))
+
         # afficher asset des joueurs
         for i in mod.joueurs.keys():
             i = mod.joueurs[i]
@@ -465,25 +496,28 @@ class Vue():
                     j = i.flotte[k][j]
                     tailleF = j.taille * self.zoom
                     if k == "Vaisseau":
-                        self.canevas.create_rectangle((j.x - tailleF), (j.y - tailleF),
-                                                      (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                                      tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
+                        self.canevas.create_rectangle(
+                            (j.x - tailleF), (j.y - tailleF),
+                            (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
+                            tags=(j.proprietaire, str(j.id), "Flotte", k,
+                                  "artefact"))
                     elif k == "Cargo":
-                        # self.dessiner_cargo(j,tailleF,i,k)
                         self.dessiner_cargo(j, tailleF, i, k)
-                        # self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                        #                          (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                        #                          tags=(j.proprietaire, str(j.id), "Flotte",k,"artefact"))
+
         for t in self.modele.trou_de_vers:
             i = t.porte_a
             for i in [t.porte_a, t.porte_b]:
-                self.canevas.create_oval(i.x - i.pulse, i.y - i.pulse,
-                                         i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2, fill="grey15",
-                                         tags=("", i.id, "Porte_de_ver", "objet_spatial"))
+                self.canevas.create_oval(
+                    i.x - i.pulse, i.y - i.pulse,
+                    i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2,
+                    fill="grey15",
+                    tags=("", i.id, "Porte_de_ver", "objet_spatial"))
 
-                self.canevas.create_oval(i.x - i.pulse, i.y - i.pulse,
-                                         i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2, fill="grey15",
-                                         tags=("", i.id, "Porte_de_ver", "objet_spatial"))
+                self.canevas.create_oval(
+                    i.x - i.pulse, i.y - i.pulse,
+                    i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2,
+                    fill="grey15",
+                    tags=("", i.id, "Porte_de_ver", "objet_spatial"))
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
@@ -491,17 +525,22 @@ class Vue():
         x, y = hlp.getAngledPoint(
             obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
-        self.canevas.create_oval((obj.x - tailleF), (obj.y - tailleF),
-                                 (obj.x + tailleF), (obj.y + tailleF), fill=joueur.couleur,
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
-        self.canevas.create_oval((x - dt), (y - dt),
-                                 (x + dt), (y + dt), fill="yellow",
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
+        self.canevas.create_oval(
+            (obj.x - tailleF), (obj.y - tailleF),
+            (obj.x + tailleF), (obj.y + tailleF), fill=joueur.couleur,
+            tags=(obj.proprietaire, str(obj.id), "Flotte",
+                  type_obj, "artefact"))
+        self.canevas.create_oval(
+            (x - dt), (y - dt),
+            (x + dt), (y + dt), fill="yellow",
+            tags=(obj.proprietaire, str(obj.id), "Flotte",
+                  type_obj, "artefact"))
 
     def dessiner_cargo1(self, j, tailleF, i, k):
-        self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                                 (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                 tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
+        self.canevas.create_oval(
+            (j.x - tailleF), (j.y - tailleF),
+            (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
+            tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
 
     def cliquer_cosmos(self, evt):
         t = self.canevas.gettags(CURRENT)
@@ -513,12 +552,16 @@ class Vue():
 
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
-            elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
+            elif (("Etoile" in t or "Porte_de_ver" in t) and
+                  t[0] != self.mon_nom):
                 if self.ma_selection:
                     self.parent.cibler_flotte(self.ma_selection[1], t[1], t[2])
                 self.ma_selection = None
                 self.canevas.delete("marqueur")
-        else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
+
+        else:
+            # aucun tag => rien sous la souris - sinon au minimum
+            # il y aurait CURRENT
             print("Region inconnue")
             self.ma_selection = None
             self.canevas.delete("marqueur")
@@ -529,13 +572,14 @@ class Vue():
     def montrer_flotte_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)
 
-    # Methodes pour multiselect#########################################################
+    # Methodes pour multiselect###################
     def debuter_multiselection(self, evt):
         self.debutselect = (self.canevas.canvasx(evt.x),
                             self.canevas.canvasy(evt.y))
         x1, y1 = (self.canevas.canvasx(evt.x), self.canevas.canvasy(evt.y))
-        self.selecteur_actif = self.canevas.create_rectangle(x1, y1, x1 + 1, y1 + 1, outline="red", width=2,
-                                                             dash=(2, 2), tags=("", "selecteur", "", ""))
+        self.selecteur_actif = self.canevas.create_rectangle(
+            x1, y1, x1 + 1, y1 + 1, outline="red", width=2,
+            dash=(2, 2), tags=("", "selecteur", "", ""))
 
     def afficher_multiselection(self, evt):
         if self.debutselect:
