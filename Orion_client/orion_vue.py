@@ -259,15 +259,15 @@ class Vue():
 
         frame = Frame(source, width=200, height=200, bg="red")
 
+        txtPlanete = idSelect.split("_")
         txtRoche = "Roche : " + str(ressSelect['pierre'])
         txtMetal = "Metal : " + str(ressSelect['metal'])
         txtEnergie = "Energie : " + str(ressSelect['energie'])
 
-        print(txtRoche)
-
-        lblRoche = Label(frame, text=txtRoche).place(relx=.2, rely=.1)
-        lblMetal = Label(frame, text=txtMetal).place(relx=.2, rely=.2)
-        lblEnergie = Label(frame, text=txtEnergie).place(relx=.2, rely=.3)
+        Label(frame, text=txtPlanete, font='helvetica 10 bold' ).place(anchor="center",relx=.5, rely=.1)
+        Label(frame, text=txtRoche).place(relx=.2, rely=.25)
+        Label(frame, text=txtMetal).place(relx=.2, rely=.40)
+        Label(frame, text=txtEnergie).place(relx=.2, rely=.55)
 
         return frame
 
