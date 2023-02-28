@@ -20,6 +20,7 @@ class Vue():
         self.taille_minimap = 240
         self.zoom = 2
         self.ma_selection = None
+        self.etoile_select = None
         self.cadre_actif = None
         # cadre principal de l'application
         self.cadre_app = Frame(self.root, width=500, height=400, bg="red")
@@ -36,7 +37,7 @@ class Vue():
         # # variable pour suivre le trace du multiselect
         self.debut_selection = []
         self.selecteur_actif = None
-        self.idSelect = 0
+        self.idSelect = ''
 
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
@@ -229,7 +230,11 @@ class Vue():
 
         return frame
 
-    def afficher_batiments(self, source):
+    def afficher_batiment(self, source):
+        self.infoSelection.pack_forget()
+        self.choixBat.pack()
+
+    def choix_batiments(self, source):
         frame = Frame(source, width=200, height=200, bg="darkgrey")
 
         mine = Button(frame, text="Mine", width=6, height=2)
@@ -251,9 +256,9 @@ class Vue():
 
         return frame
 
-    def affichage_planete_selectionee(self, source, *id, **planete):
-        idSelect = id[0]
-        planeteSelect = id[1]
+    def affichage_planete_selectionee(self, source, planete):
+        idSelect = planete.id
+        planeteSelect = planete
         print(idSelect)
         ressSelect = planeteSelect.getRessources()
 
@@ -268,6 +273,10 @@ class Vue():
         Label(frame, text=txtRoche).place(relx=.2, rely=.25)
         Label(frame, text=txtMetal).place(relx=.2, rely=.40)
         Label(frame, text=txtEnergie).place(relx=.2, rely=.55)
+
+        batiment = Button(frame, text="BATIMENTS", width=10, height=2)
+        batiment.bind('<Button>', self.afficher_batiment)
+        batiment.place(anchor="center", rely=.8, relx=.25)
 
         return frame
 
@@ -542,13 +551,17 @@ class Vue():
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile":
                     print(t[2])
-                    # print(self.modele.getEtoileById(self.ma_selection[1]))
+                    self.test = self.modele.getEtoileById(self.ma_selection[1])
                     if(self.ma_selection[1] != self.idSelect):
+                        self.idSelect = self.ma_selection[1] # get la planete selectionee
                         if(self.infoSelection):
                             self.infoSelection.pack_forget()
-                        self.idSelect = self.ma_selection[1]  # get la planete selectionee
-                        self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.ma_selection[1],
-                                                                                self.modele.getEtoileById(self.ma_selection[1]))
+                        for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
+                            if i.id == self.idSelect:
+                                self.etoile_select = i
+                    print(1)
+                    self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select)
+                    self.choixBat = self.choix_batiments(self.cadreoutils)
                     self.montrer_etoile_selection()
                 elif t[2] == "Flotte":
                     self.montrer_flotte_selection()
@@ -564,6 +577,7 @@ class Vue():
             self.levelUp.pack_forget()
             self.cadreinfochoix.pack_forget()
             self.infoSelection.pack_forget()
+            self.choixBat.pack_forget()
             
 
     def montrer_etoile_selection(self):

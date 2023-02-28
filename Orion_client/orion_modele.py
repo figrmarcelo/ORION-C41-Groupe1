@@ -258,7 +258,7 @@ class Modele():
 
     def getEtoileById(self, id):
         for i in range(len(self.etoiles)):
-            if id == self.etoiles[i].getId():
+            if id == self.etoiles[i].id:
                 return self.etoiles[i]
 
 
