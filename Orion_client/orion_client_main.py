@@ -217,7 +217,7 @@ class Controleur():
 
     ############        VOTRE CODE      ######################
 
-    def creer_vaisseau(self, type_vaisseau):
+    def creer_vaisseau(self, type_vaisseau: str):
         self.actionsrequises.append(
             [self.mon_nom, "creervaisseau", [type_vaisseau]])
 

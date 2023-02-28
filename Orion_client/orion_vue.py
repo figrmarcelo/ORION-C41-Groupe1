@@ -14,7 +14,7 @@ from orion_modele import Etoile
 
 
 class Vue():
-    def __init__(self, parent, urlserveur, mon_nom, msg_initial):
+    def __init__(self, parent, urlserveur: str, mon_nom: str, msg_initial: str):
         self.parent = parent
         self.root = Tk()
         self.root.title("Je suis " + mon_nom)
@@ -98,6 +98,7 @@ class Vue():
         # les boutons d'actions
         self.btncreerpartie = Button(text="Creer partie", font=(
             "Arial", 12), state=DISABLED, command=self.creer_partie)
+
         self.btninscrirejoueur = Button(text="Inscrire joueur",
                                         font=("Arial", 12),
                                         state=DISABLED,
@@ -325,7 +326,7 @@ class Vue():
         self.labid.config(text=self.mon_nom)
         self.labid.config(fg=self.modele.joueurs[self.mon_nom].couleur)
 
-        self.afficher_decor(modele)
+        self.afficher_decor()
 
     def afficher_astres(self, astres: Astre, nom: str,
                         color: str = None, outline: str = None):
@@ -379,24 +380,24 @@ class Vue():
                     tags=(j.proprietaire, str(j.id), "Etoile")
                 )
 
-    def afficher_decor(self, mod):
+    def afficher_decor(self):
         # on cree un arriere fond de petites etoieles NPC pour le look
-        for i in range(len(mod.etoiles) * 50):
-            x = random.randrange(int(mod.largeur))
-            y = random.randrange(int(mod.hauteur))
+        for i in range(len(self.modele.etoiles) * 50):
+            x = random.randrange(int(self.modele.largeur))
+            y = random.randrange(int(self.modele.hauteur))
             n = random.randrange(3) + 1
             col = random.choice(["LightYellow", "azure1", "pink"])
             self.canevas.create_oval(
                 x, y, x + n, y + n, fill=col, tags=("fond",))
 
         # affichage des etoiles
-        self.afficher_astres(mod.etoiles, "Etoile", "Grey50", col)
+        self.afficher_astres(self.modele.etoiles, "Etoile", "Grey50", col)
 
         # affichage des nuages
-        self.afficher_astres(mod.nuages, "Nuage")
+        self.afficher_astres(self.modele.nuages, "Nuage")
 
         # affichage des etoiles possedees par les joueurs
-        self.afficher_info_joueurs(mod.joueurs)
+        self.afficher_info_joueurs(self.modele.joueurs)
 
     def afficher_mini(self, evt):  # univers(self, mod):
         self.canevas_minimap.delete("mini")
@@ -448,12 +449,24 @@ class Vue():
         self.info_liste.insert(END, obj + "; " + id)
 
     def creer_vaisseau(self, evt):
+        # TODO: trouver la planète appartenant à cet évènement.
         type_vaisseau = evt.widget.cget("text")
         self.parent.creer_vaisseau(type_vaisseau)
         self.ma_selection = None
         self.canevas.delete("marqueur")
         self.cadreinfochoix.pack_forget()
 
+    def afficher_portes(self):
+        for trou in self.modele.trou_de_vers:
+            for porte in trou.portes:
+                self.canevas.create_oval(
+                    porte.x - porte.pulse, porte.y - porte.pulse,
+                    porte.x + porte.pulse, porte.y + porte.pulse, 
+                    outline=porte.couleur, width=2,
+                    fill="grey15",
+                    tags=("", porte.id, "Porte_de_ver", "objet_spatial")
+                )
+                
     def afficher_jeu(self):
         mod = self.modele
         self.canevas.delete("artefact")
@@ -504,24 +517,10 @@ class Vue():
                     elif k == "Cargo":
                         self.dessiner_cargo(j, tailleF, i, k)
 
-        for t in self.modele.trou_de_vers:
-            i = t.porte_a
-            for i in [t.porte_a, t.porte_b]:
-                self.canevas.create_oval(
-                    i.x - i.pulse, i.y - i.pulse,
-                    i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2,
-                    fill="grey15",
-                    tags=("", i.id, "Porte_de_ver", "objet_spatial"))
-
-                self.canevas.create_oval(
-                    i.x - i.pulse, i.y - i.pulse,
-                    i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2,
-                    fill="grey15",
-                    tags=("", i.id, "Porte_de_ver", "objet_spatial"))
+        self.afficher_portes()
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
-        a = obj.ange_cible
         x, y = hlp.getAngledPoint(
             obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
@@ -572,7 +571,7 @@ class Vue():
     def montrer_flotte_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)
 
-    # Methodes pour multiselect###################
+    # Methodes pour multiselect
     def debuter_multiselection(self, evt):
         self.debutselect = (self.canevas.canvasx(evt.x),
                             self.canevas.canvasy(evt.y))

@@ -23,7 +23,7 @@ class Astre():
 class PorteDeVers(Astre):
     def __init__(self, parent, x: int, y: int, couleur: str, taille: str):
         super().__init__(parent, x, y, taille)
-        self.pulse = random.randrange(self.taille)
+        self.pulse = random.randrange(taille)
         self.couleur = couleur
 
     def jouer_prochain_coup(self) -> None:
@@ -48,7 +48,8 @@ class TrouDeVers():
         self.liste_transit = []
 
     def jouer_prochain_coup(self) -> None:
-        (porte.jouer_prochain_coup() for porte in self.portes)
+        for porte in self.portes:
+            porte.jouer_prochain_coup()
 
 
 class Etoile(Astre):
@@ -64,7 +65,7 @@ class Etoile(Astre):
 
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
-        super().__init__(parent, x, y, random.randint(20, 40))
+        super().__init__(parent, x, y, random.randint(20, 30))
         self.couleur = "green"
 
 
@@ -84,7 +85,7 @@ class Vaisseau():
         self.angle_cible: float = 0
         self.arriver: dict[str, callable] = {
             "Etoile": self.arriver_etoile,
-            "Porte_de_vers": self.arriver_porte
+            "PorteDeVers": self.arriver_porte
         }
 
     def jouer_prochain_coup(self, trouver_nouveau=0) -> None:
@@ -152,7 +153,7 @@ class Joueur():
         self.parent = parent
         self.nom = nom
         self.etoilemere = etoilemere
-        self.etoilemere.proprietaire: str = self.nom
+        self.etoilemere.proprietaire = nom
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees: list[Etoile] = [self.etoilemere]
@@ -167,8 +168,19 @@ class Joueur():
             "ciblerflotte": self.ciblerflotte
         }
 
-    def creervaisseau(self, params: list[str, int]):
-        type_vaisseau = params[0]
+    def creervaisseau(self, params: list[str, int]) -> Vaisseau:
+        """Crée un des trois types de vaisseaux disponible
+        sur la planète dont il y a une création
+
+        Args:
+            params (list[str, int]): le type de vaisseau et le id
+
+        Returns:
+            Vaisseau: vaisseau créé
+        """
+        type_vaisseau: str = params[0]
+        etoile = self.parent.cible
+        # TODO: changer les paramètres de self.etoilemere et peut-être dict?
         if type_vaisseau == "Cargo":
             v = Cargo(self, self.nom, self.etoilemere.x +
                       10, self.etoilemere.y)
@@ -197,10 +209,10 @@ class Joueur():
             elif type_cible == "Porte_de_ver":
                 cible = None
                 for j in self.parent.trou_de_vers:
-                    if j.porte_a.id == iddesti:
-                        cible = j.porte_a
-                    elif j.porte_b.id == iddesti:
-                        cible = j.porte_b
+                    if j.portes[0].id == iddesti:
+                        cible = j.portes[0]
+                    elif j.portes[1].id == iddesti:
+                        cible = j.portes[1]
                     if cible:
                         ori.acquerir_cible(cible, type_cible)
                         return
@@ -313,11 +325,10 @@ class Modele():
 
         while nb_joueurs_total:
             p = random.choice(self.etoiles)
-            if p not in etoiles_occupees:
-                etoiles_occupees.append(p)
-                self.etoiles.remove(p)
-                nb_joueurs_total -= 1
-
+            self.etoiles.remove(p)
+            etoiles_occupees.append(p)
+            nb_joueurs_total -= 1
+                  
         for i in joueurs:
             etoile: Etoile = etoiles_occupees.pop(0)
             self.joueurs[i] = Joueur(self, i, etoile, Modele.couleurs.pop(0))
