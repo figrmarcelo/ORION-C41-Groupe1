@@ -422,7 +422,7 @@ class Joueur(): # **************************************************************
                 continue
             else:
                 for ressource in planete.ressources_dispo:
-                    self.ressource["pierre"] += planete.ressource_dispo[ressource]
+                    self.ressources["pierre"] += planete.ressource_dispo[ressource]
                     planete.ressource_dispo[ressource] = 0
                 
         
@@ -433,7 +433,7 @@ class Joueur(): # **************************************************************
                 continue
             else:
                 # condition IF a ameliorer avec un for each
-                if id_batiment["metal"] <= self.ressource["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
+                if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
                     self.ressources["metal"] =- id_batiment["metal"]
                     self.ressources["pierre"] =- id_batiment["pierre"]
                     self.ressources["energie"] =- id_batiment["energie"]
