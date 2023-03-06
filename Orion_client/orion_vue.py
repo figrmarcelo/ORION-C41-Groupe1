@@ -5,12 +5,13 @@ from tkinter import *
 from tkinter.simpledialog import *
 from tkinter.messagebox import *
 from orion_modele import Astre
+from functools import partial
 from helper import Helper as hlp
 import math
 
 import random
 
-from orion_modele import Etoile
+from orion_modele import Etoile, Point
 
 
 class Vue():
@@ -320,6 +321,7 @@ class Vue():
     def initialiser_avec_modele(self, modele):
         self.mon_nom = self.parent.mon_nom
         self.modele = modele
+        self.points = [Point() for joueur in self.modele.joueurs if "IA" not in joueur]
         self.canevas.config(scrollregion=(
             0, 0, modele.largeur, modele.hauteur))
 
@@ -450,8 +452,13 @@ class Vue():
 
     def creer_vaisseau(self, evt):
         # TODO: trouver la planète appartenant à cet évènement.
+        pos = None
+        for i, j in enumerate(self.modele.joueurs):
+            if j == self.mon_nom:
+                pos = self.points[i]
+                
         type_vaisseau = evt.widget.cget("text")
-        self.parent.creer_vaisseau(type_vaisseau)
+        self.parent.creer_vaisseau(type_vaisseau, pos)
         self.ma_selection = None
         self.canevas.delete("marqueur")
         self.cadreinfochoix.pack_forget()
@@ -547,6 +554,10 @@ class Vue():
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile":
+                    for i, joueur in enumerate(self.modele.joueurs):
+                        if joueur == self.mon_nom:
+                            self.points[i] = Point(evt.x, evt.y)
+                           
                     self.montrer_etoile_selection()
 
                 elif t[2] == "Flotte":

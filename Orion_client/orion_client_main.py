@@ -10,7 +10,6 @@ import urllib.request
 from orion_modele import *
 from orion_vue import *
 
-
 class Controleur():
     def __init__(self):
         # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
@@ -34,7 +33,6 @@ class Controleur():
         self.modele = None  # la variable contenant la partie, après initialiserpartie()
         self.vue = Vue(self, self.urlserveur, self.mon_nom,
                        "Non connecté")  # la vue pour l'affichage et les controles du jeu
-
         self.vue.root.mainloop()  # la boucle des evenements (souris, click, clavier)
 
     ######################################################################################################
@@ -217,9 +215,9 @@ class Controleur():
 
     ############        VOTRE CODE      ######################
 
-    def creer_vaisseau(self, type_vaisseau: str):
+    def creer_vaisseau(self, type_vaisseau: str, pos: Point):
         self.actionsrequises.append(
-            [self.mon_nom, "creervaisseau", [type_vaisseau]])
+            [self.mon_nom, "creervaisseau", [type_vaisseau, pos.x, pos.y]])
 
     def cibler_flotte(self, idorigine, iddestination, type_cible):
         self.actionsrequises.append(

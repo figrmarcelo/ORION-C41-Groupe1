@@ -6,9 +6,22 @@ import random
 import ast
 from id import *
 from helper import Helper as hlp
+from math import hypot
 
 
 from modeles import Ressource
+
+class Point:
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+        
+    def distance(self, other: type[Point] | tuple):
+        return int(hypot(self.x - other.x, self.y - other.y))
+    
+    def __repr__(self):
+        return f"x: {self.x} y: {self.y}"
+
 
 
 class Astre():
@@ -168,25 +181,39 @@ class Joueur():
             "ciblerflotte": self.ciblerflotte
         }
 
-    def creervaisseau(self, params: list[str, int]) -> Vaisseau:
-        """Crée un des trois types de vaisseaux disponible
+    def creervaisseau(self, params: list[str, Point]) -> Vaisseau:
+        """Crée un des trois types de vaisseaux disponibles
         sur la planète dont il y a une création
 
         Args:
-            params (list[str, int]): le type de vaisseau et le id
+            params (list[str, Point]): le type de vaisseau et le id
 
         Returns:
             Vaisseau: vaisseau créé
         """
+        # TODO : Position console = Position GUI
         type_vaisseau: str = params[0]
-        etoile = self.parent.cible
-        # TODO: changer les paramètres de self.etoilemere et peut-être dict?
+        pos: Point = Point(params[1], params[2])
+        etoile = None
+        
+        for e in self.etoilescontrolees:
+            print(pos)
+            e_pos = Point(int(e.x/10), int(e.y/10))
+            print(e_pos)
+            
+            
+            etoile = e
+                
+           
+        if not etoile:
+            etoile = Point()
+            
         if type_vaisseau == "Cargo":
-            v = Cargo(self, self.nom, self.etoilemere.x +
-                      10, self.etoilemere.y)
+            v = Cargo(self, self.nom, etoile.x +
+                      10, etoile.y)
         else:
-            v = Vaisseau(self, self.nom, self.etoilemere.x +
-                         10, self.etoilemere.y)
+            v = Vaisseau(self, self.nom, etoile.x +
+                         10, etoile.y)
         self.flotte[type_vaisseau][v.id] = v
 
         if self.nom == self.parent.parent.mon_nom:
@@ -255,7 +282,7 @@ class IA(Joueur):
         self.avancer_flotte(1)
 
         if self.cooldown == 0:
-            v = self.creervaisseau(["Vaisseau"])
+            v = self.creervaisseau(["Vaisseau", random.randint(0, 1000), random.randint(0, 1000)])
             cible = random.choice(self.parent.etoiles)
             v.acquerir_cible(cible, "Etoile")
             self.cooldown = random.randrange(
