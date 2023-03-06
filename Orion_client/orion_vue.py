@@ -34,10 +34,12 @@ class Vue():
 
         # # sera charge apres l'initialisation de la partie, contient les donnees pour mettre l'interface a jour
         self.modele = None
+        self.joueur = None
         # # variable pour suivre le trace du multiselect
         self.debut_selection = []
         self.selecteur_actif = None
         self.idSelect = ''
+        self.choixBat = None
 
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
@@ -147,13 +149,13 @@ class Vue():
 
         self.cadrejeu.pack(side=LEFT, expand=1, fill=BOTH)
 
-        self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu)
-        self.cadreinfoglobale.grid(row=2, sticky="nsew")
+        # self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu, 0, 0, {'pierre' : 0, 'metal' : 0, 'energie': 0}, 0, 0)
+        # self.cadreinfoglobale.grid(row=2, sticky="nsew")
 
         return self.cadrepartie
 
     def creer_cadre_outils(self):
-        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="darkgrey")
+        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="grey11")
         self.cadreoutils.pack(side=LEFT, fill=Y)
 
         self.cadreinfo = Frame(self.cadreoutils, width=200, height=200, bg="darkgrey")
@@ -202,16 +204,16 @@ class Vue():
         # fonction qui affiche le nombre d'items sur le jeu
         self.canevas.bind("<Shift-Button-3>", self.calc_objets)
 
-    def afficher_info_generales(self, source):
+    def afficher_info_generales(self, source, niveau, exp, res, planetes, vaisseaux):
         frame = Frame(source, width=400, height=30, bg="grey11")
 
-        labelNiveau = Label(frame, text="Niveau : 0", bg="grey11", fg="green", font='helvetica 10 bold')
-        labelExp = Label(frame, text="0 XP", bg="grey11", fg="green", font='helvetica 10 bold')
-        labelMetal = Label(frame, text="Me : 0", bg="grey11", fg="green", font='helvetica 10 bold')
-        labelRoche = Label(frame, text="Ro : 0", bg="grey11", fg="green", font='helvetica 10 bold')
-        labelEnergie = Label(frame, text="En : 0", bg="grey11", fg="green", font='helvetica 10 bold')
-        labelPlanetes = Label(frame, text="Planete conquise : 0", bg="grey11", fg="green", font='helvetica 10 bold')
-        labelNbVaisseau = Label(frame, text="Vaisseau : 0", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelNiveau = Label(frame, text="Niveau : " + str(niveau), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelExp = Label(frame, text=str(exp) + " XP", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelMetal = Label(frame, text="Me : " + str(res['metal']), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelRoche = Label(frame, text="Ro : " + str(res['pierre']), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelEnergie = Label(frame, text="En : " + str(res['energie']), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelPlanetes = Label(frame, text="Planete conquise : " + str(planetes), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelNbVaisseau = Label(frame, text="Vaisseau : " + str(vaisseaux), bg="grey11", fg="green", font='helvetica 10 bold')
 
         labelNiveau.place(relx=.05, rely=.5, anchor="center")
         labelExp.place(relx=.15, rely=.5, anchor="center")
@@ -235,16 +237,16 @@ class Vue():
         self.choixBat.pack()
 
     def choix_batiments(self, source):
-        frame = Frame(source, width=200, height=200, bg="darkgrey")
+        frame = Frame(source, width=200, height=200, bg="grey11")
 
-        mine = Button(frame, text="Mine", width=6, height=2)
-        centrale = Button(frame, text="Centrale", width=6, height=2)
-        usine = Button(frame, text="Usine", width=6, height=2)
-        canon = Button(frame, text="Canon", width=6, height=2)
-        balise = Button(frame, text="Balise", width=6, height=2)
-        centreRecherche = Button(frame, text="CdR", width=6, height=2)
+        mine = Button(frame, text="Mine", fg="green", width=6, height=2, bg="grey19")
+        centrale = Button(frame, text="Centrale", fg="green", width=6, height=2, bg="grey19")
+        usine = Button(frame, text="Usine", fg="green", width=6, height=2, bg="grey19")
+        canon = Button(frame, text="Canon", fg="green", width=6, height=2, bg="grey19")
+        balise = Button(frame, text="Balise", fg="green", width=6, height=2, bg="grey19")
+        centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=2, bg="grey19")
 
-        titre = Label(frame, text="BATIMENTS", bg="darkgrey")
+        titre = Label(frame, text="BATIMENTS", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
         mine.place(anchor="center", relx=.3, rely=.35)
@@ -256,27 +258,28 @@ class Vue():
 
         return frame
 
-    def affichage_planete_selectionee(self, source, planete):
+    def affichage_planete_selectionee(self, source, planete, state):
+        self.state = state
         idSelect = planete.id
         planeteSelect = planete
         print(idSelect)
         ressSelect = planeteSelect.getRessources()
 
-        frame = Frame(source, width=200, height=200, bg="red")
+        frame = Frame(source, width=200, height=200, bg="grey11")
 
-        txtPlanete = idSelect.split("_")
+        txtPlanete = "Planete " + idSelect.split("_")[1]
         txtRoche = "Roche : " + str(ressSelect['pierre'])
         txtMetal = "Metal : " + str(ressSelect['metal'])
         txtEnergie = "Energie : " + str(ressSelect['energie'])
 
-        Label(frame, text=txtPlanete, font='helvetica 10 bold' ).place(anchor="center",relx=.5, rely=.1)
-        Label(frame, text=txtRoche).place(relx=.2, rely=.25)
-        Label(frame, text=txtMetal).place(relx=.2, rely=.40)
-        Label(frame, text=txtEnergie).place(relx=.2, rely=.55)
+        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green" ).place(anchor="center",relx=.5, rely=.1)
+        Label(frame, text=txtRoche, bg="grey11", fg="green").place(relx=.2, rely=.25)
+        Label(frame, text=txtMetal, bg="grey11", fg="green").place(relx=.2, rely=.40)
+        Label(frame, text=txtEnergie, bg="grey11", fg="green").place(relx=.2, rely=.55)
 
-        batiment = Button(frame, text="BATIMENTS", width=10, height=2)
+        batiment = Button(frame, text="BATIMENTS", fg="green", width=9, height=1 , bg="grey19")
         batiment.bind('<Button>', self.afficher_batiment)
-        batiment.place(anchor="center", rely=.8, relx=.25)
+        batiment.place(anchor="center", rely=.9, relx=.25)
 
         return frame
 
@@ -360,6 +363,7 @@ class Vue():
     def initialiser_avec_modele(self, modele):
         self.mon_nom = self.parent.mon_nom
         self.modele = modele
+        self.joueur = self.modele.joueurs[self.mon_nom]
         self.canevas.config(scrollregion=(0, 0, modele.largeur, modele.hauteur))
 
         self.labid.config(text=self.mon_nom)
@@ -473,6 +477,14 @@ class Vue():
         self.canevas.delete("objet_spatial")
         self.afficher_mini()
 
+        # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
+        self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
+                                                             self.joueur.niveau, self.joueur.experience,
+                                                             self.joueur.ressources,
+                                                             self.joueur.nbEtoileControle,
+                                                             self.joueur.nbFlotte)
+        self.cadreinfoglobale.grid(row=2, sticky="nsew")
+
         if self.ma_selection != None:
             joueur = mod.joueurs[self.ma_selection[0]]
             if self.ma_selection[2] == "Etoile":
@@ -549,18 +561,15 @@ class Vue():
         if t:  # il y a des tags
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
-                if t[2] == "Etoile":
-                    print(t[2])
-                    self.test = self.modele.getEtoileById(self.ma_selection[1])
-                    if(self.ma_selection[1] != self.idSelect):
-                        self.idSelect = self.ma_selection[1] # get la planete selectionee
-                        if(self.infoSelection):
-                            self.infoSelection.pack_forget()
-                        for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
-                            if i.id == self.idSelect:
-                                self.etoile_select = i
+                if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+                    self.idSelect = self.ma_selection[1] # get la planete selectionee
+                    if(self.infoSelection):
+                        self.infoSelection.pack_forget()
+                    for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
+                        if i.id == self.idSelect:
+                            self.etoile_select = i
                     print(1)
-                    self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select)
+                    self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.choixBat = self.choix_batiments(self.cadreoutils)
                     self.montrer_etoile_selection()
                 elif t[2] == "Flotte":
@@ -572,6 +581,7 @@ class Vue():
                 self.canevas.delete("marqueur")
         else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
             print("Region inconnue")
+            self.idSelect = None
             self.ma_selection = None
             self.canevas.delete("marqueur")
             self.levelUp.pack_forget()

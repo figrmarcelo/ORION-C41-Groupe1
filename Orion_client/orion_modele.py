@@ -156,10 +156,16 @@ class Joueur():
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees = [etoilemere]
+        self.nbEtoileControle = len(self.etoilescontrolees)
         self.flotte = {"Vaisseau": {},
                        "Cargo": {}}
+        self.nbFlotte = len(self.flotte['Vaisseau']) + len(self.flotte['Cargo'])
         self.actions = {"creervaisseau": self.creervaisseau,
                         "ciblerflotte": self.ciblerflotte}
+        self.ressources = Ressource(0, 0, 0)
+        self.experience = 0
+        self.niveau = 0
+
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
