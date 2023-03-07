@@ -20,6 +20,8 @@ class Vue():
         self.taille_minimap = 240
         self.zoom = 2
         self.ma_selection = None
+        self.dernier_selection = None
+        self.contour = True
         self.etoile_select = None
         self.cadre_actif = None
         # cadre principal de l'application
@@ -171,12 +173,15 @@ class Vue():
         self.levelUp = self.afficher_level_up(self.cadreoutils)
 
         self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
-        self.btncreervaisseau = Button(self.cadreinfochoix, text="Vaisseau")
-        self.btncreervaisseau.bind("<Button>", self.creer_vaisseau)
+        self.btncreercombat = Button(self.cadreinfochoix, text="Combat")
+        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+        self.btncreerexplorer = Button(self.cadreinfochoix, text="Explorer")
+        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
         self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
         self.btncreercargo.bind("<Button>", self.creer_vaisseau)
 
-        self.btncreervaisseau.pack()
+        self.btncreercombat.pack()
+        self.btncreerexplorer.pack()
         self.btncreercargo.pack()
 
         self.cadreinfoliste = Frame(self.cadreinfo)
@@ -418,7 +423,6 @@ class Vue():
                                                       fill=mod.joueurs[i].couleur, outline=mod.joueurs[i].couleur,
                                                       tags=(j.proprietaire, str(j.id), "Etoile"))
 
-
     def afficher_mini(self):  # univers(self, mod):
         self.canevas_minimap.delete("mini")
         for j in self.modele.etoiles:
@@ -486,7 +490,15 @@ class Vue():
                                                              len(joueur.flotte['Vaisseau']) + len(joueur.flotte['Cargo']))
         self.cadreinfoglobale.grid(row=2, sticky="nsew")
 
-        if self.ma_selection != None:
+        # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
+        self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
+                                                             self.joueur.niveau, self.joueur.experience,
+                                                             self.joueur.ressources,
+                                                             self.joueur.nbEtoileControle,
+                                                             self.joueur.nbFlotte)
+        self.cadreinfoglobale.grid(row=2, sticky="nsew")
+
+        if self.ma_selection != None and self.contour == True:
             joueur = mod.joueurs[self.ma_selection[0]]
             if self.ma_selection[2] == "Etoile":
                 for i in joueur.etoilescontrolees:
@@ -497,7 +509,7 @@ class Vue():
                         self.canevas.create_oval(x - t, y - t, x + t, y + t,
                                                  dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
                                                  tags=("multiselection", "marqueur"))
-            elif self.ma_selection[2] == "Flotte":
+            elif self.ma_selection[2] == "FlotteCombat":
                 for j in joueur.flotte:
                     for i in joueur.flotte[j]:
                         i = joueur.flotte[j][i]
@@ -505,7 +517,19 @@ class Vue():
                             x = i.x
                             y = i.y
                             t = 10 * self.zoom
-                            self.canevas.create_rectangle(x - t, y - t, x + t, y + t,
+                            self.canevas.create_polygon(x, y - t, x - t, y + t - 5, x + t, y + t - 5,
+                                                        dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur, fill='',
+                                                        tags=("multiselection", "marqueur"))
+            elif self.ma_selection[2] == "FlotteExplorer":
+                for j in joueur.flotte:
+                    for i in joueur.flotte[j]:
+                        i = joueur.flotte[j][i]
+                        if i.id == self.ma_selection[1]:
+                            x = i.x
+                            y = i.y
+                            t = 10 * self.zoom
+                            self.canevas.create_rectangle(x - t, (y - (t - (2 * self.zoom))), x + t,
+                                                          (y + (t - (5 * self.zoom))),
                                                           dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
                                                           tags=("multiselection", "marqueur"))
         # afficher asset des joueurs
@@ -516,16 +540,12 @@ class Vue():
                 for j in i.flotte[k]:
                     j = i.flotte[k][j]
                     tailleF = j.taille * self.zoom
-                    if k == "Vaisseau":
-                        self.canevas.create_rectangle((j.x - tailleF), (j.y - tailleF),
-                                                      (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                                      tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
-                    elif k == "Cargo":
-                        # self.dessiner_cargo(j,tailleF,i,k)
+                    if k == "Cargo":
                         self.dessiner_cargo(j, tailleF, i, k)
-                        # self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                        #                          (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                        #                          tags=(j.proprietaire, str(j.id), "Flotte",k,"artefact"))
+                    elif k == "Combat":
+                        self.dessiner_combat(j, tailleF, i, k)
+                    elif k == "Explorer":
+                        self.dessiner_explorer(j, tailleF, i, k)
         for t in self.modele.trou_de_vers:
             i = t.porte_a
             for i in [t.porte_a, t.porte_b]:
@@ -537,8 +557,25 @@ class Vue():
                                          i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2, fill="grey15",
                                          tags=("", i.id, "Porte_de_ver", "objet_spatial"))
 
+    def dessiner_combat(self, obj, tailleF, joueur, type_obj):
 
+        t = obj.taille * self.zoom
+        x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
+        dt = t / 2
 
+        self.canevas.create_polygon(obj.x,
+                                    (obj.y - tailleF),
+                                    (obj.x - tailleF),
+                                    (obj.y + tailleF),
+                                    (obj.x + tailleF),
+                                    (obj.y + tailleF),
+                                    fill=joueur.couleur, outline='black',
+                                    tags=(obj.proprietaire, str(obj.id), "FlotteCombat", type_obj, "artefact"))
+
+    def dessiner_explorer(self, obj, tailleF, joueur, type_obj):
+        self.canevas.create_rectangle((obj.x - tailleF), (obj.y - tailleF),
+                                      (obj.x + tailleF), (obj.y + tailleF - 5), fill=joueur.couleur,
+                                      tags=(obj.proprietaire, str(obj.id), "FlotteExplorer", type_obj, "artefact"))
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
@@ -573,12 +610,12 @@ class Vue():
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.choixBat = self.choix_batiments(self.cadreoutils)
                     self.montrer_etoile_selection()
-                elif t[2] == "Flotte":
-                    self.montrer_flotte_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:
-                    self.parent.cibler_flotte(self.ma_selection[1], t[1], t[2])
+                    self.contour = False
+                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
                 self.ma_selection = None
+                self.contour = True
                 self.canevas.delete("marqueur")
         else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
             print("Region inconnue")
@@ -595,7 +632,6 @@ class Vue():
         self.cadreinfochoix.pack(fill=BOTH)
         self.infoSelection.pack(fill=BOTH)
         # self.levelUp.pack(pady=5)
-
 
     def montrer_flotte_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)

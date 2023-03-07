@@ -8,10 +8,7 @@ from id import *
 from helper import Helper as hlp
 from threading import Timer
 
-
 from modeles import Ressource
-
-
 
 
 class Batiment():
@@ -96,22 +93,22 @@ class Centrale(Extraction):
         Args:
             proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
         """
-        if self.planete.ressource["energie"] > 0: #SI la quantité d'énergie > 0 (Si il reste de l'energie dans la planete)
-            if self.nb_energie > self.planete.ressource["energie"]: #SI le nombre d'energie stocké > que celui disponible dans la planete...
-                proprietaire.ressource["energie"] += self.planete.ressource["energie"]#transfer de la qte dispo dans la planete only
-            else: #sinon, transfer du nombre d'energie stocké
+        if self.planete.ressource[
+            "energie"] > 0:  # SI la quantité d'énergie > 0 (Si il reste de l'energie dans la planete)
+            if self.nb_energie > self.planete.ressource[
+                "energie"]:  # SI le nombre d'energie stocké > que celui disponible dans la planete...
+                proprietaire.ressource["energie"] += self.planete.ressource[
+                    "energie"]  # transfer de la qte dispo dans la planete only
+            else:  # sinon, transfer du nombre d'energie stocké
                 proprietaire.ressource["energie"] += self.nb_energie
                 self.planete.ressource["energie"] -= self.nb_energie
-            self.nb_energie = 0 #On reset le nombre d'energie à 0, car deja transferé au joueur
-    
+            self.nb_energie = 0  # On reset le nombre d'energie à 0, car deja transferé au joueur
+
     def generer(self):
         self.proprietaire.ressource["energie"] += self.taux_extraction * self.niveau
         time.sleep(1)
-        
-        #faire un thread pour la generation
-        
-    
-            
+
+        # faire un thread pour la generation
 
 
 class MineMetal(Extraction):
@@ -226,12 +223,6 @@ class AccelerateurParticule(Batiment):
     def end_game(self):
         pass   
 
-
-
-
-
-
-
 class Porte_de_vers():
     def __init__(self, parent, x, y, couleur, taille):
         self.parent = parent
@@ -247,7 +238,6 @@ class Porte_de_vers():
         if self.pulse >= self.pulsemax:
             self.pulse = 0
 
-
 class Trou_de_vers():
     def __init__(self, x1, y1, x2, y2):
         self.id = get_prochain_id()
@@ -260,8 +250,6 @@ class Trou_de_vers():
         self.porte_a.jouer_prochain_coup()
         self.porte_b.jouer_prochain_coup()
 
-
-
 class Astre():
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
         self.id: int = get_prochain_id()
@@ -272,8 +260,7 @@ class Astre():
 
     def getId(self):
         return self.id
-    
-    
+      
 class Etoile(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(4, 8))
@@ -299,18 +286,10 @@ class Etoile(Astre):
 
     def getRessources(self):
         return self.ressources.get()
-    
-    
-    
-    
-
-        
+            
 class Nuage(Astre):
     def __init__(self, parent: Modele, x: int, y: int):
         super().__init__(parent, x, y, random.randrange(12, 8))
-
-
-
 
 class Vaisseau():
     def __init__(self, parent: Joueur, nom: str, x: int , y: int):
@@ -332,6 +311,10 @@ class Vaisseau():
         self.niveau = 1 #ajout de niveau du vaisseau
         
         self.pdv = 100 * self.niveau #ajout de point de vie du vaisseau
+
+        self.niveau = 1  # ajout de niveau du vaisseau
+
+        self.pdv = 100 * self.niveau  # ajout de point de vie du vaisseau
 
     def jouer_prochain_coup(self, trouver_nouveau=0):
         if self.cible != 0:
@@ -378,11 +361,33 @@ class Vaisseau():
         return ["Porte_de_ver", cible]
 
 
+class Combat(Vaisseau):
+
+    def __init__(self, parent, nom, x, y):
+        Vaisseau.__init__(self, parent, nom, x, y)
+        self.combatpoints = 0
+        self.taille: int = 5
+        self.vitesse: int = 2
+        self.cible: int = 0
+        self.type_cible = None
+        self.angle_cible = 0
+
+
+class Explorer(Vaisseau):
+
+    def __init__(self, parent, nom, x, y):
+        Vaisseau.__init__(self, parent, nom, x, y)
+        self.taille: int = 5
+        self.vitesse: int = 2
+        self.cible: int = 0
+        self.type_cible = None
+        self.angle_cible = 0
+
+
 class Cargo(Vaisseau):
     def __init__(self, parent, nom, x, y):
         Vaisseau.__init__(self, parent, nom, x, y)
         self.cargo = 1000
-        self.energie = 500
         self.taille = 6
         self.vitesse = 1
         self.cible = 0
@@ -402,7 +407,10 @@ class Joueur(): # **************************************************************
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees = [etoilemere]
+        self.nbEtoileControle = len(self.etoilescontrolees)
         self.flotte = {"Vaisseau": {},
+                       "Combat": {},
+                       "Explorer": {},
                        "Cargo": {}}
         self.ressources = Ressource(0, 0, 0)
         self.experience = 0
@@ -446,6 +454,10 @@ class Joueur(): # **************************************************************
         type_vaisseau = params[0]
         if type_vaisseau == "Cargo":
             v = Cargo(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+        elif type_vaisseau == "Combat":
+            v = Combat(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+        elif type_vaisseau == "Explorer":
+            v = Explorer(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
         else:
             v = Vaisseau(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
         self.flotte[type_vaisseau][v.id] = v
@@ -454,7 +466,7 @@ class Joueur(): # **************************************************************
             self.parent.parent.lister_objet(type_vaisseau, v.id)
         return v
 
-    def ciblerflotte(self, ids):
+    def cibleretoile(self, ids):
         idori, iddesti, type_cible = ids
         ori = None
         for i in self.flotte.keys():
@@ -487,7 +499,7 @@ class Joueur(): # **************************************************************
                 j = self.flotte[i][j]
                 rep = j.jouer_prochain_coup(chercher_nouveau)
                 if rep:
-                    if rep[0] == "Etoile":
+                    if rep[0] == "Etoile" and i == "Combat":
                         # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
                         #       quand on l'attribue aux etoilescontrolees
                         #       et que ce passe-t-il si l'etoile a un proprietaire ???

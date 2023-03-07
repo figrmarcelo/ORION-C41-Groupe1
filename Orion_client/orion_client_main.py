@@ -210,8 +210,8 @@ class Controleur():
     def creer_vaisseau(self, type_vaisseau):
         self.actionsrequises.append([self.mon_nom, "creervaisseau", [type_vaisseau]])
 
-    def cibler_flotte(self, idorigine, iddestination, type_cible):
-        self.actionsrequises.append([self.mon_nom, "ciblerflotte", [idorigine, iddestination, type_cible]])
+    def cibler_etoile(self, idorigine, iddestination, type_cible):
+        self.actionsrequises.append([self.mon_nom, "cibleretoile", [idorigine, iddestination, type_cible]])
 
     def afficher_etoile(self, joueur, cible):
         self.vue.afficher_etoile(joueur, cible)
