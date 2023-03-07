@@ -299,14 +299,16 @@ class Nuage(Astre):
 
 
 class Vaisseau():
-    def __init__(self, parent: Joueur, nom: str, x: int, y: int):
+    def __init__(self, parent: Joueur, nom: str, x: int, y: int, taille: int, 
+                 vitesse: int):
         self.parent = parent
         self.id: int = get_prochain_id()
         self.proprietaire = nom
         self.x = x
         self.y = y
-        self.taille: int = 5
-        self.vitesse: int = 2
+        self.taille: int = taille
+        self.vitesse: int = vitesse
+        
         self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
@@ -363,36 +365,21 @@ class Vaisseau():
 
 
 class Combat(Vaisseau):
-
-    def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
+    def __init__(self, parent, nom, x, y, taille=5, vitesse=3):
+        super().__init__(parent, nom, x, y, taille, vitesse)
         self.combatpoints = 0
-        self.taille: int = 5
-        self.vitesse: int = 2
-        self.cible: int = 0
-        self.type_cible = None
-        self.angle_cible = 0
+      
 
 
 class Explorer(Vaisseau):
-
-    def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
-        self.taille: int = 5
-        self.vitesse: int = 2
-        self.cible: int = 0
-        self.type_cible = None
-        self.angle_cible = 0
-
+    def __init__(self, parent, nom, x, y, taille=5, vitesse=2):
+        super().__init__(parent, nom, x, y, taille, vitesse)
+   
 
 class Cargo(Vaisseau):
-    def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
-        self.cargo = 1000
-        self.taille = 6
-        self.vitesse = 1
-        self.cible = 0
-        self.ang = 0
+    def __init__(self, parent, nom, x, y, taille=6, vitesse=1):
+        super().__init__(parent, nom, x, y, taille, vitesse)
+        self.capacity = 1000
 
 
 class Joueur():  # **************************************************************** --- JOUEUR --- **********************************************************
@@ -451,10 +438,8 @@ class Joueur():  # *************************************************************
             v = Cargo(self, self.nom, x + 10, y)
         elif type_vaisseau == "Combat":
             v = Combat(self, self.nom, x + 10, y)
-        elif type_vaisseau == "Explorer":
-            v = Explorer(self, self.nom, x + 10, y)
         else:
-            v = Vaisseau(self, self.nom, x + 10, y)
+            v = Explorer(self, self.nom, x + 10, y)
         self.flotte[type_vaisseau][v.id] = v
 
         if self.nom == self.parent.parent.mon_nom:

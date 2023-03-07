@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# version 2022 14 mars - jmd
-# version  janvier 2023
+##  version 2022 14 mars - jmd
+##  version  janvier 2023
 #     enlever import inutile
 import json
 import urllib.error
@@ -10,33 +10,29 @@ import urllib.request
 from orion_modele import *
 from orion_vue import *
 
+
 class Controleur():
     def __init__(self):
-        # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
-        self.mon_nom = self.generer_nom()
-        # 1 quand un joueur "Créer une partie", peut Demarrer la partie
-        self.joueur_createur = 0
-        # compte les tours dans la boucle de jeu (bouclersurjeu)
-        self.cadrejeu = 0
+        self.mon_nom: str = self.generer_nom()  # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
+        self.joueur_createur: int = 0  # 1 quand un joueur "Créer une partie", peut Demarrer la partie
+        self.cadrejeu: int = 0  # compte les tours dans la boucle de jeu (bouclersurjeu)
         self.actionsrequises = []  # les actions envoyées au serveur
-        self.joueurs = []  # liste des noms de joueurs pour le lobby
+        self.joueurs: list[str] = []  # liste des noms de joueurs pour le lobby
 
-        # requis pour sortir de cette boucle et passer au lobby du jeu
-        self.prochainsplash = None
+        self.prochainsplash = None  # requis pour sortir de cette boucle et passer au lobby du jeu
         self.onjoue = 1  # indicateur que le jeu se poursuive - sinon on attend qu'un autre joueur nous rattrape
         self.maindelai = 50  # delai en ms de la boucle de jeu
-        # frequence des appel au serveur, evite de passer son temps a communiquer avec le serveur
-        self.moduloappeler_serveur = 2
-        # 127.0.0.1 pour tests,"http://votreidentifiant.pythonanywhere.com" pour web
-        self.urlserveur = "http://127.0.0.1:8000"
+        self.moduloappeler_serveur = 2  # frequence des appel au serveur, evite de passer son temps a communiquer avec le serveur
+        self.urlserveur = "http://127.0.0.1:8000"  # 127.0.0.1 pour tests,"http://votreidentifiant.pythonanywhere.com" pour web
         # self.urlserveur= "http://jmdeschamps.pythonanywhere.com"
         self.modele = None  # la variable contenant la partie, après initialiserpartie()
         self.vue = Vue(self, self.urlserveur, self.mon_nom,
                        "Non connecté")  # la vue pour l'affichage et les controles du jeu
+
         self.vue.root.mainloop()  # la boucle des evenements (souris, click, clavier)
 
     ######################################################################################################
-    # FONCTIONS RESERVEES - INTERDICTION DE MODIFIER SANS AUTORISATION PREALABLE SAUF CHOIX DE RANDOM SEED LIGNE 94-95
+    ### FONCTIONS RESERVEES - INTERDICTION DE MODIFIER SANS AUTORISATION PREALABLE SAUF CHOIX DE RANDOM SEED LIGNE 94-95
     def connecter_serveur(self, url_serveur):
         self.urlserveur = url_serveur  # le dernier avant le clic
         self.boucler_sur_splash()
@@ -96,10 +92,8 @@ class Controleur():
 
         self.modele = Modele(self,
                              listejoueurs)  # on cree une partie pour les joueurs listes, qu'on conserve comme modele
-        # on fournit le modele et mets la vue à jour
-        self.vue.initialiser_avec_modele(self.modele)
-        # on change le cadre la fenetre pour passer dans l'interface de jeu
-        self.vue.changer_cadre("partie")
+        self.vue.initialiser_avec_modele(self.modele)  # on fournit le modele et mets la vue à jour
+        self.vue.changer_cadre("partie")  # on change le cadre la fenetre pour passer dans l'interface de jeu
 
         self.boucler_sur_jeu()  # on lance la boucle de jeu
 
@@ -119,8 +113,7 @@ class Controleur():
         params = {"nom": self.mon_nom}
         mondict = self.appeler_serveur(url, params)
 
-        # courante, la partie doit etre initialiser
-        if "courante" in mondict[0]:
+        if "courante" in mondict[0]:  # courante, la partie doit etre initialiser
             self.initialiser_partie(mondict)
         else:
             self.joueurs = mondict
@@ -198,7 +191,7 @@ class Controleur():
         rep = json.loads(rep)
         return rep
 
-    # FIN DE L'INTERDICTION DE MODIFICATION
+    ###  FIN DE L'INTERDICTION DE MODIFICATION
     #################################################################################
 
     ############            OUTILS           ###################
@@ -208,26 +201,26 @@ class Controleur():
         return mon_nom
 
     def abandonner(self):
-        action = [self.mon_nom, "abandonner", [
-            self.mon_nom + ": J'ABANDONNE !"]]
+        action = [self.mon_nom, "abandonner", [self.mon_nom + ": J'ABANDONNE !"]]
         self.actionsrequises = action
         self.root.after(500, self.root.destroy)
 
     ############        VOTRE CODE      ######################
 
     def creer_vaisseau(self, type_vaisseau: str, x: int, y: int):
-        self.actionsrequises.append(
-            [self.mon_nom, "creervaisseau", [type_vaisseau, x, y]])
+        self.actionsrequises.append([self.mon_nom, "creervaisseau", [type_vaisseau, x, y]])
 
-    def cibler_flotte(self, idorigine, iddestination, type_cible):
-        self.actionsrequises.append(
-            [self.mon_nom, "ciblerflotte", [idorigine, iddestination, type_cible]])
+    def cibler_etoile(self, idorigine, iddestination, type_cible):
+        self.actionsrequises.append([self.mon_nom, "cibleretoile", [idorigine, iddestination, type_cible]])
 
     def afficher_etoile(self, joueur, cible):
         self.vue.afficher_etoile(joueur, cible)
 
     def lister_objet(self, objet, id):
         self.vue.lister_objet(objet, id)
+    
+    def creer_batiment(self, id_planete, id_batiment):
+        self.actionsrequises.append([self.mon_nom, "creerbatiment", [id_planete, id_batiment]])
 
 
 if __name__ == "__main__":

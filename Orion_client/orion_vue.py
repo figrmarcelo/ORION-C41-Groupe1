@@ -576,20 +576,14 @@ class Vue():
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
-        a = obj.ang
         x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
         self.canevas.create_oval((obj.x - tailleF), (obj.y - tailleF),
                                  (obj.x + tailleF), (obj.y + tailleF), fill=joueur.couleur,
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
+                                 tags=(obj.proprietaire, str(obj.id), "FlotteCargo", type_obj, "artefact"))
         self.canevas.create_oval((x - dt), (y - dt),
                                  (x + dt), (y + dt), fill="yellow",
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
-
-    def dessiner_cargo1(self, j, tailleF, i, k):
-        self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                                 (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                 tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
+                                 tags=(obj.proprietaire, str(obj.id), "FlotteCargo", type_obj, "artefact"))
 
     def cliquer_cosmos(self, evt):
         t = self.canevas.gettags(CURRENT)
