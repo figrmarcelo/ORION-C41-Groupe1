@@ -402,10 +402,8 @@ class Joueur(): # **************************************************************
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees = [etoilemere]
-        self.nbEtoileControle = len(self.etoilescontrolees)
         self.flotte = {"Vaisseau": {},
                        "Cargo": {}}
-        self.nbFlotte = len(self.flotte['Vaisseau']) + len(self.flotte['Cargo'])
         self.ressources = Ressource(0, 0, 0)
         self.experience = 0
         self.niveau = 0        
