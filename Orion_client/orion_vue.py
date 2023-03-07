@@ -473,7 +473,8 @@ class Vue():
 
     def creer_vaisseau(self, evt):
         type_vaisseau = evt.widget.cget("text")
-        self.parent.creer_vaisseau(type_vaisseau)
+        self.parent.creer_vaisseau(type_vaisseau, self.etoile_select.x, 
+                                   self.etoile_select.y)
         self.ma_selection = None
         self.canevas.delete("marqueur")
         self.cadreinfochoix.pack_forget()
