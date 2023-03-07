@@ -517,7 +517,7 @@ class Vue():
                             self.canevas.create_polygon(x, y - t, x - t, y + t - 5, x + t, y + t - 5,
                                                         dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur, fill='',
                                                         tags=("multiselection", "marqueur"))
-            elif self.ma_selection[2] == "FlotteExplorer":
+            elif self.ma_selection[2] == "FlotteExplorer" or self.ma_selection[2] == "FlotteCargo":
                 for j in joueur.flotte:
                     for i in joueur.flotte[j]:
                         i = joueur.flotte[j][i]
@@ -592,7 +592,7 @@ class Vue():
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
                     self.idSelect = self.ma_selection[1]  # get la planete selectionee
-                    if (self.infoSelection):
+                    if self.infoSelection:
                         self.infoSelection.pack_forget()
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
                         if i.id == self.idSelect:
