@@ -276,10 +276,10 @@ class Etoile(Astre):
             random.randint(100, 500)
         ) * self.taille
 
+        # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
             "centrale": 0,
-            "mineMetal": 0,
-            "minePierre": 0,
+            "mine": 0,
             "canon": 0,
             "centreRecherche": 0,
         }
@@ -421,7 +421,7 @@ class Joueur():  # *************************************************************
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
         id_planete = params
         for planete in self.etoilescontrolees:
-            if planete.getID() != id_planete:
+            if planete.getId() != id_planete:
                 continue
             else:
                 for ressource in planete.ressources_dispo:
@@ -429,21 +429,23 @@ class Joueur():  # *************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
-        id_planete, id_batiment = params
+        id_planete = params[0]
+        type_batiment = params[1]
+        type_batiment = type_batiment.lower()
+
         for planete in self.etoilescontrolees:
-            if planete.getID() != id_planete:
-                continue
-            else:
+            if planete.getId() == id_planete:
+                for batiment in planete.batiments:
+                    if type_batiment.lower() == batiment:
+                        print(15)
+                        planete.batiments[batiment] += 1
+                        break
                 # condition IF a ameliorer avec un for each
-                if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources[
-                    "pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
-                    self.ressources["metal"] = - id_batiment["metal"]
-                    self.ressources["pierre"] = - id_batiment["pierre"]
-                    self.ressources["energie"] = - id_batiment["energie"]
-                    for batiment in planete.batiments:
-                        if id_batiment["type_batiment"] == batiment:
-                            planete.batiments[batiment] += 1
-                            break
+                # if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
+                #     self.ressources["metal"] = - id_batiment["metal"]
+                #     self.ressources["pierre"] = - id_batiment["pierre"]
+                #     self.ressources["energie"] = - id_batiment["energie"]
+
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]

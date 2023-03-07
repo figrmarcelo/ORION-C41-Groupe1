@@ -245,6 +245,12 @@ class Vue():
         self.infoSelection.pack_forget()
         self.choixBat.pack()
 
+    def creer_batiment(self, evt):
+        type = evt.widget.cget("text")
+        print(type)
+        self.parent.creer_batiment([self.idSelect, type])
+
+
     def choix_batiments(self, source):
         frame = Frame(source, width=200, height=200, bg="grey11")
 
@@ -258,12 +264,17 @@ class Vue():
         titre = Label(frame, text="BATIMENTS", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
+        # self.joueur.creerbatiment([self.idSelect, 'mine'])
+
         mine.place(anchor="center", relx=.3, rely=.35)
         centrale.place(anchor="center", relx=.7, rely=.35)
         usine.place(anchor="center", relx=.3, rely=.60)
         canon.place(anchor="center", relx=.7, rely=.60)
         balise.place(anchor="center", relx=.3, rely=.85)
         centreRecherche.place(anchor="center", relx=.7, rely=.85)
+
+        mine.bind('<Button>', self.creer_batiment)
+
 
         return frame
 
@@ -602,7 +613,6 @@ class Vue():
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
                         if i.id == self.idSelect:
                             self.etoile_select = i
-                    print(1)
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.choixBat = self.choix_batiments(self.cadreoutils)
                     self.montrer_etoile_selection()
