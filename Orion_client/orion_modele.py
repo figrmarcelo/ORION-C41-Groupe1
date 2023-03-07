@@ -11,18 +11,6 @@ from math import hypot
 
 from modeles import Ressource
 
-class Point:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-        
-    def distance(self, other: type[Point] | tuple):
-        return int(hypot(self.x - other.x, self.y - other.y))
-    
-    def __repr__(self):
-        return f"x: {self.x} y: {self.y}"
-
-
 
 class Astre():
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
@@ -181,7 +169,7 @@ class Joueur():
             "ciblerflotte": self.ciblerflotte
         }
 
-    def creervaisseau(self, params: list[str, Point]) -> Vaisseau:
+    def creervaisseau(self, params: list[str, any]) -> Vaisseau:
         """Crée un des trois types de vaisseaux disponibles
         sur la planète dont il y a une création
 
@@ -193,27 +181,13 @@ class Joueur():
         """
         # TODO : Position console = Position GUI
         type_vaisseau: str = params[0]
-        pos: Point = Point(params[1], params[2])
-        etoile = None
-        
-        for e in self.etoilescontrolees:
-            print(pos)
-            e_pos = Point(int(e.x/10), int(e.y/10))
-            print(e_pos)
-            
-            
-            etoile = e
-                
-           
-        if not etoile:
-            etoile = Point()
-            
+
         if type_vaisseau == "Cargo":
-            v = Cargo(self, self.nom, etoile.x +
-                      10, etoile.y)
+            v = Cargo(self, self.nom, self.etoilemere.x +
+                      10, self.etoilemere.y)
         else:
-            v = Vaisseau(self, self.nom, etoile.x +
-                         10, etoile.y)
+            v = Vaisseau(self, self.nom, self.etoilemere.x +
+                         10, self.etoilemere.y)
         self.flotte[type_vaisseau][v.id] = v
 
         if self.nom == self.parent.parent.mon_nom:
