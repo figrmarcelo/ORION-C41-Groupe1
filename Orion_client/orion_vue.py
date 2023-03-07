@@ -483,13 +483,15 @@ class Vue():
         self.canevas.delete("artefact")
         self.canevas.delete("objet_spatial")
         self.afficher_mini()
+        joueur = mod.joueurs[self.mon_nom]
 
         # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
         self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
-                                                             self.joueur.niveau, self.joueur.experience,
-                                                             self.joueur.ressources,
-                                                             self.joueur.nbEtoileControle,
-                                                             self.joueur.nbFlotte)
+                                                             joueur.niveau, joueur.experience,
+                                                             joueur.ressources,
+                                                             len(joueur.etoilescontrolees),
+                                                             len(joueur.flotte['Combat']) + len(joueur.flotte['Explorer']) +
+                                                             len(joueur.flotte['Cargo']))
         self.cadreinfoglobale.grid(row=2, sticky="nsew")
 
         if self.ma_selection != None and self.contour == True:
