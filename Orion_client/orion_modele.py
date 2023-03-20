@@ -278,10 +278,10 @@ class Etoile(Astre):
 
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
-            "centrale": 0,
-            "mine": 0,
-            "canon": 0,
-            "centreRecherche": 0,
+            "centrale": {},
+            "mine": {},
+            "canon": {},
+            "centreRecherche": {},
         }
 
         self.ressources_dispo = {
@@ -438,14 +438,14 @@ class Joueur():  # *************************************************************
                 for batiment in planete.batiments:
                     if type_batiment.lower() == batiment:
                         print(15)
-                        planete.batiments[batiment] += 1
+                        b = MinePierre(id_planete, 0, 100, 1, self.nom, 1500, 60)
                         break
                 # condition IF a ameliorer avec un for each
                 # if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
                 #     self.ressources["metal"] = - id_batiment["metal"]
                 #     self.ressources["pierre"] = - id_batiment["pierre"]
                 #     self.ressources["energie"] = - id_batiment["energie"]
-
+            planete.batiments[batiment][b.id] = b
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
