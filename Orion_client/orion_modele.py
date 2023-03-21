@@ -404,11 +404,7 @@ class Joueur():  # *************************************************************
                         print(15)
                         bat = Mine(id_planete, self.nom)
                         break
-                # condition IF a ameliorer avec un for each
-                # if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
-                #     self.ressources["metal"] = - id_batiment["metal"]
-                #     self.ressources["pierre"] = - id_batiment["pierre"]
-                #     self.ressources["energie"] = - id_batiment["energie"]
+
                 planete.batiments[type][bat.id] = bat
 
     def creervaisseau(self, params):
@@ -479,8 +475,6 @@ class Joueur():  # *************************************************************
                         b[mine].generer(etoile, bat)
                         if b[mine].ressources["metal"] > 1:
                             self.ressources += b[mine].recolte()
-
-
                 elif bat == "centrale":
                     for centrale in b:
                         b[centrale].generer(etoile, bat)
