@@ -4,6 +4,8 @@ from __future__ import annotations
 import random
 import ast
 import time
+from collections import defaultdict
+
 from id import *
 from helper import Helper as hlp
 from threading import Timer
@@ -75,9 +77,6 @@ class Extraction(Batiment):
             "metal": 0
         }
 
-        for res in planete.ressources:
-            self.ressources_max[res] += planete.ressources[res]
-
 
     def generer(self, bat):
         if bat == 'centrale':
@@ -135,8 +134,8 @@ class Mine(Extraction):
         Extraction : Child de la classe Extraction
     """
 
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
         self.generer("mine")
 
@@ -241,10 +240,10 @@ class Etoile(Astre):
 
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
-            "centrale": {},
-            "mine": {},
-            "canon": {},
-            "centreRecherche": {},
+            "centrale": defaultdict(list),
+            "mine": defaultdict(list),
+            "canon": defaultdict(list),
+            "centreRecherche": defaultdict(list),
         }
 
         self.ressources_dispo = {
@@ -392,23 +391,25 @@ class Joueur():  # *************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
+        bat = 0
+        type = 0
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
 
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
-                for batiment in planete.batiments:
-                    if type_batiment.lower() == batiment:
+                for type in planete.batiments:
+                    if type_batiment.lower() == type:
                         print(15)
-                        b = MinePierre(id_planete, 0, 100, 1, self.nom, 1500, 60)
+                        bat = Mine(planete, self.nom)
                         break
                 # condition IF a ameliorer avec un for each
                 # if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
                 #     self.ressources["metal"] = - id_batiment["metal"]
                 #     self.ressources["pierre"] = - id_batiment["pierre"]
                 #     self.ressources["energie"] = - id_batiment["energie"]
-            planete.batiments[batiment][b.id] = b
+            planete.batiments[type][bat.id].append(bat)
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
@@ -472,12 +473,14 @@ class Joueur():  # *************************************************************
     def generer_res(self):
         for etoile in self.etoilescontrolees:
             for bat in etoile.batiments:
+                b = etoile.batiments[bat]
                 if bat == "mine":
-                    for mine in bat:
-                        bat[mine].generer("mine")
+                    for mine in b:
+                        print(mine)
                 elif bat == "centrale":
-                    for centrale in bat:
-                        bat[centrale].generer("centrale")
+                    for centrale in b:
+                        print(centrale)
+                        #bat[centrale].generer("centrale")
 
 
 # IA- nouvelle classe de joueur
