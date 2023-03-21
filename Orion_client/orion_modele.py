@@ -79,28 +79,31 @@ class Extraction(Batiment):
 
     def generer(self,planete, bat):
         if bat == 'centrale':
-            self.ressources["energie"] += 2
-            planete.ressources["energie"] -= 2
+            self.ressources["energie"] += .2
+            planete.ressources["energie"] -= .2
         elif bat == "mine":
-            self.ressources["pierre"] += 1
-            self.ressources["metal"] += 1
-            planete.ressources["pierre"] -= 1
-            planete.ressources["metal"] -= 1
+            self.ressources["pierre"] += .1
+            self.ressources["metal"] += .1
+            planete.ressources["pierre"] -= .1
+            planete.ressources["metal"] -= .1
 
 
-    def recolte(self, proprietaire):
+    def recolte(self):
         """
         Cette methode s'occupe de recolter les ressources produite
         dans la Centrale et les transferer au joueur proprietaire
         Args:
             proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
         """
-        proprietaire.ressources += self.ressources
+        p = Ressource();
+        p += self.ressources
         self.ressources = {
             "energie": 0,
             "pierre": 0,
             "metal": 0
         }
+
+        return p
 
 
 class Centrale(Extraction):
@@ -474,6 +477,10 @@ class Joueur():  # *************************************************************
                 if bat == "mine":
                     for mine in b:
                         b[mine].generer(etoile, bat)
+                        if b[mine].ressources["metal"] > 1:
+                            self.ressources += b[mine].recolte()
+
+
                 elif bat == "centrale":
                     for centrale in b:
                         b[centrale].generer(etoile, bat)
