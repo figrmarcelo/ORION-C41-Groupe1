@@ -77,16 +77,16 @@ class Extraction(Batiment):
             "metal": 0
         }
 
-
-    def generer(self, bat):
+    def generer(self,planete, bat):
         if bat == 'centrale':
             self.ressources["energie"] += 2
-            self.planete.ressources["energie"] -= 2
+            planete.ressources["energie"] -= 2
         elif bat == "mine":
             self.ressources["pierre"] += 1
             self.ressources["metal"] += 1
-            self.planete.ressources["pierre"] -= 1
-            self.planete.ressources["metal"] -= 1
+            planete.ressources["pierre"] -= 1
+            planete.ressources["metal"] -= 1
+
 
     def recolte(self, proprietaire):
         """
@@ -119,7 +119,6 @@ class Centrale(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-        self.generer("centrale")
 
 
 class Mine(Extraction):
@@ -136,8 +135,6 @@ class Mine(Extraction):
 
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
-
-        self.generer("mine")
 
 class Usine(Batiment):
 
@@ -240,10 +237,10 @@ class Etoile(Astre):
 
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
-            "centrale": defaultdict(list),
-            "mine": defaultdict(list),
-            "canon": defaultdict(list),
-            "centreRecherche": defaultdict(list),
+            "centrale": {},
+            "mine": {},
+            "canon": {},
+            "centreRecherche": {},
         }
 
         self.ressources_dispo = {
@@ -402,14 +399,14 @@ class Joueur():  # *************************************************************
                 for type in planete.batiments:
                     if type_batiment.lower() == type:
                         print(15)
-                        bat = Mine(planete, self.nom)
+                        bat = Mine(id_planete, self.nom)
                         break
                 # condition IF a ameliorer avec un for each
                 # if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources["pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
                 #     self.ressources["metal"] = - id_batiment["metal"]
                 #     self.ressources["pierre"] = - id_batiment["pierre"]
                 #     self.ressources["energie"] = - id_batiment["energie"]
-            planete.batiments[type][bat.id].append(bat)
+                planete.batiments[type][bat.id] = bat
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
@@ -476,11 +473,11 @@ class Joueur():  # *************************************************************
                 b = etoile.batiments[bat]
                 if bat == "mine":
                     for mine in b:
-                        print(mine)
+                        b[mine].generer(etoile, bat)
                 elif bat == "centrale":
                     for centrale in b:
-                        print(centrale)
-                        #bat[centrale].generer("centrale")
+                        b[centrale].generer(etoile, bat)
+
 
 
 # IA- nouvelle classe de joueur
