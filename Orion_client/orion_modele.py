@@ -417,6 +417,10 @@ class Joueur():  # *************************************************************
                     bat = Mine(id_planete, self.nom)
                 elif type_batiment == "centrale":
                     bat = Centrale(id_planete, self.nom)
+                elif type_batiment == "canon":
+                    bat = Canon(id_planete, self.nom)
+                elif type_batiment == "CDR":
+                    bat = CentreRecherche(id_planete, self.nom)    
 
                 print(bat.upgrade())
                 planete.batiments[type_batiment][bat.id] = bat
@@ -464,7 +468,9 @@ class Joueur():  # *************************************************************
     def jouer_prochain_coup(self):
         self.avancer_flotte()
         self.generer_res()
-
+        
+    
+    
     def avancer_flotte(self, chercher_nouveau=0):
         for i in self.flotte:
             for j in self.flotte[i]:
