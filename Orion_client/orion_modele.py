@@ -124,9 +124,10 @@ class Centrale(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-    def upgrade(self):
+    def upgrade(self, ressources):
+        res_joueur = ressources
         cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
-        
+
         return cost
 
 
