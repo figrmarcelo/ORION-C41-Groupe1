@@ -42,8 +42,7 @@ class Batiment():
         self.id = get_prochain_id()
         self.proprietaire = proprietaire
         self.planete = planete
-
-
+        self.niveau = 1
 
 class Extraction(Batiment):
     """
@@ -78,14 +77,17 @@ class Extraction(Batiment):
         }
 
     def generer(self,planete, bat):
-        if bat == 'centrale':
-            self.ressources["energie"] += .2
-            planete.ressources["energie"] -= .2
+        if bat == 'centrale' :
+            if planete.ressources["energie"] > 0:
+                self.ressources["energie"] += .2
+                planete.ressources["energie"] -= .2
         elif bat == "mine":
-            self.ressources["pierre"] += .1
-            self.ressources["metal"] += .1
-            planete.ressources["pierre"] -= .1
-            planete.ressources["metal"] -= .1
+            if planete.ressources["pierre"] > 0:
+                self.ressources["pierre"] += .1
+                planete.ressources["pierre"] -= .1
+            if planete.ressources["metal"] > 0:
+                self.ressources["metal"] += .1
+                planete.ressources["metal"] -= .1
 
 
     def recolte(self):
@@ -122,6 +124,10 @@ class Centrale(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
+    def upgrade(self):
+        cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
+        
+        return cost
 
 
 class Mine(Extraction):
@@ -139,17 +145,21 @@ class Mine(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
+    def upgrade(self):
+        cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
+        return cost
+
 class Usine(Batiment):
 
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, liste_construction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
         self.liste_construction = liste_construction
 
 
 class Canon(Batiment):  # defenses
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
         self.puissance = niveau * 1.5
 
@@ -160,7 +170,7 @@ class Canon(Batiment):  # defenses
 
 class Balise(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, position):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
         self.position = position
 
@@ -170,7 +180,7 @@ class Balise(Batiment):
 
 class CentreRecherche(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
     def upgrade(self, batiment, ressourceUpgrade):
         if batiment.proprietaire == self.proprietaire:
@@ -181,7 +191,7 @@ class CentreRecherche(Batiment):
 
 class AccelerateurParticule(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
     def end_game(self):
         pass
@@ -392,20 +402,24 @@ class Joueur():  # *************************************************************
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
         bat = 0
-        type = 0
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
 
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
-                for type in planete.batiments:
-                    if type_batiment.lower() == type:
-                        print(15)
-                        bat = Mine(id_planete, self.nom)
-                        break
+                # for type in planete.batiments:
+                #     if type_batiment == type:
+                #         print(15)
+                #         bat = Mine(id_planete, self.nom)
+                #         break
+                if type_batiment == "mine":
+                    bat = Mine(id_planete, self.nom)
+                elif type_batiment == "centrale":
+                    bat = Centrale(id_planete, self.nom)
 
-                planete.batiments[type][bat.id] = bat
+                print(bat.upgrade())
+                planete.batiments[type_batiment][bat.id] = bat
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
@@ -473,11 +487,15 @@ class Joueur():  # *************************************************************
                 if bat == "mine":
                     for mine in b:
                         b[mine].generer(etoile, bat)
+                        # Recolte auto ---- TEMPORAIRE
                         if b[mine].ressources["metal"] > 1:
                             self.ressources += b[mine].recolte()
                 elif bat == "centrale":
                     for centrale in b:
                         b[centrale].generer(etoile, bat)
+                        # Recolte auto ---- TEMPORAIRE
+                        if b[centrale].ressources["energie"] > 1:
+                            self.ressources += b[centrale].recolte()
 
 
 
