@@ -124,9 +124,10 @@ class Centrale(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-    def upgrade(self):
+    def upgrade(self, ressources):
+        res_joueur = ressources
         cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
-        
+
         return cost
 
 
@@ -419,10 +420,9 @@ class Joueur():  # *************************************************************
                     bat = Centrale(id_planete, self.nom)
                 elif type_batiment == "canon":
                     bat = Canon(id_planete, self.nom)
-                elif type_batiment == "CDR":
+                elif type_batiment == "cdr":
                     bat = CentreRecherche(id_planete, self.nom)    
 
-                print(bat.upgrade())
                 planete.batiments[type_batiment][bat.id] = bat
 
     def creervaisseau(self, params):

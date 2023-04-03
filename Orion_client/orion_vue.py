@@ -243,7 +243,8 @@ class Vue():
 
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
-        self.choixBat.pack()
+        self.choixBat.config
+        self.choixBat.place(relx=.75, rely=.05)
         
         
 
@@ -252,9 +253,8 @@ class Vue():
         print(type)
         self.parent.creer_batiment([self.idSelect, type])
 
-
     def choix_batiments(self, source):
-        frame = Frame(source, width=200, height=200, bg="grey11")
+        frame = Frame(self.cadrepartie, width=200, height=200, bg="grey11", highlightthickness=1, highlightbackground="blue")
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=2, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=2, bg="grey19")
@@ -282,8 +282,6 @@ class Vue():
         canon.bind('<Button>', self.creer_batiment)
         balise.bind('<Button>', self.creer_batiment)
         centreRecherche.bind('<Button>', self.creer_batiment)
-                   
-
 
         return frame
 
@@ -629,7 +627,7 @@ class Vue():
                                 print(info, " :", len(i.batiments[info]))
                                 
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
-                    self.choixBat = self.choix_batiments(self.cadreoutils)
+                    self.choixBat = self.choix_batiments(self.cadrepartie)
                     self.montrer_etoile_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:
