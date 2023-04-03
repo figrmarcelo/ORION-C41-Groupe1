@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import random
+from random import choice, randint
 
 
 class Ressource(dict):
@@ -56,26 +56,27 @@ class Ressource(dict):
 
 
 class Artefact:
-    liste_bonus: Ressource = Ressource(
-        random.randint(100, 1000),
-        random.randint(100, 1000),
-        random.randint(100, 1000)
-    )
-    
+       
     @classmethod
-    def activate_bonus(cls, res: Ressource):
-        """Active un bonus.
+    def activate_bonus(cls, planete, joueur):
+        type_bonus = {
+            'mine': Mine(planete, joueur),
+            'cdr': Centrale(planete, joueur),
+            'usine': Usine(planete, joueur),
+            'ressource': Ressource(randint(10, 1000), randint(10, 1000), randint(10, 1000))
+        }
         
-        Génère une clé et une valeur aléatoire pour ensuite
-        l'insérer dans les ressources.
+        key, value = choice(list(type_bonus.items()))
         
-        Args:
-            res (Ressource): ressources
-        """
-        key, value = random.choice(list(cls.liste_bonus.items()))
-        print(f'Vous avez gagné {value} {key}')
-        res[key] += value
-        
+        if key == 'ressource':
+            k = choice(list(planete.ressources))
+            res = planete.ressource[k]
+            nb_res = type_bonus[key][k]
+            res += nb_res
+            print(f'Vous avez gagné {nb_res} {res}s')
+        else:
+            planete.batiments[key][value.id] = value
+            print(f'Vous avez gagné une nouvelle {type_bonus[key].__name__}')
 
 # TEST    
 if __name__ == '__main__':
