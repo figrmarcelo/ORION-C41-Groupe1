@@ -381,7 +381,7 @@ class Joueur():  # *************************************************************
                        "Combat": {},
                        "Explorer": {},
                        "Cargo": {}}
-        self.ressources = Ressource(0, 0, 0)
+        self.ressources = Ressource(500, 500, 500) 
         self.experience = 0
         self.niveau = 0
         self.actions = {"creervaisseau": self.creervaisseau,
@@ -402,28 +402,52 @@ class Joueur():  # *************************************************************
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
         bat = 0
+        cost = 0
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
 
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
-                # for type in planete.batiments:
-                #     if type_batiment == type:
-                #         print(15)
-                #         bat = Mine(id_planete, self.nom)
-                #         break
+                
                 if type_batiment == "mine":
-                    bat = Mine(id_planete, self.nom)
+                    costMP = len(planete.batiments[type_batiment]) * 100
+                    
+                    if self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP:
+                        self.ressources["metal"] -= costMP
+                        self.ressources["pierre"] -= costMP
+                        bat = Mine(id_planete, self.nom)
+                        print(self.ressources)
+                        print("batiment construit")
+                        planete.batiments[type_batiment][bat.id] = bat
+                    else:
+                        print(self.ressources)
+                        print("Pas assez de ressource")
+                        
                 elif type_batiment == "centrale":
-                    bat = Centrale(id_planete, self.nom)
+                    costMP = len(planete.batiments[type_batiment]) * 100
+                    costE = len(planete.batiments[type_batiment]) * 200
+                    
+                    if self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP and self.ressources["energie"] >= costE:
+                        self.ressources["metal"] -= costMP
+                        self.ressources["pierre"] -= costMP
+                        self.ressources["energie"] -= costE
+                        bat = Centrale(id_planete, self.nom)
+                        print(self.ressources)
+                        print("batiment construit")
+                        planete.batiments[type_batiment][bat.id] = bat
+                    else:
+                        print(self.ressources)
+                        print("Pas assez de ressource")
+                        
                 elif type_batiment == "canon":
                     bat = Canon(id_planete, self.nom)
-                elif type_batiment == "CDR":
+                    
+                elif type_batiment == "cdr":
                     bat = CentreRecherche(id_planete, self.nom)    
 
-                print(bat.upgrade())
-                planete.batiments[type_batiment][bat.id] = bat
+                #print(bat.upgrade())
+                
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
@@ -468,7 +492,6 @@ class Joueur():  # *************************************************************
     def jouer_prochain_coup(self):
         self.avancer_flotte()
         self.generer_res()
-        
     
     
     def avancer_flotte(self, chercher_nouveau=0):
