@@ -227,6 +227,9 @@ class Controleur():
         self.actionsrequises.append([self.mon_nom, "creerbatiment", batiment])
 >>>>>>> prod_max_official
 
+    def upgrade_batiment(self, type_batiment):
+        self.actionsrequises.append([self.mon_nom, "upgradebatiment", type_batiment])
+
 
 if __name__ == "__main__":
     c = Controleur()
