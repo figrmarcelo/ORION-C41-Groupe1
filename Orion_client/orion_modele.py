@@ -396,8 +396,7 @@ class Joueur():  # *************************************************************
                         "cibleretoile": self.cibleretoile,
                         "creerbatiment": self.creerbatiment,
                         "upgradebatiment": self.upgradebatiment,
-                        "recolterressources": self.recolterressources,
-                        "deleteVaissea"}
+                        "recolterressources": self.recolterressources}
 
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
         id_planete = params
