@@ -10,7 +10,7 @@ from id import *
 from helper import Helper as hlp
 from threading import Timer
 
-from modeles import Ressource
+from ressource import Ressource
 
 
 class Batiment():
