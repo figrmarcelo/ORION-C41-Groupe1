@@ -585,7 +585,7 @@ class Vue():
                         self.canevas.create_oval(x - t, y - t, x + t, y + t,
                                                  dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
                                                  tags=("multiselection", "marqueur"))
-            elif self.ma_selection[2] == "FlotteCombat":
+            elif self.ma_selection[2] == "FlotteCombat" or self.ma_selection[2] == "FlotteCargo":
                 for j in joueur.flotte:
                     for i in joueur.flotte[j]:
                         i = joueur.flotte[j][i]

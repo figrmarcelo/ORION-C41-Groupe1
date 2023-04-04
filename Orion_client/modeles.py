@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-<<<<<<< HEAD
-from random import choice, randint
-=======
 import random
 from this import d
->>>>>>> prod_max_official
 
 
 class Ressource(dict):
@@ -59,42 +55,6 @@ class Ressource(dict):
             self['energie'] * other
         )
 
-<<<<<<< HEAD
-
-class Artefact:
-       
-    @classmethod
-    def activate_bonus(cls, planete, joueur):
-        type_bonus = {
-            'mine': Mine(planete, joueur),
-            'cdr': Centrale(planete, joueur),
-            'usine': Usine(planete, joueur),
-            'ressource': Ressource(randint(10, 1000), randint(10, 1000), randint(10, 1000))
-        }
-        
-        key, value = choice(list(type_bonus.items()))
-        
-        if key == 'ressource':
-            k = choice(list(planete.ressources))
-            res = planete.ressource[k]
-            nb_res = type_bonus[key][k]
-            res += nb_res
-            print(f'Vous avez gagné {nb_res} {res}s')
-        else:
-            planete.batiments[key][value.id] = value
-            print(f'Vous avez gagné une nouvelle {type_bonus[key].__name__}')
-
-# TEST    
-if __name__ == '__main__':
-    
-    r1 = Ressource(1, 2, 3)
-    r2 = Ressource(4, 5, 6)
-
-    print(r1 + r2)
-    print(r1 - r2)
-    
-    r = Ressource(10, 20, 30) * 5
-=======
     def get(self):
         return Ressource(
             self['pierre'],
@@ -133,4 +93,3 @@ if __name__ == '__main__':
         print(r)
 
 
->>>>>>> prod_max_official

@@ -219,13 +219,8 @@ class Controleur():
     def lister_objet(self, objet, id):
         self.vue.lister_objet(objet, id)
     
-<<<<<<< HEAD
-    def creer_batiment(self, id_planete, id_batiment):
-        self.actionsrequises.append([self.mon_nom, "creerbatiment", [id_planete, id_batiment]])
-=======
     def creer_batiment(self, batiment):
         self.actionsrequises.append([self.mon_nom, "creerbatiment", batiment])
->>>>>>> prod_max_official
 
     def upgrade_batiment(self, type_batiment):
         self.actionsrequises.append([self.mon_nom, "upgradebatiment", type_batiment])
