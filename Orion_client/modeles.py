@@ -89,12 +89,7 @@ if __name__ == '__main__':
     r1 = Ressource(1, 2, 3)
     r2 = Ressource(4, 5, 6)
 
-    print(r1 + r2)
-    print(r1 - r2)
-    
-    r = Ressource(10, 20, 30) * 5
-    
-
-    print(r)
+    for r in r1:
+        print(r)
 
 

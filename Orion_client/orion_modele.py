@@ -4,6 +4,8 @@ from __future__ import annotations
 import random
 import ast
 import time
+from collections import defaultdict
+
 from id import *
 from helper import Helper as hlp
 from threading import Timer
@@ -36,14 +38,11 @@ class Batiment():
         
     """
 
-    def __init__(self, id_batiment, pdv, niveau, proprietaire, vue):
+    def __init__(self, planete, proprietaire):
         self.id = get_prochain_id()
-        # self.planete = vue.canevas.gettags(CURRENT)[1]
-        self.pdv = pdv
-        self.niveau = niveau
         self.proprietaire = proprietaire
-        self.id_batiment = id_batiment
-
+        self.planete = planete
+        self.niveau = 1
 
 class Extraction(Batiment):
     """
@@ -62,11 +61,51 @@ class Extraction(Batiment):
         Batiment: Child de la classe Parent Batiment
     """
 
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
-        self.ressource_max = ressources_max
-        self.taux_extraction = taux_extraction
+        self.ressources = {
+            "energie": 0,
+            "pierre": 0,
+            "metal": 0
+        }
+
+        self.ressources_max = {
+            "energie": 0,
+            "pierre": 0,
+            "metal": 0
+        }
+
+    def generer(self,planete, bat):
+        if bat == 'centrale' :
+            if planete.ressources["energie"] > 0:
+                self.ressources["energie"] += .2
+                planete.ressources["energie"] -= .2
+        elif bat == "mine":
+            if planete.ressources["pierre"] > 0:
+                self.ressources["pierre"] += .1
+                planete.ressources["pierre"] -= .1
+            if planete.ressources["metal"] > 0:
+                self.ressources["metal"] += .1
+                planete.ressources["metal"] -= .1
+
+
+    def recolte(self):
+        """
+        Cette methode s'occupe de recolter les ressources produite
+        dans la Centrale et les transferer au joueur proprietaire
+        Args:
+            proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
+        """
+        p = Ressource();
+        p += self.ressources
+        self.ressources = {
+            "energie": 0,
+            "pierre": 0,
+            "metal": 0
+        }
+
+        return p
 
 
 class Centrale(Extraction):
@@ -82,37 +121,17 @@ class Centrale(Extraction):
         Extraction : Child de la classe Extraction
     """
 
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
-        self.nb_energie = 0
+    def upgrade(self, ressources):
+        res_joueur = ressources
+        cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
 
-    def recolte(self, proprietaire):
-        """
-        Cette methode s'occupe de recolter les ressources produite
-        dans la Centrale et les transferer au joueur proprietaire
-        Args:
-            proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
-        """
-        if self.planete.ressource[
-            "energie"] > 0:  # SI la quantité d'énergie > 0 (Si il reste de l'energie dans la planete)
-            if self.nb_energie > self.planete.ressource[
-                "energie"]:  # SI le nombre d'energie stocké > que celui disponible dans la planete...
-                proprietaire.ressource["energie"] += self.planete.ressource[
-                    "energie"]  # transfer de la qte dispo dans la planete only
-            else:  # sinon, transfer du nombre d'energie stocké
-                proprietaire.ressource["energie"] += self.nb_energie
-                self.planete.ressource["energie"] -= self.nb_energie
-            self.nb_energie = 0  # On reset le nombre d'energie à 0, car deja transferé au joueur
-
-    def generer(self):
-        self.proprietaire.ressource["energie"] += self.taux_extraction * self.niveau
-        time.sleep(1)
-
-        # faire un thread pour la generation
+        return cost
 
 
-class MineMetal(Extraction):
+class Mine(Extraction):
     """
     Classe MineMetal --> Classe du batiment Mine de metal. S'occupe de generer ressource 'metal'
     
@@ -124,70 +143,24 @@ class MineMetal(Extraction):
         Extraction : Child de la classe Extraction
     """
 
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
-        self.nb_metal = 0
-
-    def generer(self):
-        self.proprietaire.ressource["metal"] += self.taux_extraction * self.niveau
-        time.sleep(1)
-
-        # faire un thread pour la generation
-
-
-class MinePierre(Extraction):
-    """
-    Classe MinePierre --> Classe du batiment Mine de pierre. S'occupe de generer ressource 'pierre'
-    
-    Parameters
-    ----------
-    nb.pierre : int
-        Nombre de pierre produite et stocké dans le batiment Centrale
-    Args:
-        Extraction : Child de la classe Extraction
-    """
-
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire, ressources_max, taux_extraction)
-
-        self.nb_pierre = 0
-
-    def recolte(self, proprietaire):
-        """
-        Cette methode s'occupe de recolter les ressources produite
-        dans la Mine de pierre et les transferer au joueur proprietaire
-        Args:
-            proprietaire (Objet Joueur): Sert à savoir à qui appartient le batiment et ainsi pouvoir transferer les ressources au joueur
-        """
-        if self.planete.ressource["pierre"] > 0:  # SI la quantité de pierre > 0 (Si il reste du metal dans la planete)
-            if self.nb_metal > self.planete.ressource[
-                "pierre"]:  # SI le nombre de pierre stocké > que celui disponible dans la planete...
-                proprietaire.ressource["pierre"] += self.planete.ressource[
-                    "pierre"]  # transfer de la qte dispo dans la planete only
-            else:  # sinon, transfer du nombre de pierre stocké
-                proprietaire.ressource["pierre"] += self.nb_pierre
-                self.planete.ressource["pierre"] -= self.nb_pierre
-            self.nb_pierre = 0  # On reset le nombre de pierre à 0, car deja transferé au joueur
-
-    def generer(self):
-        self.proprietaire.ressource["pierre"] += self.taux_extraction * self.niveau
-        time.sleep(1)
-
-        # faire un thread pour la generation
-
+    def upgrade(self):
+        cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
+        return cost
 
 class Usine(Batiment):
 
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, liste_construction):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
         self.liste_construction = liste_construction
 
 
 class Canon(Batiment):  # defenses
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
         self.puissance = niveau * 1.5
 
@@ -198,7 +171,7 @@ class Canon(Batiment):  # defenses
 
 class Balise(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, position):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
         self.position = position
 
@@ -208,7 +181,7 @@ class Balise(Batiment):
 
 class CentreRecherche(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
     def upgrade(self, batiment, ressourceUpgrade):
         if batiment.proprietaire == self.proprietaire:
@@ -219,7 +192,7 @@ class CentreRecherche(Batiment):
 
 class AccelerateurParticule(Batiment):
     def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment, pdv, niveau, proprietaire)
+        super().__init__(planete, id_batiment)
 
     def end_game(self):
         pass
@@ -276,12 +249,12 @@ class Etoile(Astre):
             random.randint(100, 500)
         ) * self.taille
 
+        # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
-            "centrale": 0,
-            "mineMetal": 0,
-            "minePierre": 0,
-            "canon": 0,
-            "centreRecherche": 0,
+            "centrale": {},
+            "mine": {},
+            "canon": {},
+            "centreRecherche": {},
         }
 
         self.ressources_dispo = {
@@ -409,7 +382,7 @@ class Joueur():  # *************************************************************
                        "Combat": {},
                        "Explorer": {},
                        "Cargo": {}}
-        self.ressources = Ressource(0, 0, 0)
+        self.ressources = Ressource(500, 500, 500) 
         self.experience = 0
         self.niveau = 0
         self.actions = {"creervaisseau": self.creervaisseau,
@@ -421,7 +394,7 @@ class Joueur():  # *************************************************************
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
         id_planete = params
         for planete in self.etoilescontrolees:
-            if planete.getID() != id_planete:
+            if planete.getId() != id_planete:
                 continue
             else:
                 for ressource in planete.ressources_dispo:
@@ -429,21 +402,53 @@ class Joueur():  # *************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
-        id_planete, id_batiment = params
+        bat = 0
+        cost = 0
+        id_planete = params[0]
+        type_batiment = params[1]
+        type_batiment = type_batiment.lower()
+
         for planete in self.etoilescontrolees:
-            if planete.getID() != id_planete:
-                continue
-            else:
-                # condition IF a ameliorer avec un for each
-                if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources[
-                    "pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
-                    self.ressources["metal"] = - id_batiment["metal"]
-                    self.ressources["pierre"] = - id_batiment["pierre"]
-                    self.ressources["energie"] = - id_batiment["energie"]
-                    for batiment in planete.batiments:
-                        if id_batiment["type_batiment"] == batiment:
-                            planete.batiments[batiment] += 1
-                            break
+            if planete.getId() == id_planete:
+                
+                if type_batiment == "mine":
+                    costMP = len(planete.batiments[type_batiment]) * 100
+                    
+                    if self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP:
+                        self.ressources["metal"] -= costMP
+                        self.ressources["pierre"] -= costMP
+                        bat = Mine(id_planete, self.nom)
+                        print(self.ressources)
+                        print("batiment construit")
+                        planete.batiments[type_batiment][bat.id] = bat
+                    else:
+                        print(self.ressources)
+                        print("Pas assez de ressource")
+                        
+                elif type_batiment == "centrale":
+                    costMP = len(planete.batiments[type_batiment]) * 100
+                    costE = len(planete.batiments[type_batiment]) * 200
+                    
+                    if self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP and self.ressources["energie"] >= costE:
+                        self.ressources["metal"] -= costMP
+                        self.ressources["pierre"] -= costMP
+                        self.ressources["energie"] -= costE
+                        bat = Centrale(id_planete, self.nom)
+                        print(self.ressources)
+                        print("batiment construit")
+                        planete.batiments[type_batiment][bat.id] = bat
+                    else:
+                        print(self.ressources)
+                        print("Pas assez de ressource")
+                        
+                elif type_batiment == "canon":
+                    bat = Canon(id_planete, self.nom)
+                    
+                elif type_batiment == "cdr":
+                    bat = CentreRecherche(id_planete, self.nom)    
+
+                #print(bat.upgrade())
+                
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
@@ -487,7 +492,9 @@ class Joueur():  # *************************************************************
 
     def jouer_prochain_coup(self):
         self.avancer_flotte()
-
+        self.generer_res()
+    
+    
     def avancer_flotte(self, chercher_nouveau=0):
         for i in self.flotte:
             for j in self.flotte[i]:
@@ -502,6 +509,24 @@ class Joueur():  # *************************************************************
                         self.parent.parent.afficher_etoile(self.nom, rep[1])
                     elif rep[0] == "Porte_de_ver":
                         pass
+
+    def generer_res(self):
+        for etoile in self.etoilescontrolees:
+            for bat in etoile.batiments:
+                b = etoile.batiments[bat]
+                if bat == "mine":
+                    for mine in b:
+                        b[mine].generer(etoile, bat)
+                        # Recolte auto ---- TEMPORAIRE
+                        if b[mine].ressources["metal"] > 1:
+                            self.ressources += b[mine].recolte()
+                elif bat == "centrale":
+                    for centrale in b:
+                        b[centrale].generer(etoile, bat)
+                        # Recolte auto ---- TEMPORAIRE
+                        if b[centrale].ressources["energie"] > 1:
+                            self.ressources += b[centrale].recolte()
+
 
 
 # IA- nouvelle classe de joueur

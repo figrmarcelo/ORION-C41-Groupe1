@@ -219,8 +219,8 @@ class Controleur():
     def lister_objet(self, objet, id):
         self.vue.lister_objet(objet, id)
     
-    def creer_batiment(self, id_planete, id_batiment):
-        self.actionsrequises.append([self.mon_nom, "creerbatiment", [id_planete, id_batiment]])
+    def creer_batiment(self, batiment):
+        self.actionsrequises.append([self.mon_nom, "creerbatiment", batiment])
 
 
 if __name__ == "__main__":
