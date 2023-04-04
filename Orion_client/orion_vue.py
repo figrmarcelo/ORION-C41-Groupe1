@@ -243,8 +243,12 @@ class Vue():
         return frame
 
     def afficher_crea_batiment(self, *args):
+        if self.upgradeBat:
+            self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
 
+    def retour_construction(self, *args):
+        self.upgradeBat.place_forget()
 
     def creer_batiment(self, evt):
         type = evt.widget.cget("text")
@@ -253,7 +257,7 @@ class Vue():
         self.choixBat.place_forget()
 
     def choix_batiments(self):
-        frame = Frame(self.cadrepartie, width=200, height=220, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
+        frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
@@ -262,17 +266,17 @@ class Vue():
         balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
         centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
 
-        titre = Label(frame, text="BATIMENTS", font='helvetica 10 bold', bg="grey11", fg="green")
+        titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
         # self.joueur.creerbatiment([self.idSelect, 'mine'])
 
         mine.place(anchor="center", relx=.3, rely=.25)
-        centrale.place(anchor="center", relx=.7, rely=.25)
+        centrale.place(anchor="center", relx=.3, rely=.35)
         usine.place(anchor="center", relx=.3, rely=.45)
-        canon.place(anchor="center", relx=.7, rely=.45)
+        canon.place(anchor="center", relx=.3, rely=.55)
         balise.place(anchor="center", relx=.3, rely=.65)
-        centreRecherche.place(anchor="center", relx=.7, rely=.65)
+        centreRecherche.place(anchor="center", relx=.3, rely=.75)
 
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
         upgradeBat.bind('<Button>', self.affichage_upgrade)
@@ -308,21 +312,29 @@ class Vue():
         titre = Label(frame, text="UPGRADE", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
-        # self.joueur.creerbatiment([self.idSelect, 'mine'])
+        if self.joueur.niveau_bat["mine"] > 0 :
+            mine.place(anchor="center", relx=.3, rely=.25)
+        if self.joueur.niveau_bat["centrale"] > 0:
+            centrale.place(anchor="center", relx=.7, rely=.25)
+        if self.joueur.niveau_bat["usine"] > 0:
+            usine.place(anchor="center", relx=.3, rely=.45)
+        if self.joueur.niveau_bat["canon"] > 0:
+            canon.place(anchor="center", relx=.7, rely=.45)
+        if self.joueur.niveau_bat["balise"] > 0:
+            balise.place(anchor="center", relx=.3, rely=.65)
+        if self.joueur.niveau_bat["centreRecherche"] > 0:
+            centreRecherche.place(anchor="center", relx=.7, rely=.65)
 
-        mine.place(anchor="center", relx=.3, rely=.25)
-        centrale.place(anchor="center", relx=.7, rely=.25)
-        usine.place(anchor="center", relx=.3, rely=.45)
-        canon.place(anchor="center", relx=.7, rely=.45)
-        balise.place(anchor="center", relx=.3, rely=.65)
-        centreRecherche.place(anchor="center", relx=.7, rely=.65)
-
-        mine.bind('<Button>', self.upgrade_batiment)
-        centrale.bind('<Button>', self.upgrade_batiment)
-        usine.bind('<Button>', self.upgrade_batiment)
-        canon.bind('<Button>', self.upgrade_batiment)
         balise.bind('<Button>', self.upgrade_batiment)
         centreRecherche.bind('<Button>', self.upgrade_batiment)
+        canon.bind('<Button>', self.upgrade_batiment)
+        usine.bind('<Button>', self.upgrade_batiment)
+        centrale.bind('<Button>', self.upgrade_batiment)
+        mine.bind('<Button>', self.upgrade_batiment)
+
+        retourConstruction = Button(frame, text="RETOUR", fg="green", width=9, height=1, bg="grey19")
+        retourConstruction.bind('<Button>', self.afficher_crea_batiment)
+        retourConstruction.place(anchor="center", rely=.9, relx=.5)
 
         self.upgradeBat = frame
         self.upgradeBat.place(relx=.75, rely=.05)

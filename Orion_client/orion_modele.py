@@ -384,10 +384,12 @@ class Joueur():  # *************************************************************
                        "Explorer": {},
                        "Cargo": {}}
         self.niveau_bat = {
-            "mine": 1,
-            "centrale": 1,
-            "canon": 1,
-            "centreRecherche": 1
+            "mine": 0,
+            "centrale": 0,
+            "canon": 0,
+            "usine": 0,
+            "balise": 0,
+            "centreRecherche": 0
         }
         self.ressources = Ressource()
         self.experience = 0
@@ -423,7 +425,7 @@ class Joueur():  # *************************************************************
                         self.ressources["metal"] -= costMP
                         self.ressources["pierre"] -= costMP
                         bat = Mine(id_planete, self.nom)
-                        print("batiment construit")
+                        self.niveau_bat[type_batiment] += 1
                     elif type_batiment == "centrale" and self.ressources["metal"] >= costMP \
                             and self.ressources["pierre"] >= costMP \
                             and self.ressources["energie"] >= costE:
@@ -431,22 +433,22 @@ class Joueur():  # *************************************************************
                         self.ressources["pierre"] -= costMP
                         self.ressources["energie"] -= costE
                         bat = Centrale(id_planete, self.nom)
-                        print(self.ressources)
-                        print("batiment construit")
-
-                    if bat:
-                        planete.batiments[type_batiment][bat.id] = bat
-                    else:
-                        print(self.ressources)
-                        print("Pas assez de ressource")
-                        
+                        self.niveau_bat[type_batiment] += 1
                 elif type_batiment == "canon":
                     bat = Canon(id_planete, self.nom)
+                    self.niveau_bat[type_batiment] += 1
                     
                 elif type_batiment == "cdr":
-                    bat = CentreRecherche(id_planete, self.nom)    
+                    bat = CentreRecherche(id_planete, self.nom)
+                    self.niveau_bat[type_batiment] += 1
 
-                #print(bat.upgrade())
+                if bat:
+                    planete.batiments[type_batiment][bat.id] = bat
+                    print("batiment construit")
+                else:
+                    print(self.ressources)
+                    print("Pas assez de ressource")
+
                 
     def upgradebatiment(self, params):
         type = params[0].lower()
