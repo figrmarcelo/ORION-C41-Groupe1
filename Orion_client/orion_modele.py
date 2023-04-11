@@ -254,6 +254,7 @@ class Etoile(Astre):
         self.batiments = {
             "centrale": {},
             "mine": {},
+            "usine":{},
             "canon": {},
             "centreRecherche": {},
         }
@@ -419,21 +420,21 @@ class Joueur():  # *************************************************************
             if planete.getId() == id_planete:
                 if type_batiment == "mine" or type_batiment == "centrale":
                     costMP = len(planete.batiments[type_batiment]) * 100
-                    costE = len(planete.batiments[type_batiment]) * 200
-
-                    if type_batiment == "mine" and self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP:
-                        self.ressources["metal"] -= costMP
+                    if type_batiment == "mine" and self.ressources["pierre"] >= costMP:
                         self.ressources["pierre"] -= costMP
                         bat = Mine(id_planete, self.nom)
                         self.niveau_bat[type_batiment] += 1
-                    elif type_batiment == "centrale" and self.ressources["metal"] >= costMP \
-                            and self.ressources["pierre"] >= costMP \
-                            and self.ressources["energie"] >= costE:
+                    elif type_batiment == "centrale" and self.ressources["metal"] >= costMP:
                         self.ressources["metal"] -= costMP
-                        self.ressources["pierre"] -= costMP
-                        self.ressources["energie"] -= costE
                         bat = Centrale(id_planete, self.nom)
                         self.niveau_bat[type_batiment] += 1
+                elif type_batiment == "usine":
+                    if len(planete.batiments[type_batiment]) == 0:
+                        cost = 200
+                    else:
+                        cost = (len(planete.batiments[type_batiment]) + 1) * 200
+
+
                 elif type_batiment == "canon":
                     bat = Canon(id_planete, self.nom)
                     self.niveau_bat[type_batiment] += 1

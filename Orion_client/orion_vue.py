@@ -256,7 +256,28 @@ class Vue():
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
 
-    def choix_batiments(self):
+    def calculPrix(self, id, type):
+        cost = 0
+        for planete in self.joueur.etoilescontrolees:
+            if planete.getId() == id:
+                if type == "mine":
+                    cost = len(planete.batiments[type]) * 100
+                elif type == "centrale":
+                    cost = len(planete.batiments[type]) * 200
+                elif type == "usine":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 200
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 200
+                elif type == "canon":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 300
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 250
+        return cost
+
+
+    def choix_batiments(self, id):
         frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
@@ -269,14 +290,26 @@ class Vue():
         titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
-        # self.joueur.creerbatiment([self.idSelect, 'mine'])
+        prixMine = Label(frame, text=str(self.calculPrix(id, "mine")) + " Ro", font='helvetica 10 bold', bg="grey11", fg="green")
+        prixCentrale = Label(frame, text=str(self.calculPrix(id, "centrale")) + " Me", font='helvetica 10 bold', bg="grey11", fg="green")
+        prixUsine = Label(frame, text=str(self.calculPrix(id, "usine")) + " Me / " + str(self.calculPrix(id, "usine")) + " En", font='helvetica 10 bold',
+                             bg="grey11", fg="green")
 
-        mine.place(anchor="center", relx=.3, rely=.25)
-        centrale.place(anchor="center", relx=.3, rely=.35)
-        usine.place(anchor="center", relx=.3, rely=.45)
-        canon.place(anchor="center", relx=.3, rely=.55)
-        balise.place(anchor="center", relx=.3, rely=.65)
-        centreRecherche.place(anchor="center", relx=.3, rely=.75)
+
+
+
+        mine.place(anchor="center", relx=.25, rely=.25)
+        prixMine.place(anchor="center", relx=.7, rely=.25)
+
+        centrale.place(anchor="center", relx=.25, rely=.35)
+        prixCentrale.place(anchor="center", relx=.7, rely=.35)
+
+        usine.place(anchor="center", relx=.25, rely=.45)
+        prixUsine.place(anchor="center", relx=.7, rely=.45)
+
+        canon.place(anchor="center", relx=.25, rely=.55)
+        balise.place(anchor="center", relx=.25, rely=.65)
+        centreRecherche.place(anchor="center", relx=.25, rely=.75)
 
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
         upgradeBat.bind('<Button>', self.affichage_upgrade)
@@ -681,7 +714,7 @@ class Vue():
                                 print(info, " :", len(i.batiments[info]))
                                 
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
-                    self.choixBat = self.choix_batiments()
+                    self.choixBat = self.choix_batiments(self.idSelect)
                     self.montrer_etoile_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:
