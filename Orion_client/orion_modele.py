@@ -322,6 +322,7 @@ class Vaisseau():
             self.cible.proprietaire = self.proprietaire
         cible = self.cible
         self.cible = 0
+        self.parent.parent.parent.afficher_construction()
         return ["Etoile", cible]
 
     def arriver_porte(self):
