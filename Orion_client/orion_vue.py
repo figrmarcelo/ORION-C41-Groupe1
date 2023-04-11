@@ -264,16 +264,16 @@ class Vue():
                     cost = len(planete.batiments[type]) * 100
                 elif type == "centrale":
                     cost = len(planete.batiments[type]) * 200
-                elif type == "usine":
+                elif type == "usine" or type == "canon":
                     if len(planete.batiments[type]) == 0:
                         cost = 200
                     else:
-                        cost = (len(planete.batiments[type]) + 1) * 200
-                elif type == "canon":
-                    if len(planete.batiments[type]) == 0:
-                        cost = 300
-                    else:
                         cost = (len(planete.batiments[type]) + 1) * 250
+                elif type == "balise":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 350
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 300
         return cost
 
 
@@ -294,8 +294,10 @@ class Vue():
         prixCentrale = Label(frame, text=str(self.calculPrix(id, "centrale")) + " Me", font='helvetica 10 bold', bg="grey11", fg="green")
         prixUsine = Label(frame, text=str(self.calculPrix(id, "usine")) + " Me / " + str(self.calculPrix(id, "usine")) + " En", font='helvetica 10 bold',
                              bg="grey11", fg="green")
-
-
+        prixCanon = Label(frame, text=str(self.calculPrix(id, "canon")) + " Me / " + str(self.calculPrix(id, "canon")) + " En", font='helvetica 10 bold',
+                          bg="grey11", fg="green")
+        prixBalise = Label(frame, text=str(self.calculPrix(id, "balise")) + " Me / " + str(self.calculPrix(id, "balise")) + " En", font='helvetica 10 bold',
+                             bg="grey11", fg="green")
 
 
         mine.place(anchor="center", relx=.25, rely=.25)
@@ -308,7 +310,11 @@ class Vue():
         prixUsine.place(anchor="center", relx=.7, rely=.45)
 
         canon.place(anchor="center", relx=.25, rely=.55)
+        prixCanon.place(anchor="center", relx=.7, rely=.55)
+
         balise.place(anchor="center", relx=.25, rely=.65)
+        prixBalise.place(anchor="center", relx=.7, rely=.65)
+
         centreRecherche.place(anchor="center", relx=.25, rely=.75)
 
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")

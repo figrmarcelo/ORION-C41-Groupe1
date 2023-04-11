@@ -256,6 +256,7 @@ class Etoile(Astre):
             "mine": {},
             "usine":{},
             "canon": {},
+            "balise": {},
             "centreRecherche": {},
         }
 
@@ -415,6 +416,7 @@ class Joueur():  # *************************************************************
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
+        bat = None
 
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
@@ -428,22 +430,39 @@ class Joueur():  # *************************************************************
                         self.ressources["metal"] -= costMP
                         bat = Centrale(id_planete, self.nom)
                         self.niveau_bat[type_batiment] += 1
-                elif type_batiment == "usine":
+                elif type_batiment == "usine" and type_batiment == "canon":
                     if len(planete.batiments[type_batiment]) == 0:
                         cost = 200
                     else:
-                        cost = (len(planete.batiments[type_batiment]) + 1) * 200
+                        cost = (len(planete.batiments[type_batiment]) + 1) * 250
 
+                    if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
+                        self.ressources["metal"] -= cost
+                        self.ressources["energie"] -= cost
 
-                elif type_batiment == "canon":
-                    bat = Canon(id_planete, self.nom)
-                    self.niveau_bat[type_batiment] += 1
+                        if type_batiment == "usine":
+                            bat = Usine(id_planete, self.nom)
+                        else:
+                            bat = Canon(id_planete, self.nom)
+
+                        self.niveau_bat[type_batiment] += 1
+
+                elif type_batiment == "balise":
+                    if len(planete.batiments[type_batiment]) == 0:
+                        cost = 350
+                    else:
+                        cost = (len(planete.batiments[type_batiment]) + 1) * 300
+
+                    if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
+                        self.ressources["metal"] -= cost
+                        self.ressources["energie"] -= cost
+                        bat = Balise(id_planete, self.nom)
                     
                 elif type_batiment == "cdr":
                     bat = CentreRecherche(id_planete, self.nom)
                     self.niveau_bat[type_batiment] += 1
 
-                if bat:
+                if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
                     print("batiment construit")
                 else:
