@@ -77,17 +77,18 @@ class Extraction(Batiment):
         }
 
     def generer(self,planete, bat):
+        taux = self.niveau * 0.1
         if bat == 'centrale' :
             if planete.ressources["energie"] > 0:
-                self.ressources["energie"] += .2
-                planete.ressources["energie"] -= .2
+                self.ressources["energie"] += taux / 2
+                planete.ressources["energie"] -= taux / 2
         elif bat == "mine":
             if planete.ressources["pierre"] > 0:
-                self.ressources["pierre"] += .1
-                planete.ressources["pierre"] -= .1
+                self.ressources["pierre"] += taux / 2
+                planete.ressources["pierre"] -= taux / 2
             if planete.ressources["metal"] > 0:
-                self.ressources["metal"] += .1
-                planete.ressources["metal"] -= .1
+                self.ressources["metal"] += taux / 2
+                planete.ressources["metal"] -= taux / 2
 
 
     def recolte(self):
@@ -253,6 +254,7 @@ class Etoile(Astre):
         self.batiments = {
             "centrale": {},
             "mine": {},
+            "usine":{},
             "canon": {},
             "centreRecherche": {},
         }
@@ -383,13 +385,21 @@ class Joueur():  # *************************************************************
                        "Combat": {},
                        "Explorer": {},
                        "Cargo": {}}
-        self.ressources = Ressource(500, 500, 500) 
+        self.niveau_bat = {
+            "mine": 0,
+            "centrale": 0,
+            "canon": 0,
+            "usine": 0,
+            "balise": 0,
+            "centreRecherche": 0
+        }
+        self.ressources = Ressource()
         self.experience = 0
         self.niveau = 0
         self.actions = {"creervaisseau": self.creervaisseau,
                         "cibleretoile": self.cibleretoile,
                         "creerbatiment": self.creerbatiment,
-                        "creerbatiment": self.creerbatiment,
+                        "upgradebatiment": self.upgradebatiment,
                         "recolterressources": self.recolterressources}
 
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
@@ -403,53 +413,61 @@ class Joueur():  # *************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
-        bat = 0
-        cost = 0
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
 
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
-                
-                if type_batiment == "mine":
+                if type_batiment == "mine" or type_batiment == "centrale":
                     costMP = len(planete.batiments[type_batiment]) * 100
-                    
-                    if self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP:
-                        self.ressources["metal"] -= costMP
+                    if type_batiment == "mine" and self.ressources["pierre"] >= costMP:
                         self.ressources["pierre"] -= costMP
                         bat = Mine(id_planete, self.nom)
-                        print(self.ressources)
-                        print("batiment construit")
-                        planete.batiments[type_batiment][bat.id] = bat
-                    else:
-                        print(self.ressources)
-                        print("Pas assez de ressource")
-                        
-                elif type_batiment == "centrale":
-                    costMP = len(planete.batiments[type_batiment]) * 100
-                    costE = len(planete.batiments[type_batiment]) * 200
-                    
-                    if self.ressources["metal"] >= costMP and self.ressources["pierre"] >= costMP and self.ressources["energie"] >= costE:
+                        self.niveau_bat[type_batiment] += 1
+                    elif type_batiment == "centrale" and self.ressources["metal"] >= costMP:
                         self.ressources["metal"] -= costMP
-                        self.ressources["pierre"] -= costMP
-                        self.ressources["energie"] -= costE
                         bat = Centrale(id_planete, self.nom)
-                        print(self.ressources)
-                        print("batiment construit")
-                        planete.batiments[type_batiment][bat.id] = bat
+                        self.niveau_bat[type_batiment] += 1
+                elif type_batiment == "usine":
+                    if len(planete.batiments[type_batiment]) == 0:
+                        cost = 200
                     else:
-                        print(self.ressources)
-                        print("Pas assez de ressource")
-                        
+                        cost = (len(planete.batiments[type_batiment]) + 1) * 200
+
+
                 elif type_batiment == "canon":
                     bat = Canon(id_planete, self.nom)
+                    self.niveau_bat[type_batiment] += 1
                     
                 elif type_batiment == "cdr":
-                    bat = CentreRecherche(id_planete, self.nom)    
+                    bat = CentreRecherche(id_planete, self.nom)
+                    self.niveau_bat[type_batiment] += 1
 
-                #print(bat.upgrade())
+                if bat:
+                    planete.batiments[type_batiment][bat.id] = bat
+                    print("batiment construit")
+                else:
+                    print(self.ressources)
+                    print("Pas assez de ressource")
+
                 
+    def upgradebatiment(self, params):
+        type = params[0].lower()
+
+        if type == "mine" or type == "centrale":
+            cost = (100 * pow(self.niveau_bat[type], 2)) + (50 * self.niveau_bat[type]) + 25
+
+            if type == "mine" and self.ressources["pierre"] >= cost:
+                self.ressources["pierre"] -= cost
+                self.niveau_bat[type] += 1
+            elif type == "centrale" and self.ressources["metal"] >= cost:
+                self.ressources["metal"] -= cost
+                self.niveau_bat[type] += 1
+
+            for planete in self.etoilescontrolees:
+                for bat in planete.batiments[type]:
+                    planete.batiments[type][bat].niveau += 1
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
