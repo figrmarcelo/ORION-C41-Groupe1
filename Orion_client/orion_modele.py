@@ -316,6 +316,7 @@ class Vaisseau():
                 return rep
 
     def arriver_etoile(self):
+        #mettre methode construire batiment -------------------------*****************************----------------------------------
         self.parent.log.append(
             ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
         if not self.cible.proprietaire:
@@ -505,6 +506,10 @@ class Joueur():  # *************************************************************
 
     def cibleretoile(self, ids):
         idori, iddesti, type_cible = ids
+        print(idori) #id vaisseau (cargo par exemple)
+        print(iddesti) #id destination (id de la planete ou du trou de vers par exemple)
+        print(type_cible) #type cible en string ("Etoile") par exemple
+        
         ori = None
         for i in self.flotte.keys():
             if idori in self.flotte[i]:
