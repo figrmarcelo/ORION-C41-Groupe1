@@ -42,6 +42,7 @@ class Vue():
         self.selecteur_actif = None
         self.idSelect = ''
         self.choixBat = None
+        self.choixVaisseau = None
         self.upgradeBat = None
         self.premier = 0
 
@@ -174,17 +175,6 @@ class Vue():
         self.infoSelection = None
         self.levelUp = self.afficher_level_up(self.cadreoutils)
 
-        self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
-        self.btncreercombat = Button(self.cadreinfochoix, text="Combat")
-        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
-        self.btncreerexplorer = Button(self.cadreinfochoix, text="Explorer")
-        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
-        self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
-        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
-
-        self.btncreercombat.pack()
-        self.btncreerexplorer.pack()
-        self.btncreercargo.pack()
 
         self.cadreinfoliste = Frame(self.cadreinfo)
 
@@ -246,6 +236,22 @@ class Vue():
         if self.upgradeBat:
             self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
+
+    def afficher_crea_vaisseau(self, *args):
+        self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+
+        self.btncreercombat = Button(self.choixVaisseau, text="Combat")
+        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+        self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
+        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
+        self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
+        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+
+        self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
+        self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
+        self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+
+        self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
 
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
@@ -401,6 +407,10 @@ class Vue():
         batiment = Button(frame, text="BATIMENTS", fg="green", width=9, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
         batiment.place(anchor="center", rely=.9, relx=.25)
+
+        vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
+        vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
+        vaisseau.place(anchor="center", rely=.9, relx=.75)
 
         return frame
 
@@ -734,14 +744,12 @@ class Vue():
             self.idSelect = None
             self.ma_selection = None
             self.canevas.delete("marqueur")
-            self.levelUp.pack_forget()
-            self.cadreinfochoix.pack_forget()
             self.infoSelection.pack_forget()
+            self.choixVaisseau.place_forget()
             self.choixBat.place_forget()
             self.upgradeBat.place_forget()
 
     def montrer_etoile_selection(self):
-        self.cadreinfochoix.pack(fill=BOTH)
         self.infoSelection.pack(fill=BOTH)
 
     def montrer_flotte_selection(self):

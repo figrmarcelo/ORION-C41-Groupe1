@@ -126,7 +126,6 @@ class Centrale(Extraction):
         super().__init__(planete, proprietaire)
 
     def upgrade(self, ressources):
-        res_joueur = ressources
         cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
 
         return cost
@@ -153,17 +152,15 @@ class Mine(Extraction):
 
 class Usine(Batiment):
 
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, liste_construction):
-        super().__init__(planete, id_batiment)
-
-        self.liste_construction = liste_construction
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
 
 class Canon(Batiment):  # defenses
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
-        self.puissance = niveau * 1.5
+        self.puissance = self.niveau * 1.5
 
     def tir_defense(self, vaisseau):
         while vaisseau.pdv > 0:
@@ -171,8 +168,8 @@ class Canon(Batiment):  # defenses
 
 
 class Balise(Batiment):
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire, position):
-        super().__init__(planete, id_batiment)
+    def __init__(self, planete, proprietaire, position):
+        super().__init__(planete, proprietaire)
 
         self.position = position
 
@@ -181,8 +178,8 @@ class Balise(Batiment):
 
 
 class CentreRecherche(Batiment):
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
     def upgrade(self, batiment, ressourceUpgrade):
         if batiment.proprietaire == self.proprietaire:
@@ -192,8 +189,8 @@ class CentreRecherche(Batiment):
 
 
 class AccelerateurParticule(Batiment):
-    def __init__(self, planete, id_batiment, pdv, niveau, proprietaire):
-        super().__init__(planete, id_batiment)
+    def __init__(self, planete, proprietaire):
+        super().__init__(planete, proprietaire)
 
     def end_game(self):
         pass
@@ -260,10 +257,6 @@ class Etoile(Astre):
             "centreRecherche": {},
         }
 
-        self.ressources_dispo = {
-            "pierre": 0,
-            "metal": 0,
-            "energie": 0}
 
     def getRessources(self):
         return self.ressources.get()
@@ -428,16 +421,17 @@ class Joueur():  # *************************************************************
                         self.ressources["pierre"] -= costMP
                         bat = Mine(id_planete, self.nom)
                         self.niveau_bat[type_batiment] += 1
+                        self.experience += 100
                     elif type_batiment == "centrale" and self.ressources["metal"] >= costMP:
                         self.ressources["metal"] -= costMP
                         bat = Centrale(id_planete, self.nom)
                         self.niveau_bat[type_batiment] += 1
+                        self.experience += 100
                 elif type_batiment == "usine" and type_batiment == "canon":
                     if len(planete.batiments[type_batiment]) == 0:
                         cost = 200
                     else:
                         cost = (len(planete.batiments[type_batiment]) + 1) * 250
-
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
@@ -448,7 +442,7 @@ class Joueur():  # *************************************************************
                             bat = Canon(id_planete, self.nom)
 
                         self.niveau_bat[type_batiment] += 1
-
+                        self.experience += 250
                 elif type_batiment == "balise":
                     if len(planete.batiments[type_batiment]) == 0:
                         cost = 350
@@ -459,7 +453,7 @@ class Joueur():  # *************************************************************
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
                         bat = Balise(id_planete, self.nom)
-                    
+                        self.experience += 175
                 elif type_batiment == "cdr":
                     bat = CentreRecherche(id_planete, self.nom)
                     self.niveau_bat[type_batiment] += 1
