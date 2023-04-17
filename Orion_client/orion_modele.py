@@ -350,7 +350,7 @@ class Vaisseau():
                 return rep
 
     def arriver_etoile(self):
-        #mettre methode construire batiment -------------------------*****************************----------------------------------
+        #mettre methode construire batiment -------------------------*****************************----------------------
         self.parent.log.append(
             ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
         if not self.cible.proprietaire:
