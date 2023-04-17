@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  version 2022 14 mars - jmd
 from __future__ import annotations
+from msilib.schema import Class
 import random
 import ast
 import time
@@ -275,7 +276,8 @@ class Nuage(Astre):
 
 
 class Vaisseau():
-    def __init__(self, parent: Joueur, nom: str, x: int, y: int):
+    def __init__(self, parent: Joueur, nom: str, x: int, y: int, vaisseau = Class):
+        self.type_vaisseau = vaisseau
         self.parent = parent
         self.id: int = get_prochain_id()
         self.proprietaire = nom
@@ -292,6 +294,7 @@ class Vaisseau():
         self.niveau = 1  # ajout de niveau du vaisseau
 
         self.pdv = 100 * self.niveau  # ajout de point de vie du vaisseau
+        
 
     def jouer_prochain_coup(self, trouver_nouveau=0):
         if self.cible != 0:
@@ -323,7 +326,9 @@ class Vaisseau():
             self.cible.proprietaire = self.proprietaire
         cible = self.cible
         self.cible = 0
-        self.parent.parent.parent.afficher_construction()
+        #if type de vaisseau == cargo ALORS afficher construction
+        if self.type_vaisseau == Cargo:
+            self.parent.parent.parent.afficher_construction()
         return ["Etoile", cible]
 
     def arriver_porte(self):
@@ -343,7 +348,7 @@ class Vaisseau():
 class Combat(Vaisseau):
 
     def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
+        Vaisseau.__init__(self, parent, nom, x, y, Combat)
         self.combatpoints = 0
         self.taille: int = 5
         self.vitesse: int = 2
@@ -355,7 +360,7 @@ class Combat(Vaisseau):
 class Explorer(Vaisseau):
 
     def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
+        Vaisseau.__init__(self, parent, nom, x, y, Explorer)
         self.taille: int = 5
         self.vitesse: int = 2
         self.cible: int = 0
@@ -365,7 +370,7 @@ class Explorer(Vaisseau):
 
 class Cargo(Vaisseau):
     def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y)
+        Vaisseau.__init__(self, parent, nom, x, y, Cargo)
         self.cargo = 1000
         self.taille = 6
         self.vitesse = 1
