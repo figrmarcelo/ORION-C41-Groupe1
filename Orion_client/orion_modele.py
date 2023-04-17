@@ -258,7 +258,7 @@ class Trou_de_vers():
 
 class Astre():
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
-        self.id: int = get_prochain_id()
+        self.id = get_prochain_id()
         self.parent = parent
         self.x = x
         self.y = y
@@ -278,6 +278,11 @@ class Etoile(Astre):
             random.randint(100, 500)
         ) * self.taille
 
+        self.ressources_dispo = {
+            "pierre": 0,
+            "metal": 0,
+            "energie": 0}
+
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
             "centrale": {},
@@ -288,10 +293,7 @@ class Etoile(Astre):
             "centreRecherche": {},
         }
 
-<<<<<<< HEAD
         self.artefact = self._add_artefact()
-=======
->>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
 
     def getRessources(self):
         return self.ressources.get()
@@ -407,6 +409,7 @@ class Cargo(Vaisseau):
         self.vitesse = 1
         self.cible = 0
         self.ang = 0
+        self.idPlanete = 0
 
 
 class Joueur():  # **************************************************************** --- JOUEUR --- **********************************************************
@@ -461,25 +464,6 @@ class Joueur():  # *************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
-
-        id_planete, id_batiment = params
-        for planete in self.etoilescontrolees:
-            if planete.getID() != id_planete:
-                continue
-            else:
-                # condition IF a ameliorer avec un for each
-                if id_batiment["metal"] <= self.ressources["metal"] and id_batiment["pierre"] <= self.ressources[
-                    "pierre"] and id_batiment["energie"] <= self.ressources["energie"]:
-                    self.ressources["metal"] = - id_batiment["metal"]
-                    self.ressources["pierre"] = - id_batiment["pierre"]
-                    self.ressources["energie"] = - id_batiment["energie"]
-                    for batiment in planete.batiments:
-                        if id_batiment["type_batiment"] == batiment:
-                            planete.batiments[batiment] += 1
-                            break
-
-        bat = 0
-        cost = 0
 
         id_planete = params[0]
         type_batiment = params[1]
