@@ -45,6 +45,7 @@ class Vue():
         self.choixVaisseau = None
         self.upgradeBat = None
         self.premier = 0
+        self.id_planete = ""
 
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
@@ -232,10 +233,12 @@ class Vue():
 
         return frame
 
-    def afficher_crea_batiment(self, *args):
+    def afficher_crea_batiment(self, id_planete, *args):
         if self.upgradeBat:
             self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
+        self.id_planete = id_planete
+        print(id_planete)
 
     def afficher_crea_vaisseau(self, *args):
         self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
@@ -259,7 +262,7 @@ class Vue():
     def creer_batiment(self, evt):
         type = evt.widget.cget("text")
         print(type)
-        self.parent.creer_batiment([self.idSelect, type])
+        self.parent.creer_batiment([self.id_planete, type])
         self.choixBat.place_forget()
 
     def calculPrix(self, id, type):

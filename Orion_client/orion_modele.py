@@ -318,10 +318,10 @@ class Vaisseau():
         if not self.cible.proprietaire:
             self.cible.proprietaire = self.proprietaire
         cible = self.cible
-        self.cible = 0
         #if type de vaisseau == cargo ALORS afficher construction
         if self.type_vaisseau == Cargo:
-            self.parent.parent.parent.afficher_construction()
+            self.parent.parent.parent.afficher_construction(cible.id)
+        self.cible = 0
         return ["Etoile", cible]
 
     def arriver_porte(self):
