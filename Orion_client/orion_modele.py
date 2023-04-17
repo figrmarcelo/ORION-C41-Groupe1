@@ -219,8 +219,8 @@ class CentreRecherche(Batiment):
 
     def upgrade(self, batiment, ressourceUpgrade):
         if batiment.proprietaire == self.proprietaire:
-            if self.proprietaire.ressource["metal"] >= ressourceUpgrade["metal"] & self.proprietaire.ressource[
-                "pierre"] >= ressourceUpgrade["pierre"]:
+            if self.proprietaire.ressource["metal"] >= ressourceUpgrade["metal"] \
+                and self.proprietaire.ressource["pierre"] >= ressourceUpgrade["pierre"]:
                 pass  # upgrade batiment.niveau... etc
 
 
@@ -409,7 +409,6 @@ class Joueur:  # ***************************************************************
         self.flotte = {"Combat": {},
                        "Explorer": {},
                        "Cargo": {}}
-        self.ressources = Ressource(0, 0, 0)
 
         self.flotte = {"Vaisseau": {},
                        "Combat": {},
@@ -436,13 +435,13 @@ class Joueur:  # ***************************************************************
 
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
         id_planete = params
+        num = 10
         for planete in self.etoilescontrolees:
-            if planete.getId() != id_planete:
-                continue
-            else:
-                for ressource in planete.ressources_dispo:
-                    self.ressources["pierre"] += planete.ressource_dispo[ressource]
-                    planete.ressource_dispo[ressource] = 0
+            if planete.getId() == id_planete:
+                for k in planete.ressources:
+                    if planete.ressources[k] > 0:
+                        self.ressources[k] += max(num, planete.ressources[k] - num)
+                        planete.ressources[k] -= max(num, planete.ressources[k] - num)
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
 
