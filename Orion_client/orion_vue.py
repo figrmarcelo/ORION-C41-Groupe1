@@ -245,8 +245,6 @@ class Vue():
             self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
 
-<<<<<<< HEAD
-=======
     def afficher_crea_vaisseau(self, *args):
         self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
 
@@ -266,20 +264,12 @@ class Vue():
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
 
->>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
     def creer_batiment(self, evt):
         type = evt.widget.cget("text")
         print(type)
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
 
-<<<<<<< HEAD
-    def choix_batiments(self):
-
-        frame = Frame(self.cadrepartie, width=200, height=200, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
-
-        frame = Frame(self.cadrepartie, width=200, height=220, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
-=======
     def calculPrix(self, id, type):
         cost = 0
         for planete in self.joueur.etoilescontrolees:
@@ -303,7 +293,6 @@ class Vue():
 
     def choix_batiments(self, id):
         frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
->>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
@@ -324,22 +313,6 @@ class Vue():
         prixBalise = Label(frame, text=str(self.calculPrix(id, "balise")) + " Me / " + str(self.calculPrix(id, "balise")) + " En", font='helvetica 10 bold',
                              bg="grey11", fg="green")
 
-<<<<<<< HEAD
-        mine.place(anchor="center", relx=.3, rely=.35)
-        centrale.place(anchor="center", relx=.7, rely=.35)
-        usine.place(anchor="center", relx=.3, rely=.60)
-        canon.place(anchor="center", relx=.7, rely=.60)
-        balise.place(anchor="center", relx=.3, rely=.85)
-        centreRecherche.place(anchor="center", relx=.7, rely=.85)
-
-
-        mine.place(anchor="center", relx=.3, rely=.25)
-        centrale.place(anchor="center", relx=.7, rely=.25)
-        usine.place(anchor="center", relx=.3, rely=.45)
-        canon.place(anchor="center", relx=.7, rely=.45)
-        balise.place(anchor="center", relx=.3, rely=.65)
-        centreRecherche.place(anchor="center", relx=.7, rely=.65)
-=======
 
         mine.place(anchor="center", relx=.25, rely=.25)
         prixMine.place(anchor="center", relx=.7, rely=.25)
@@ -357,7 +330,6 @@ class Vue():
         prixBalise.place(anchor="center", relx=.7, rely=.65)
 
         centreRecherche.place(anchor="center", relx=.25, rely=.75)
->>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
 
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
         upgradeBat.bind('<Button>', self.affichage_upgrade)
@@ -777,13 +749,7 @@ class Vue():
             self.ma_selection = None
             self.canevas.delete("marqueur")
             self.infoSelection.pack_forget()
-<<<<<<< HEAD
-
-            self.choixBat.pack_forget()
-
-=======
             self.choixVaisseau.place_forget()
->>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
             self.choixBat.place_forget()
 
             self.upgradeBat.place_forget()

@@ -32,7 +32,7 @@ class Artefact:
         
         if nom == 'ressource':
             if randint(0, 10) <= 1:
-                for k, v in etoile.ressources.values():
+                for k, v in etoile.ressources.items():
                     v += liste_bonus[nom][k]
                 joueur.ressources += liste_bonus[nom]
             else:
@@ -49,7 +49,7 @@ class Artefact:
     def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Ressource]:
         return liste_bonus.get(self.nom[9:])
 
-class Batiment():
+class Batiment:
     """
     Classe batiment --> classe parent pour les batiments d'une planete. 
     
@@ -261,7 +261,7 @@ class Trou_de_vers():
         self.porte_b.jouer_prochain_coup()
 
 
-class Astre():
+class Astre:
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
         self.id: int = get_prochain_id()
         self.parent = parent
@@ -278,9 +278,9 @@ class Etoile(Astre):
         super().__init__(parent, x, y, random.randrange(4, 8))
         self.proprietaire: str = ""
         self.ressources = Ressource(
-            random.randint(100, 500),
-            random.randint(100, 500),
-            random.randint(100, 500)
+            random.randint(100, 300),
+            random.randint(100, 300),
+            random.randint(100, 300)
         ) * self.taille
 
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
@@ -295,12 +295,12 @@ class Etoile(Astre):
 
         self.artefact = self._add_artefact()
 
-    def getRessources(self):
+    def getRessources(self) -> Ressource:
         return self.ressources.get()
     
     def _add_artefact(self) -> Artefact | None:
-        num = random.randint(0, 10)
-        return Artefact() if num < 10 else None
+        """Ajoute un artéfact sur la planète."""
+        return Artefact() if randint(0, 10) <= 1 else None
 
 
 class Nuage(Astre):
@@ -308,16 +308,15 @@ class Nuage(Astre):
         super().__init__(parent, x, y, random.randrange(12, 8))
 
 
-class Vaisseau():
-    def __init__(self, parent: Joueur, nom: str, x: int, y: int, vaisseau = Class):
-        self.type_vaisseau = vaisseau
+class Vaisseau:
+    def __init__(self, parent: Joueur, nom: str, x: int, y: int, taille: int, vitesse: int):
         self.parent = parent
         self.id: int = get_prochain_id()
         self.proprietaire = nom
         self.x = x
         self.y = y
-        self.taille: int = 5
-        self.vitesse: int = 2
+        self.taille = taille
+        self.vitesse = vitesse
         self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
@@ -325,9 +324,7 @@ class Vaisseau():
                         "Porte_de_vers": self.arriver_porte}
 
         self.niveau = 1  # ajout de niveau du vaisseau
-
         self.pdv = 100 * self.niveau  # ajout de point de vie du vaisseau
-        
 
     def jouer_prochain_coup(self, trouver_nouveau=0):
         if self.cible != 0:
@@ -335,6 +332,11 @@ class Vaisseau():
         elif trouver_nouveau:
             cible = random.choice(self.parent.parent.etoiles)
             self.acquerir_cible(cible, "Etoile")
+            
+    def level_up(self) -> None:
+        self.niveau += 1
+        self.pdv += int(self.pdv * 0.05 * self.niveau)
+        self.vitesse += 1
 
     def acquerir_cible(self, cible, type_cible):
         self.type_cible = type_cible
@@ -360,7 +362,7 @@ class Vaisseau():
         cible = self.cible
         self.cible = 0
         #if type de vaisseau == cargo ALORS afficher construction
-        if self.type_vaisseau == Cargo:
+        if isinstance(self, Cargo):
             self.parent.parent.parent.afficher_construction()
         return ["Etoile", cible]
 
@@ -379,39 +381,21 @@ class Vaisseau():
 
 
 class Combat(Vaisseau):
-
     def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y, Combat)
+        super().__init__(parent, nom, x, y, 5, 2)
         self.combatpoints = 0
-        self.taille: int = 5
-        self.vitesse: int = 2
-        self.cible: int = 0
-        self.type_cible = None
-        self.angle_cible = 0
-
 
 class Explorer(Vaisseau):
-
     def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y, Explorer)
-        self.taille: int = 5
-        self.vitesse: int = 2
-        self.cible: int = 0
-        self.type_cible = None
-        self.angle_cible = 0
-
+        super().__init__(parent, nom, x, y, 5, 2)
 
 class Cargo(Vaisseau):
     def __init__(self, parent, nom, x, y):
-        Vaisseau.__init__(self, parent, nom, x, y, Cargo)
-        self.cargo = 1000
-        self.taille = 6
-        self.vitesse = 1
-        self.cible = 0
-        self.ang = 0
+        super().__init__(parent, nom, x, y, 6, 1)
+        self.capacity = 1000
 
 
-class Joueur():  # **************************************************************** --- JOUEUR --- **********************************************************
+class Joueur:  # **************************************************************** --- JOUEUR --- **********************************************************
     def __init__(self, parent, nom, etoilemere, couleur):
         self.id = get_prochain_id()
         self.parent = parent
@@ -431,8 +415,6 @@ class Joueur():  # *************************************************************
                        "Combat": {},
                        "Explorer": {},
                        "Cargo": {}}
-
-        self.ressources = Ressource(500, 500, 500) 
 
         self.niveau_bat = {
             "mine": 0,
@@ -675,7 +657,7 @@ class IA(Joueur):
             self.cooldown -= 1
 
 
-class Modele():
+class Modele:
     def __init__(self, parent, joueurs):
         self.parent = parent
         self.largeur = 9000
