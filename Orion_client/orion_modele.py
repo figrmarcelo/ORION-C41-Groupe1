@@ -31,11 +31,16 @@ class Artefact:
         nom, bonus = self.nom[9:], self._get_bonus(liste_bonus)
         
         if nom == 'ressource':
-            k, v = choice(list(etoile.ressources.items()))
-            nb_res = liste_bonus[nom][k]
-            v += nb_res
-            print(f'Vous avez gagné {nb_res} {k}s')
-            joueur.ressources[k] += nb_res
+            if randint(0, 10) <= 1:
+                for k, v in etoile.ressources.values():
+                    v += liste_bonus[nom][k]
+                joueur.ressources += liste_bonus[nom]
+            else:
+                k, v = choice(list(etoile.ressources.items()))
+                nb_res = liste_bonus[nom][k]
+                v += nb_res
+                print(f'Vous avez gagné {nb_res} {k}s')
+                joueur.ressources[k] += nb_res
         else:
             etoile.batiments[nom][bonus.id] = bonus
             print(f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}')
@@ -352,7 +357,7 @@ class Vaisseau():
                 return rep
 
     def arriver_etoile(self):
-        #mettre methode construire batiment -------------------------*****************************----------------------
+        #mettre methode construire batiment -------------------------*****************************----------------------------------
         self.parent.log.append(
             ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
         if not self.cible.proprietaire:
