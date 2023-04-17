@@ -4,6 +4,7 @@ from __future__ import annotations
 from msilib.schema import Class
 import random
 import ast
+from random import choice, randint
 import time
 from collections import defaultdict
 
@@ -11,8 +12,42 @@ from id import *
 from helper import Helper as hlp
 from threading import Timer
 
-from modeles import Ressource
+from ressource import Ressource
 
+class Artefact:
+    """Liste de noms de bonus qu'un artéfact peut avoir"""
+    noms = ['mine', 'ressource'] 
+    
+    def __init__(self):
+        self.nom = 'Artefact ' + choice(Artefact.noms)
+    
+    def activate_bonus(self, etoile: Etoile, joueur: Joueur) -> None:
+        liste_bonus = {
+            'mine': Mine(etoile, joueur),
+            'ressource': Ressource(randint(10, 1000), randint(10, 1000), 
+                                   randint(10, 1000))
+        }
+        
+        nom, bonus = self.nom[9:], self._get_bonus(liste_bonus)
+        
+        if nom == 'ressource':
+            if randint(0, 10) <= 1:
+                for k, v in etoile.ressources.values():
+                    v += liste_bonus[nom][k]
+                joueur.ressources += liste_bonus[nom]
+            else:
+                k, v = choice(list(etoile.ressources.items()))
+                nb_res = liste_bonus[nom][k]
+                v += nb_res
+                print(f'Vous avez gagné {nb_res} {k}s')
+                joueur.ressources[k] += nb_res
+        else:
+            etoile.batiments[nom][bonus.id] = bonus
+            print(f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}')
+            
+
+    def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Ressource]:
+        return liste_bonus.get(self.nom[9:])
 
 class Batiment():
     """
@@ -228,7 +263,7 @@ class Trou_de_vers():
 
 class Astre():
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
-        self.id: int = get_prochain_id()
+        self.id = get_prochain_id()
         self.parent = parent
         self.x = x
         self.y = y
@@ -248,6 +283,11 @@ class Etoile(Astre):
             random.randint(100, 500)
         ) * self.taille
 
+        self.ressources_dispo = {
+            "pierre": 0,
+            "metal": 0,
+            "energie": 0}
+
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
             "centrale": {},
@@ -258,9 +298,14 @@ class Etoile(Astre):
             "centreRecherche": {},
         }
 
+        self.artefact = self._add_artefact()
 
     def getRessources(self):
         return self.ressources.get()
+    
+    def _add_artefact(self) -> Artefact | None:
+        num = random.randint(0, 10)
+        return Artefact() if num < 10 else None
 
 
 class Nuage(Astre):
@@ -312,7 +357,7 @@ class Vaisseau():
                 return rep
 
     def arriver_etoile(self):
-        #mettre methode construire batiment -------------------------*****************************----------------------
+        #mettre methode construire batiment -------------------------*****************************----------------------------------
         self.parent.log.append(
             ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
         if not self.cible.proprietaire:
@@ -369,6 +414,7 @@ class Cargo(Vaisseau):
         self.vitesse = 1
         self.cible = 0
         self.ang = 0
+        self.idPlanete = 0
 
 
 class Joueur():  # **************************************************************** --- JOUEUR --- **********************************************************
@@ -381,10 +427,19 @@ class Joueur():  # *************************************************************
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees = [etoilemere]
+
+        self.flotte = {"Combat": {},
+                       "Explorer": {},
+                       "Cargo": {}}
+        self.ressources = Ressource(0, 0, 0)
+
         self.flotte = {"Vaisseau": {},
                        "Combat": {},
                        "Explorer": {},
                        "Cargo": {}}
+
+        self.ressources = Ressource(500, 500, 500) 
+
         self.niveau_bat = {
             "mine": 0,
             "centrale": 0,
@@ -394,6 +449,7 @@ class Joueur():  # *************************************************************
             "centreRecherche": 0
         }
         self.ressources = Ressource()
+
         self.experience = 0
         self.niveau = 0
         self.actions = {"creervaisseau": self.creervaisseau,
@@ -413,6 +469,7 @@ class Joueur():  # *************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
+
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
@@ -471,6 +528,7 @@ class Joueur():  # *************************************************************
                     print("Pas assez de ressource")
 
                 
+
     def upgradebatiment(self, params):
         type = params[0].lower()
 
@@ -490,14 +548,19 @@ class Joueur():  # *************************************************************
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
-        if type_vaisseau == "Cargo":
-            v = Cargo(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
-        elif type_vaisseau == "Combat":
-            v = Combat(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
-        elif type_vaisseau == "Explorer":
-            v = Explorer(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+        x, y = params[1], params[2]
+        
+        vaisseaux = {
+            "Cargo": Cargo(self, self.nom, x + 10, y),
+            "Combat": Combat(self, self.nom, x + 10, y),
+            "Explorer": Explorer(self, self.nom, x + 10, y)
+        }
+        
+        if type_vaisseau in vaisseaux:
+            v = vaisseaux.get(type_vaisseau)
         else:
-            v = Vaisseau(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+            v = Explorer(self, self.nom, x + 10, y)
+            
         self.flotte[type_vaisseau][v.id] = v
 
         if self.nom == self.parent.parent.mon_nom:
@@ -543,11 +606,14 @@ class Joueur():  # *************************************************************
                 j = self.flotte[i][j]
                 rep = j.jouer_prochain_coup(chercher_nouveau)
                 if rep:
-                    if rep[0] == "Etoile" and i == "Combat":
+                    if rep[0] == "Etoile" and i == "Combat" or i == "Explorer":
                         # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
                         #       quand on l'attribue aux etoilescontrolees
                         #       et que ce passe-t-il si l'etoile a un proprietaire ???
                         self.etoilescontrolees.append(rep[1])
+                        if rep[1].artefact:
+                            rep[1].artefact.activate_bonus(rep[1], self)
+                            
                         self.parent.parent.afficher_etoile(self.nom, rep[1])
                     elif rep[0] == "Porte_de_ver":
                         pass
@@ -588,7 +654,7 @@ class IA(Joueur):
         self.avancer_flotte(1)
 
         if self.cooldown == 0:
-            v = self.creervaisseau(["Vaisseau"])
+            v = self.creervaisseau(["Combat", random.randint(0, 5000), random.randint(0, 5000)])
             cible = random.choice(self.parent.etoiles)
             v.acquerir_cible(cible, "Etoile")
             self.cooldown = random.randrange(self.cooldownmax) + self.cooldownmax

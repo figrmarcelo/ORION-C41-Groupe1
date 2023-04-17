@@ -233,7 +233,12 @@ class Vue():
 
         return frame
 
-    def afficher_crea_batiment(self, id_planete, *args):
+
+    def afficher_batiment(self, source):
+        self.infoSelection.pack_forget()
+        self.choixBat.pack()
+
+    def afficher_crea_batiment(self, *args):
         if self.upgradeBat:
             self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
@@ -241,20 +246,21 @@ class Vue():
         print(id_planete)
 
     def afficher_crea_vaisseau(self, *args):
-        self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
 
-        self.btncreercombat = Button(self.choixVaisseau, text="Combat")
-        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
-        self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
-        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
-        self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
-        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+                    self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
 
-        self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
-        self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
-        self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+                    self.btncreercombat = Button(self.choixVaisseau, text="Combat")
+                    self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+                    self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
+                    self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
+                    self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
+                    self.btncreercargo.bind("<Button>", self.creer_vaisseau)
 
-        self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+                    self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
+                    self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
+                    self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+
+                    self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
 
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
@@ -264,6 +270,13 @@ class Vue():
         print(type)
         self.parent.creer_batiment([self.id_planete, type])
         self.choixBat.place_forget()
+
+
+    def choix_batiments(self):
+
+        frame = Frame(self.cadrepartie, width=200, height=200, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
+
+        frame = Frame(self.cadrepartie, width=200, height=220, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
 
     def calculPrix(self, id, type):
         cost = 0
@@ -308,6 +321,20 @@ class Vue():
         prixBalise = Label(frame, text=str(self.calculPrix(id, "balise")) + " Me / " + str(self.calculPrix(id, "balise")) + " En", font='helvetica 10 bold',
                              bg="grey11", fg="green")
 
+        mine.place(anchor="center", relx=.3, rely=.35)
+        centrale.place(anchor="center", relx=.7, rely=.35)
+        usine.place(anchor="center", relx=.3, rely=.60)
+        canon.place(anchor="center", relx=.7, rely=.60)
+        balise.place(anchor="center", relx=.3, rely=.85)
+        centreRecherche.place(anchor="center", relx=.7, rely=.85)
+
+
+        mine.place(anchor="center", relx=.3, rely=.25)
+        centrale.place(anchor="center", relx=.7, rely=.25)
+        usine.place(anchor="center", relx=.3, rely=.45)
+        canon.place(anchor="center", relx=.7, rely=.45)
+        balise.place(anchor="center", relx=.3, rely=.65)
+        centreRecherche.place(anchor="center", relx=.7, rely=.65)
 
         mine.place(anchor="center", relx=.25, rely=.25)
         prixMine.place(anchor="center", relx=.7, rely=.25)
@@ -336,6 +363,7 @@ class Vue():
         canon.bind('<Button>', self.creer_batiment)
         balise.bind('<Button>', self.creer_batiment)
         centreRecherche.bind('<Button>', self.creer_batiment)
+
 
         return frame
 
@@ -411,9 +439,12 @@ class Vue():
         batiment.bind('<Button>', self.afficher_crea_batiment)
         batiment.place(anchor="center", rely=.9, relx=.25)
 
-        vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
-        vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
-        vaisseau.place(anchor="center", rely=.9, relx=.75)
+        for planete in self.joueur.etoilescontrolees:
+            if planete.getId() == self.idSelect:
+                if (len(planete.batiments["usine"]) > 0):
+                    vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
+                    vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
+                    vaisseau.place(anchor="center", rely=.9, relx=.75)
 
         return frame
 
@@ -597,7 +628,8 @@ class Vue():
 
     def creer_vaisseau(self, evt):
         type_vaisseau = evt.widget.cget("text")
-        self.parent.creer_vaisseau(type_vaisseau)
+        self.parent.creer_vaisseau(type_vaisseau, self.etoile_select.x, 
+                                   self.etoile_select.y)
         self.ma_selection = None
         self.canevas.delete("marqueur")
         self.cadreinfochoix.pack_forget()
@@ -629,7 +661,7 @@ class Vue():
                         self.canevas.create_oval(x - t, y - t, x + t, y + t,
                                                  dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
                                                  tags=("multiselection", "marqueur"))
-            elif self.ma_selection[2] == "FlotteCombat":
+            elif self.ma_selection[2] == "FlotteCombat" or self.ma_selection[2] == "FlotteCargo":
                 for j in joueur.flotte:
                     for i in joueur.flotte[j]:
                         i = joueur.flotte[j][i]
@@ -699,20 +731,14 @@ class Vue():
 
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
-        a = obj.ang
         x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
         self.canevas.create_oval((obj.x - tailleF), (obj.y - tailleF),
                                  (obj.x + tailleF), (obj.y + tailleF), fill=joueur.couleur,
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
+                                 tags=(obj.proprietaire, str(obj.id), "FlotteCargo", type_obj, "artefact"))
         self.canevas.create_oval((x - dt), (y - dt),
                                  (x + dt), (y + dt), fill="yellow",
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
-
-    def dessiner_cargo1(self, j, tailleF, i, k):
-        self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                                 (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                 tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
+                                 tags=(obj.proprietaire, str(obj.id), "FlotteCargo", type_obj, "artefact"))
 
     def cliquer_cosmos(self, evt):
         t = self.canevas.gettags(CURRENT)
@@ -748,9 +774,14 @@ class Vue():
             self.ma_selection = None
             self.canevas.delete("marqueur")
             self.infoSelection.pack_forget()
+
+            self.choixBat.place_forget()
+
             self.choixVaisseau.place_forget()
             self.choixBat.place_forget()
+
             self.upgradeBat.place_forget()
+
 
     def montrer_etoile_selection(self):
         self.infoSelection.pack(fill=BOTH)
