@@ -10,25 +10,31 @@ class Artefact:
         self.nom = 'Artefact ' + choice(Artefact.noms)
     
     def activate_bonus(self, planete, joueur):
-        type_bonus = {
+        liste_bonus = {
             'mine': Mine(planete, joueur),
             'cdr': Centrale(planete, joueur),
             'usine': Usine(planete, joueur),
-            'ressource': Ressource(randint(10, 1000), randint(10, 1000), randint(10, 1000))
+            'ressource': Ressource(randint(10, 1000), randint(10, 1000), 
+                                   randint(10, 1000))
         }
         
-        nom, bonus = self._get_nom_and_bonus(type_bonus)
+        nom, bonus = self.nom[9:], self._get_bonus(liste_bonus)
         
         if nom == 'ressource':
             k = choice(list(planete.ressources))
             res = planete.ressource[k]
-            nb_res = type_bonus[nom][k]
+            nb_res = liste_bonus[nom][k]
             res += nb_res
             print(f'Vous avez gagné {nb_res} {res}s')
         else:
             planete.batiments[nom][bonus.id] = bonus
-            print(f'Vous avez gagné une nouvelle {type_bonus[nom].__name__}')
+            print(f'Vous avez gagné une nouvelle {liste_bonus[nom].__name__}')
             
 
-    def _get_nom_and_bonus(self, liste_bonus: dict) -> tuple[str, any(Mine, Centrale, Ressource, Usine)]:
-        return self.nom[9:], liste_bonus.get(self.nom[9:])
+    def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Centrale | Ressource | Usine]:
+        return liste_bonus.get(self.nom[9:])
+
+    
+                
+               
+    
