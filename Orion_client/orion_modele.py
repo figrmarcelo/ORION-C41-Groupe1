@@ -3,6 +3,7 @@
 from __future__ import annotations
 import random
 import ast
+from random import choice, randint
 import time
 from collections import defaultdict
 
@@ -12,6 +13,35 @@ from threading import Timer
 
 from ressource import Ressource
 
+class Artefact:
+    """Liste de noms de bonus qu'un artéfact peut avoir"""
+    noms = ['mine', 'ressource'] 
+    
+    def __init__(self):
+        self.nom = 'Artefact ' + choice(Artefact.noms)
+    
+    def activate_bonus(self, etoile: Etoile, joueur: Joueur) -> None:
+        liste_bonus = {
+            'mine': Mine(etoile, joueur),
+            'ressource': Ressource(randint(10, 1000), randint(10, 1000), 
+                                   randint(10, 1000))
+        }
+        
+        nom, bonus = self.nom[9:], self._get_bonus(liste_bonus)
+        
+        if nom == 'ressource':
+            k, v = choice(list(etoile.ressources.items()))
+            nb_res = liste_bonus[nom][k]
+            v += nb_res
+            print(f'Vous avez gagné {nb_res} {k}s')
+            joueur.ressources[k] += nb_res
+        else:
+            etoile.batiments[nom][bonus.id] = bonus
+            print(f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}')
+            
+
+    def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Ressource]:
+        return liste_bonus.get(self.nom[9:])
 
 class Batiment():
     """
@@ -258,13 +288,14 @@ class Etoile(Astre):
             "centreRecherche": {},
         }
 
-        self.ressources_dispo = {
-            "pierre": 0,
-            "metal": 0,
-            "energie": 0}
+        self.artefact = self._add_artefact()
 
     def getRessources(self):
         return self.ressources.get()
+    
+    def _add_artefact(self) -> Artefact | None:
+        num = random.randint(0, 10)
+        return Artefact() if num < 10 else None
 
 
 class Nuage(Astre):
@@ -499,14 +530,18 @@ class Joueur():  # *************************************************************
     def creervaisseau(self, params):
         type_vaisseau = params[0]
         x, y = params[1], params[2]
-        if type_vaisseau == "Cargo":
-            v = Cargo(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
-        elif type_vaisseau == "Combat":
-            v = Combat(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
-        elif type_vaisseau == "Explorer":
-            v = Explorer(self, self.nom, self.etoilemere.x + 10, self.etoilemere.y)
+        
+        vaisseaux = {
+            "Cargo": Cargo(self, self.nom, x + 10, y),
+            "Combat": Combat(self, self.nom, x + 10, y),
+            "Explorer": Explorer(self, self.nom, x + 10, y)
+        }
+        
+        if type_vaisseau in vaisseaux:
+            v = vaisseaux.get(type_vaisseau)
         else:
             v = Explorer(self, self.nom, x + 10, y)
+            
         self.flotte[type_vaisseau][v.id] = v
 
         if self.nom == self.parent.parent.mon_nom:
@@ -548,11 +583,14 @@ class Joueur():  # *************************************************************
                 j = self.flotte[i][j]
                 rep = j.jouer_prochain_coup(chercher_nouveau)
                 if rep:
-                    if rep[0] == "Etoile" and i == "Combat":
+                    if rep[0] == "Etoile" and i == "Combat" or i == "Explorer":
                         # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
                         #       quand on l'attribue aux etoilescontrolees
                         #       et que ce passe-t-il si l'etoile a un proprietaire ???
                         self.etoilescontrolees.append(rep[1])
+                        if rep[1].artefact:
+                            rep[1].artefact.activate_bonus(rep[1], self)
+                            
                         self.parent.parent.afficher_etoile(self.nom, rep[1])
                     elif rep[0] == "Porte_de_ver":
                         pass
