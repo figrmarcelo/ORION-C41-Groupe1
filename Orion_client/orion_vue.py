@@ -42,6 +42,7 @@ class Vue():
         self.selecteur_actif = None
         self.idSelect = ''
         self.choixBat = None
+        self.choixVaisseau = None
         self.upgradeBat = None
         self.premier = 0
 
@@ -174,17 +175,6 @@ class Vue():
         self.infoSelection = None
         self.levelUp = self.afficher_level_up(self.cadreoutils)
 
-        self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
-        self.btncreercombat = Button(self.cadreinfochoix, text="Combat")
-        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
-        self.btncreerexplorer = Button(self.cadreinfochoix, text="Explorer")
-        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
-        self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
-        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
-
-        self.btncreercombat.pack()
-        self.btncreerexplorer.pack()
-        self.btncreercargo.pack()
 
         self.cadreinfoliste = Frame(self.cadreinfo)
 
@@ -251,19 +241,69 @@ class Vue():
         frame = Frame(source, width=200, height=200, bg="grey11")
 
     def afficher_crea_batiment(self, *args):
+        if self.upgradeBat:
+            self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
 
+<<<<<<< HEAD
+=======
+    def afficher_crea_vaisseau(self, *args):
+        self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+
+        self.btncreercombat = Button(self.choixVaisseau, text="Combat")
+        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+        self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
+        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
+        self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
+        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+
+        self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
+        self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
+        self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+
+        self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+
+    def retour_construction(self, *args):
+        self.upgradeBat.place_forget()
+
+>>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
     def creer_batiment(self, evt):
         type = evt.widget.cget("text")
         print(type)
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
 
+<<<<<<< HEAD
     def choix_batiments(self):
 
         frame = Frame(self.cadrepartie, width=200, height=200, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
 
         frame = Frame(self.cadrepartie, width=200, height=220, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
+=======
+    def calculPrix(self, id, type):
+        cost = 0
+        for planete in self.joueur.etoilescontrolees:
+            if planete.getId() == id:
+                if type == "mine":
+                    cost = len(planete.batiments[type]) * 100
+                elif type == "centrale":
+                    cost = len(planete.batiments[type]) * 200
+                elif type == "usine" or type == "canon":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 200
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 250
+                elif type == "balise":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 350
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 300
+        return cost
+
+
+    def choix_batiments(self, id):
+        frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
+>>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
@@ -272,11 +312,19 @@ class Vue():
         balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
         centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
 
-        titre = Label(frame, text="BATIMENTS", font='helvetica 10 bold', bg="grey11", fg="green")
+        titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
-        # self.joueur.creerbatiment([self.idSelect, 'mine'])
+        prixMine = Label(frame, text=str(self.calculPrix(id, "mine")) + " Ro", font='helvetica 10 bold', bg="grey11", fg="green")
+        prixCentrale = Label(frame, text=str(self.calculPrix(id, "centrale")) + " Me", font='helvetica 10 bold', bg="grey11", fg="green")
+        prixUsine = Label(frame, text=str(self.calculPrix(id, "usine")) + " Me / " + str(self.calculPrix(id, "usine")) + " En", font='helvetica 10 bold',
+                             bg="grey11", fg="green")
+        prixCanon = Label(frame, text=str(self.calculPrix(id, "canon")) + " Me / " + str(self.calculPrix(id, "canon")) + " En", font='helvetica 10 bold',
+                          bg="grey11", fg="green")
+        prixBalise = Label(frame, text=str(self.calculPrix(id, "balise")) + " Me / " + str(self.calculPrix(id, "balise")) + " En", font='helvetica 10 bold',
+                             bg="grey11", fg="green")
 
+<<<<<<< HEAD
         mine.place(anchor="center", relx=.3, rely=.35)
         centrale.place(anchor="center", relx=.7, rely=.35)
         usine.place(anchor="center", relx=.3, rely=.60)
@@ -291,6 +339,25 @@ class Vue():
         canon.place(anchor="center", relx=.7, rely=.45)
         balise.place(anchor="center", relx=.3, rely=.65)
         centreRecherche.place(anchor="center", relx=.7, rely=.65)
+=======
+
+        mine.place(anchor="center", relx=.25, rely=.25)
+        prixMine.place(anchor="center", relx=.7, rely=.25)
+
+        centrale.place(anchor="center", relx=.25, rely=.35)
+        prixCentrale.place(anchor="center", relx=.7, rely=.35)
+
+        usine.place(anchor="center", relx=.25, rely=.45)
+        prixUsine.place(anchor="center", relx=.7, rely=.45)
+
+        canon.place(anchor="center", relx=.25, rely=.55)
+        prixCanon.place(anchor="center", relx=.7, rely=.55)
+
+        balise.place(anchor="center", relx=.25, rely=.65)
+        prixBalise.place(anchor="center", relx=.7, rely=.65)
+
+        centreRecherche.place(anchor="center", relx=.25, rely=.75)
+>>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
 
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
         upgradeBat.bind('<Button>', self.affichage_upgrade)
@@ -327,21 +394,29 @@ class Vue():
         titre = Label(frame, text="UPGRADE", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
-        # self.joueur.creerbatiment([self.idSelect, 'mine'])
+        if self.joueur.niveau_bat["mine"] > 0 :
+            mine.place(anchor="center", relx=.3, rely=.25)
+        if self.joueur.niveau_bat["centrale"] > 0:
+            centrale.place(anchor="center", relx=.7, rely=.25)
+        if self.joueur.niveau_bat["usine"] > 0:
+            usine.place(anchor="center", relx=.3, rely=.45)
+        if self.joueur.niveau_bat["canon"] > 0:
+            canon.place(anchor="center", relx=.7, rely=.45)
+        if self.joueur.niveau_bat["balise"] > 0:
+            balise.place(anchor="center", relx=.3, rely=.65)
+        if self.joueur.niveau_bat["centreRecherche"] > 0:
+            centreRecherche.place(anchor="center", relx=.7, rely=.65)
 
-        mine.place(anchor="center", relx=.3, rely=.25)
-        centrale.place(anchor="center", relx=.7, rely=.25)
-        usine.place(anchor="center", relx=.3, rely=.45)
-        canon.place(anchor="center", relx=.7, rely=.45)
-        balise.place(anchor="center", relx=.3, rely=.65)
-        centreRecherche.place(anchor="center", relx=.7, rely=.65)
-
-        mine.bind('<Button>', self.upgrade_batiment)
-        centrale.bind('<Button>', self.upgrade_batiment)
-        usine.bind('<Button>', self.upgrade_batiment)
-        canon.bind('<Button>', self.upgrade_batiment)
         balise.bind('<Button>', self.upgrade_batiment)
         centreRecherche.bind('<Button>', self.upgrade_batiment)
+        canon.bind('<Button>', self.upgrade_batiment)
+        usine.bind('<Button>', self.upgrade_batiment)
+        centrale.bind('<Button>', self.upgrade_batiment)
+        mine.bind('<Button>', self.upgrade_batiment)
+
+        retourConstruction = Button(frame, text="RETOUR", fg="green", width=9, height=1, bg="grey19")
+        retourConstruction.bind('<Button>', self.afficher_crea_batiment)
+        retourConstruction.place(anchor="center", rely=.9, relx=.5)
 
         self.upgradeBat = frame
         self.upgradeBat.place(relx=.75, rely=.05)
@@ -369,6 +444,10 @@ class Vue():
         batiment = Button(frame, text="BATIMENTS", fg="green", width=9, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
         batiment.place(anchor="center", rely=.9, relx=.25)
+
+        vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
+        vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
+        vaisseau.place(anchor="center", rely=.9, relx=.75)
 
         return frame
 
@@ -683,7 +762,7 @@ class Vue():
                                 print(info, " :", len(i.batiments[info]))
                                 
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
-                    self.choixBat = self.choix_batiments()
+                    self.choixBat = self.choix_batiments(self.idSelect)
                     self.montrer_etoile_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:
@@ -697,19 +776,20 @@ class Vue():
             self.idSelect = None
             self.ma_selection = None
             self.canevas.delete("marqueur")
-            self.levelUp.pack_forget()
-            self.cadreinfochoix.pack_forget()
             self.infoSelection.pack_forget()
+<<<<<<< HEAD
 
             self.choixBat.pack_forget()
 
+=======
+            self.choixVaisseau.place_forget()
+>>>>>>> b4f028f39e560d29c07c10f723ad673b58f93958
             self.choixBat.place_forget()
 
             self.upgradeBat.place_forget()
 
 
     def montrer_etoile_selection(self):
-        self.cadreinfochoix.pack(fill=BOTH)
         self.infoSelection.pack(fill=BOTH)
 
     def montrer_flotte_selection(self):
