@@ -100,17 +100,9 @@ class Extraction(Batiment):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-        self.ressources = {
-            "energie": 0,
-            "pierre": 0,
-            "metal": 0
-        }
+        self.ressources = Ressource()
 
-        self.ressources_max = {
-            "energie": 0,
-            "pierre": 0,
-            "metal": 0
-        }
+        self.ressources_max = Ressource()
 
     def generer(self,planete, bat):
         taux = self.niveau * 0.1
@@ -438,8 +430,6 @@ class Joueur():  # *************************************************************
                        "Explorer": {},
                        "Cargo": {}}
 
-        self.ressources = Ressource(500, 500, 500) 
-
         self.niveau_bat = {
             "mine": 0,
             "centrale": 0,
@@ -491,7 +481,7 @@ class Joueur():  # *************************************************************
                         self.experience += 100
                 elif type_batiment == "usine" or type_batiment == "canon":
                     if len(planete.batiments[type_batiment]) == 0:
-                        cost = 200
+                        cost = 100
                     else:
                         cost = (len(planete.batiments[type_batiment]) + 1) * 250
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
