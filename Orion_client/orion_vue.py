@@ -46,6 +46,8 @@ class Vue():
         self.upgradeBat = None
         self.premier = 0
 
+        self.update_data = 0
+
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
         if rep:
@@ -225,13 +227,6 @@ class Vue():
 
         return frame
 
-    def afficher_level_up(self, source):
-        frame = Frame(source, width=100, height=50, bg="darkgrey")
-        up = Button(frame, text="LEVEL UP", width=50, height=3)
-        up.place(anchor="center", rely=.5, relx=.5)
-
-        return frame
-
 
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
@@ -375,6 +370,9 @@ class Vue():
         frame = Frame(self.cadrepartie, width=200, height=220, bg="grey11", highlightthickness=2,
                       highlightbackground="darkgrey")
 
+        titre = Label(frame, text="UPGRADE", font='helvetica 10 bold', bg="grey11", fg="green")
+        titre.place(anchor="center", rely=.1, relx=.5)
+
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
         usine = Button(frame, text="Usine", fg="green", width=6, height=1, bg="grey19")
@@ -382,8 +380,13 @@ class Vue():
         balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
         centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
 
-        titre = Label(frame, text="UPGRADE", font='helvetica 10 bold', bg="grey11", fg="green")
-        titre.place(anchor="center", rely=.1, relx=.5)
+        prixMine = Label(frame, text=str(self.calculPrixUpgrade(id, "mine")) + " Ro", font='helvetica 10 bold', bg="grey11",
+                         fg="green")
+        prixCentrale = Label(frame, text=str(self.calculPrixUpgrade(id, "centrale")) + " Me", font='helvetica 10 bold',
+                             bg="grey11", fg="green")
+
+
+
 
         if self.joueur.niveau_bat["mine"] > 0 :
             mine.place(anchor="center", relx=.3, rely=.25)
@@ -411,6 +414,15 @@ class Vue():
 
         self.upgradeBat = frame
         self.upgradeBat.place(relx=.75, rely=.05)
+
+
+    def calculPrixUpgrade(self, id, type):
+        cost = 0
+        for planete in self.joueur.etoilescontrolees:
+            if planete.getId() == id:
+                if type == "mine" or type == "centrale":
+                    cost = (100 * pow(self.niveau_bat[type], 2)) + (50 * self.niveau_bat[type]) + 25
+        return cost
 
     def affichage_planete_selectionee(self, source, planete, state):
         self.state = state
@@ -638,14 +650,18 @@ class Vue():
         self.afficher_mini()
         joueur = mod.joueurs[self.mon_nom]
 
-        # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
-        self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
-                                                             joueur.niveau, joueur.experience,
-                                                             joueur.ressources,
-                                                             len(joueur.etoilescontrolees),
-                                                             len(joueur.flotte['Combat']) + len(joueur.flotte['Explorer']) +
-                                                             len(joueur.flotte['Cargo']))
-        self.cadreinfoglobale.grid(row=2, sticky="nsew")
+        if  self.update_data > 8:
+            # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
+            self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
+                                                                 joueur.niveau, joueur.experience,
+                                                                 joueur.ressources,
+                                                                 len(joueur.etoilescontrolees),
+                                                                 len(joueur.flotte['Combat']) + len(joueur.flotte['Explorer']) +
+                                                                 len(joueur.flotte['Cargo']))
+            self.cadreinfoglobale.grid(row=2, sticky="nsew")
+            self.update_data = 0
+
+        self.update_data += 1
 
         if self.ma_selection != None and self.contour == True:
             joueur = mod.joueurs[self.ma_selection[0]]

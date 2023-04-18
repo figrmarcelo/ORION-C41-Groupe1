@@ -489,7 +489,7 @@ class Joueur():  # *************************************************************
                         bat = Centrale(id_planete, self.nom)
                         self.niveau_bat[type_batiment] += 1
                         self.experience += 100
-                elif type_batiment == "usine" and type_batiment == "canon":
+                elif type_batiment == "usine" or type_batiment == "canon":
                     if len(planete.batiments[type_batiment]) == 0:
                         cost = 200
                     else:
@@ -531,6 +531,7 @@ class Joueur():  # *************************************************************
 
     def upgradebatiment(self, params):
         type = params[0].lower()
+        upgrade = False
 
         if type == "mine" or type == "centrale":
             cost = (100 * pow(self.niveau_bat[type], 2)) + (50 * self.niveau_bat[type]) + 25
@@ -538,13 +539,15 @@ class Joueur():  # *************************************************************
             if type == "mine" and self.ressources["pierre"] >= cost:
                 self.ressources["pierre"] -= cost
                 self.niveau_bat[type] += 1
+                upgrade = True
             elif type == "centrale" and self.ressources["metal"] >= cost:
                 self.ressources["metal"] -= cost
                 self.niveau_bat[type] += 1
-
-            for planete in self.etoilescontrolees:
-                for bat in planete.batiments[type]:
-                    planete.batiments[type][bat].niveau += 1
+                upgrade = True
+            if upgrade:
+                for planete in self.etoilescontrolees:
+                    for bat in planete.batiments[type]:
+                        planete.batiments[type][bat].niveau += 1
 
     def creervaisseau(self, params):
         type_vaisseau = params[0]
