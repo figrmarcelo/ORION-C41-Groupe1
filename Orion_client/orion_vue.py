@@ -175,7 +175,6 @@ class Vue():
         self.labid.pack()
 
         self.infoSelection = None
-        self.levelUp = self.afficher_level_up(self.cadreoutils)
 
 
         self.cadreinfoliste = Frame(self.cadreinfo)
@@ -386,20 +385,20 @@ class Vue():
                              bg="grey11", fg="green")
 
 
-
-
         if self.joueur.niveau_bat["mine"] > 0 :
-            mine.place(anchor="center", relx=.3, rely=.25)
+            mine.place(anchor="center", relx=.25, rely=.25)
+            prixMine.place(anchor="center", relx=.7, rely=.25)
         if self.joueur.niveau_bat["centrale"] > 0:
-            centrale.place(anchor="center", relx=.7, rely=.25)
+            centrale.place(anchor="center", relx=.25, rely=.35)
+            prixCentrale.place(anchor="center", relx=.7, rely=.35)
         if self.joueur.niveau_bat["usine"] > 0:
-            usine.place(anchor="center", relx=.3, rely=.45)
+            usine.place(anchor="center", relx=.25, rely=.45)
         if self.joueur.niveau_bat["canon"] > 0:
-            canon.place(anchor="center", relx=.7, rely=.45)
+            canon.place(anchor="center", relx=.25, rely=.55)
         if self.joueur.niveau_bat["balise"] > 0:
-            balise.place(anchor="center", relx=.3, rely=.65)
+            balise.place(anchor="center", relx=.25, rely=.65)
         if self.joueur.niveau_bat["centreRecherche"] > 0:
-            centreRecherche.place(anchor="center", relx=.7, rely=.65)
+            centreRecherche.place(anchor="center", relx=.25, rely=.75)
 
         balise.bind('<Button>', self.upgrade_batiment)
         centreRecherche.bind('<Button>', self.upgrade_batiment)

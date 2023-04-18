@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="7d13b557-f1df-4433-9612-8f16d7b0cd04" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Orion_client/orion_modele.py" beforeDir="false" afterPath="$PROJECT_DIR$/Orion_client/orion_modele.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Orion_client/orion_vue.py" beforeDir="false" afterPath="$PROJECT_DIR$/Orion_client/orion_vue.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RTS_serveur/RTS_serveur_DB.db" beforeDir="false" afterPath="$PROJECT_DIR$/RTS_serveur/RTS_serveur_DB.db" afterDir="false" />
     </list>
