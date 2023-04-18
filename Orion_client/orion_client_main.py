@@ -228,6 +228,8 @@ class Controleur():
     def afficher_construction(self):
         self.vue.afficher_crea_batiment()
 
+    
+
 
 if __name__ == "__main__":
     c = Controleur()

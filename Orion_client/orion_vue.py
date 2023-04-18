@@ -276,12 +276,12 @@ class Vue():
                 if type == "mine":
                     cost = len(planete.batiments[type]) * 100
                 elif type == "centrale":
-                    cost = len(planete.batiments[type]) * 200
+                    cost = len(planete.batiments[type]) * 100
                 elif type == "usine" or type == "canon":
                     if len(planete.batiments[type]) == 0:
-                        cost = 200
+                        cost = 100
                     else:
-                        cost = (len(planete.batiments[type]) + 1) * 250
+                        cost = (len(planete.batiments[type]) + 1) * 150
                 elif type == "balise":
                     if len(planete.batiments[type]) == 0:
                         cost = 350

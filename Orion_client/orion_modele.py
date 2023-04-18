@@ -483,7 +483,7 @@ class Joueur():  # *************************************************************
                     if len(planete.batiments[type_batiment]) == 0:
                         cost = 100
                     else:
-                        cost = (len(planete.batiments[type_batiment]) + 1) * 250
+                        cost = (len(planete.batiments[type_batiment]) + 1) * 150
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
