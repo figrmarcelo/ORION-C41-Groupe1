@@ -13,11 +13,11 @@ from orion_vue import *
 
 class Controleur():
     def __init__(self):
-        self.mon_nom = self.generer_nom()  # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
-        self.joueur_createur = 0  # 1 quand un joueur "Créer une partie", peut Demarrer la partie
-        self.cadrejeu = 0  # compte les tours dans la boucle de jeu (bouclersurjeu)
+        self.mon_nom: str = self.generer_nom()  # nom de joueur, sert d'identifiant dans le jeu - ici, avec auto-generation
+        self.joueur_createur: int = 0  # 1 quand un joueur "Créer une partie", peut Demarrer la partie
+        self.cadrejeu: int = 0  # compte les tours dans la boucle de jeu (bouclersurjeu)
         self.actionsrequises = []  # les actions envoyées au serveur
-        self.joueurs = []  # liste des noms de joueurs pour le lobby
+        self.joueurs: list[str] = []  # liste des noms de joueurs pour le lobby
 
         self.prochainsplash = None  # requis pour sortir de cette boucle et passer au lobby du jeu
         self.onjoue = 1  # indicateur que le jeu se poursuive - sinon on attend qu'un autre joueur nous rattrape
@@ -210,14 +210,20 @@ class Controleur():
     def creer_vaisseau(self, type_vaisseau):
         self.actionsrequises.append([self.mon_nom, "creervaisseau", [type_vaisseau]])
 
-    def cibler_flotte(self, idorigine, iddestination, type_cible):
-        self.actionsrequises.append([self.mon_nom, "ciblerflotte", [idorigine, iddestination, type_cible]])
+    def cibler_etoile(self, idorigine, iddestination, type_cible):
+        self.actionsrequises.append([self.mon_nom, "cibleretoile", [idorigine, iddestination, type_cible]])
 
     def afficher_etoile(self, joueur, cible):
         self.vue.afficher_etoile(joueur, cible)
 
     def lister_objet(self, objet, id):
         self.vue.lister_objet(objet, id)
+
+    def creer_batiment(self, id_planete, id_batiment):
+        self.actionsrequises.append([self.mon_nom, "creerbatiment", [id_planete, id_batiment]])
+
+    def delete_vaisseau(self, type_vaisseau, id):
+        self.actionsrequises.append([self.mon_nom, "deletevaisseau", [type_vaisseau], [id]])
 
 
 if __name__ == "__main__":
