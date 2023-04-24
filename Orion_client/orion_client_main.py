@@ -228,6 +228,9 @@ class Controleur():
     def afficher_construction(self):
         self.vue.afficher_crea_batiment()
 
+    def afficher_notif(self, type_notif):
+        self.vue.afficher_notif(type_notif)
+
     
 
 

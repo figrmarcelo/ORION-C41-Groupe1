@@ -96,9 +96,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Orion_client/orion_vue.py</url>
-          <line>385</line>
-          <option name="timeStamp" value="11" />
+          <url>file://$PROJECT_DIR$/Orion_client/orion_modele.py</url>
+          <line>523</line>
+          <option name="timeStamp" value="22" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

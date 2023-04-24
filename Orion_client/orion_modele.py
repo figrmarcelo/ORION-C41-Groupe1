@@ -441,7 +441,7 @@ class Joueur():  # *************************************************************
         self.ressources = Ressource()
 
         self.experience = 0
-        self.niveau = 0
+        self.niveau = 1
         self.actions = {"creervaisseau": self.creervaisseau,
                         "cibleretoile": self.cibleretoile,
                         "creerbatiment": self.creerbatiment,
@@ -468,7 +468,7 @@ class Joueur():  # *************************************************************
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
                 if type_batiment == "mine" or type_batiment == "centrale":
-                    costMP = len(planete.batiments[type_batiment]) * 100
+                    costMP = self.calculPrix(id_planete, type_batiment)
                     if type_batiment == "mine" and self.ressources["pierre"] >= costMP:
                         self.ressources["pierre"] -= costMP
                         bat = Mine(id_planete, self.nom)
@@ -481,9 +481,9 @@ class Joueur():  # *************************************************************
                         self.experience += 100
                 elif type_batiment == "usine" or type_batiment == "canon":
                     if len(planete.batiments[type_batiment]) == 0:
-                        cost = 100
+                        cost = self.calculPrix(id_planete, type_batiment)
                     else:
-                        cost = (len(planete.batiments[type_batiment]) + 1) * 150
+                        cost = self.calculPrix(id_planete, type_batiment)
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
@@ -497,9 +497,9 @@ class Joueur():  # *************************************************************
                         self.experience += 250
                 elif type_batiment == "balise":
                     if len(planete.batiments[type_batiment]) == 0:
-                        cost = 350
+                        cost = self.calculPrix(id_planete, type_batiment)
                     else:
-                        cost = (len(planete.batiments[type_batiment]) + 1) * 300
+                        cost = self.calculPrix(id_planete, type_batiment)
 
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
@@ -513,11 +513,32 @@ class Joueur():  # *************************************************************
                 if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
                     print("batiment construit")
+                    self.parent.parent.afficher_notif(1)
                 else:
                     print(self.ressources)
                     print("Pas assez de ressource")
+                    self.parent.parent.afficher_notif(2)
 
-                
+
+    def calculPrix(self, id, type):
+        cost = 0
+        for planete in self.etoilescontrolees:
+            if planete.getId() == id:
+                if type == "mine":
+                    cost = len(planete.batiments[type]) * 100
+                elif type == "centrale":
+                    cost = len(planete.batiments[type]) * 100
+                elif type == "usine" or type == "canon":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 100
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 150
+                elif type == "balise":
+                    if len(planete.batiments[type]) == 0:
+                        cost = 350
+                    else:
+                        cost = (len(planete.batiments[type]) + 1) * 300
+        return cost
 
     def upgradebatiment(self, params):
         type = params[0].lower()
@@ -530,10 +551,12 @@ class Joueur():  # *************************************************************
                 self.ressources["pierre"] -= cost
                 self.niveau_bat[type] += 1
                 upgrade = True
+                self.experience += 25
             elif type == "centrale" and self.ressources["metal"] >= cost:
                 self.ressources["metal"] -= cost
                 self.niveau_bat[type] += 1
                 upgrade = True
+                self.experience += 25
             if upgrade:
                 for planete in self.etoilescontrolees:
                     for bat in planete.batiments[type]:
@@ -548,7 +571,9 @@ class Joueur():  # *************************************************************
             "Combat": Combat(self, self.nom, x + 10, y),
             "Explorer": Explorer(self, self.nom, x + 10, y)
         }
-        
+
+        self.experience += 50
+
         if type_vaisseau in vaisseaux:
             v = vaisseaux.get(type_vaisseau)
         else:
@@ -591,7 +616,25 @@ class Joueur():  # *************************************************************
     def jouer_prochain_coup(self):
         self.avancer_flotte()
         self.generer_res()
-    
+        self.levelUp()
+
+
+    def levelUp(self):
+        if self.niveau == 1 and self.experience >= 1000:
+            self.niveau += 1
+            self.parent.parent.afficher_notif(3)
+        elif self.niveau == 2 and self.experience >= 2500:
+            self.niveau += 1
+            self.parent.parent.afficher_notif(3)
+        elif self.niveau == 3 and self.experience >= 4500:
+            self.niveau += 1
+            self.parent.parent.afficher_notif(3)
+        elif self.niveau == 4 and self.experience >= 7000:
+            self.niveau += 1
+            self.parent.parent.afficher_notif(3)
+        elif self.niveau == 5 and self.experience >= 10000:
+            self.niveau += 1
+            self.parent.parent.afficher_notif(3)
     
     def avancer_flotte(self, chercher_nouveau=0):
         for i in self.flotte:
