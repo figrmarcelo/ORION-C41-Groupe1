@@ -12,6 +12,9 @@ import random
 
 class Vue():
     def __init__(self, parent, urlserveur, mon_nom, msg_initial):
+        self.id_planete = ""
+        self.cargo = False
+        
         self.parent = parent
         self.root = Tk()
         self.root.title("Je suis " + mon_nom)
@@ -230,6 +233,16 @@ class Vue():
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
         self.choixBat.pack()
+    
+    def afficher_create_batiment(self, id_planete,*args):
+        self.id_planete = id_planete
+        self.choixBat = self.choix_batiments(id_planete)
+        self.cargo = True
+        if self.upgradeBat:
+            self.upgradeBat.place_forget()
+        self.choixBat.place(relx=.75, rely=.05)
+        
+        
 
     def afficher_crea_batiment(self, *args):
         if self.upgradeBat:
@@ -261,6 +274,13 @@ class Vue():
         print(type)
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
+        if self.cargo == True:
+            type = evt.widget.cget("text")
+            print(type)
+            self.parent.creer_batiment([self.id_planete, type])
+            self.choixBat.place_forget()
+            self.cargo = False
+        
 
 
     def choix_batiments(self):
@@ -271,6 +291,7 @@ class Vue():
 
     def calculPrix(self, id, type):
         cost = 0
+        
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == id:
                 if type == "mine":
@@ -279,7 +300,10 @@ class Vue():
                     cost = len(planete.batiments[type]) * 200
                 elif type == "usine" or type == "canon":
                     if len(planete.batiments[type]) == 0:
-                        cost = 200
+
+
+                        cost = 25
+
                     else:
                         cost = (len(planete.batiments[type]) + 1) * 250
                 elif type == "balise":
@@ -302,15 +326,16 @@ class Vue():
 
         titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
-
+        
+          
         prixMine = Label(frame, text=str(self.calculPrix(id, "mine")) + " Ro", font='helvetica 10 bold', bg="grey11", fg="green")
         prixCentrale = Label(frame, text=str(self.calculPrix(id, "centrale")) + " Me", font='helvetica 10 bold', bg="grey11", fg="green")
         prixUsine = Label(frame, text=str(self.calculPrix(id, "usine")) + " Me / " + str(self.calculPrix(id, "usine")) + " En", font='helvetica 10 bold',
-                             bg="grey11", fg="green")
+                            bg="grey11", fg="green")
         prixCanon = Label(frame, text=str(self.calculPrix(id, "canon")) + " Me / " + str(self.calculPrix(id, "canon")) + " En", font='helvetica 10 bold',
-                          bg="grey11", fg="green")
+                        bg="grey11", fg="green")
         prixBalise = Label(frame, text=str(self.calculPrix(id, "balise")) + " Me / " + str(self.calculPrix(id, "balise")) + " En", font='helvetica 10 bold',
-                             bg="grey11", fg="green")
+                            bg="grey11", fg="green")
 
         mine.place(anchor="center", relx=.3, rely=.35)
         centrale.place(anchor="center", relx=.7, rely=.35)

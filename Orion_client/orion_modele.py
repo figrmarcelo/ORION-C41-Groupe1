@@ -363,10 +363,11 @@ class Vaisseau():
         if not self.cible.proprietaire:
             self.cible.proprietaire = self.proprietaire
         cible = self.cible
-        self.cible = 0
-        #if type de vaisseau == cargo ALORS afficher construction
+        
+        #if type de vaisseau == cargo -> afficher construction
         if self.type_vaisseau == Cargo:
-            self.parent.parent.parent.afficher_construction()
+            self.parent.parent.parent.afficher_construction(self.cible.id)
+        self.cible = 0
         return ["Etoile", cible]
 
     def arriver_porte(self):
@@ -491,9 +492,12 @@ class Joueur():  # *************************************************************
                         self.experience += 100
                 elif type_batiment == "usine" or type_batiment == "canon":
                     if len(planete.batiments[type_batiment]) == 0:
-                        cost = 200
+
+
+                        cost = 2
                     else:
-                        cost = (len(planete.batiments[type_batiment]) + 1) * 250
+                        cost = 3 #(len(planete.batiments[type_batiment]) + 1) * 150
+
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
