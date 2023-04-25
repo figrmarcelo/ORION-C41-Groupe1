@@ -42,14 +42,21 @@ class Vue():
         self.debut_selection = []
         self.selecteur_actif = None
         self.idSelect = ''
-        self.choixBat = None
+        self.choixBat = self.choix_batiments()
         self.choixVaisseau = None
         self.upgradeBat = None
         self.premier = 0
 
         self.update_data = 0
         self.del_notif = 0
-        self.message = self.message = Label(self.cadrejeu, text="", background="grey11", fg="green")
+        self.message = Label(self.cadrejeu, text="", background="grey11", fg="green")
+
+
+        self.txtPrixMine = 0
+        self.txtPrixCentrale = 0
+        self.txtPrixUsine = 0
+        self.txtPrixCanon = 0
+        self.txtPrixBalise = 0
 
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
@@ -265,35 +272,7 @@ class Vue():
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
 
-
-    # def choix_batiments(self):
-    #
-    #     frame = Frame(self.cadrepartie, width=200, height=200, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
-    #
-    #     frame = Frame(self.cadrepartie, width=200, height=220, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
-
-    def calculPrix(self, id, type):
-        cost = 0
-        for planete in self.joueur.etoilescontrolees:
-            if planete.getId() == id:
-                if type == "mine":
-                    cost = len(planete.batiments[type]) * 100
-                elif type == "centrale":
-                    cost = len(planete.batiments[type]) * 100
-                elif type == "usine" or type == "canon":
-                    if len(planete.batiments[type]) == 0:
-                        cost = 100
-                    else:
-                        cost = (len(planete.batiments[type]) + 1) * 150
-                elif type == "balise":
-                    if len(planete.batiments[type]) == 0:
-                        cost = 350
-                    else:
-                        cost = (len(planete.batiments[type]) + 1) * 300
-        return cost
-
-
-    def choix_batiments(self, id):
+    def choix_batiments(self):
         frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
@@ -306,15 +285,6 @@ class Vue():
         titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
 
-        self.prixMine = Label(frame, text=str(self.calculPrix(id, "mine")) + " Ro", font='helvetica 10 bold', bg="grey11", fg="green")
-        self.prixCentrale = Label(frame, text=str(self.calculPrix(id, "centrale")) + " Me", font='helvetica 10 bold', bg="grey11", fg="green")
-        self.prixUsine = Label(frame, text=str(self.calculPrix(id, "usine")) + " Me / " + str(self.calculPrix(id, "usine")) + " En", font='helvetica 10 bold',
-                             bg="grey11", fg="green")
-        self.prixCanon = Label(frame, text=str(self.calculPrix(id, "canon")) + " Me / " + str(self.calculPrix(id, "canon")) + " En", font='helvetica 10 bold',
-                          bg="grey11", fg="green")
-        self.prixBalise = Label(frame, text=str(self.calculPrix(id, "balise")) + " Me / " + str(self.calculPrix(id, "balise")) + " En", font='helvetica 10 bold',
-                             bg="grey11", fg="green")
-
         mine.place(anchor="center", relx=.3, rely=.35)
         centrale.place(anchor="center", relx=.7, rely=.35)
         usine.place(anchor="center", relx=.3, rely=.60)
@@ -322,6 +292,11 @@ class Vue():
         balise.place(anchor="center", relx=.3, rely=.85)
         centreRecherche.place(anchor="center", relx=.7, rely=.85)
 
+        self.prixMine = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixCentrale = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixUsine = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixCanon = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixBalise = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
 
         mine.place(anchor="center", relx=.3, rely=.25)
         centrale.place(anchor="center", relx=.7, rely=.25)
@@ -358,8 +333,23 @@ class Vue():
         balise.bind('<Button>', self.creer_batiment)
         centreRecherche.bind('<Button>', self.creer_batiment)
 
-
         return frame
+
+    def appel_update(self, id):
+        self.parent.update_prix(id)
+
+    def update_prix_construction(self, prix):
+        self.txtPrixMine = prix[0]
+        self.txtPrixCentrale = prix[1]
+        self.txtPrixUsine = prix[2]
+        self.txtPrixCanon = prix[3]
+        self.txtPrixBalise = prix[4]
+
+        self.prixMine.config(text=str(self.txtPrixMine) + " Ro")
+        self.prixCentrale.config(text=str(self.txtPrixCentrale) + " Me")
+        self.prixUsine.config(text=str(self.txtPrixUsine) + " Me / " + str(self.txtPrixUsine) + " En")
+        self.prixCanon.config(text=str(self.txtPrixCanon)+ " Me / " + str(self.txtPrixCanon) + " En")
+        self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
 
     def afficher_notif(self, type_notif):
 
@@ -781,6 +771,7 @@ class Vue():
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+                    self.appel_update(self.idSelect)
                     self.idSelect = self.ma_selection[1]  # get la planete selectionee
                     if (self.infoSelection):
                         self.infoSelection.pack_forget()
@@ -794,7 +785,6 @@ class Vue():
                                 print(info, " :", len(i.batiments[info]))
                                 
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
-                    self.choixBat = self.choix_batiments(self.idSelect)
                     self.montrer_etoile_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:

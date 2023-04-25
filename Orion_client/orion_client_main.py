@@ -231,7 +231,11 @@ class Controleur():
     def afficher_notif(self, type_notif):
         self.vue.afficher_notif(type_notif)
 
-    
+    def update_prix_construction(self, prix):
+        self.vue.update_prix_construction(prix)
+
+    def update_prix(self, id):
+        self.actionsrequises.append([self.mon_nom, "updateprix", id])
 
 
 if __name__ == "__main__":
