@@ -781,11 +781,15 @@ class Vue():
         t = self.canevas.gettags(CURRENT)
         if t:  # il y a des tags
             if t[0] == self.mon_nom:  # et
-                self.ma_selection = [self.mon_nom, t[1], t[2]]
-                if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+                
+                if t[2] == "Etoile" and self.ma_selection and self.ma_selection[1] != self.idSelect:
+                    
                     self.idSelect = self.ma_selection[1]  # get la planete selectionee
                     if (self.infoSelection):
                         self.infoSelection.pack_forget()
+                    
+                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])  #JMD
+                    
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
 
                         #print(self.ma_selection[1])
@@ -798,6 +802,8 @@ class Vue():
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.choixBat = self.choix_batiments(self.idSelect)
                     self.montrer_etoile_selection()
+                    
+                self.ma_selection = [self.mon_nom, t[1], t[2]]   
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:
                     self.contour = False
