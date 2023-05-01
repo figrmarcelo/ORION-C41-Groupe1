@@ -338,12 +338,14 @@ class Vue():
     def appel_update(self, id):
         self.parent.update_prix(id)
 
-    def update_prix_construction(self, prix):
+    def update_prix_bat(self, prix):
         self.txtPrixMine = prix[0]
         self.txtPrixCentrale = prix[1]
         self.txtPrixUsine = prix[2]
         self.txtPrixCanon = prix[3]
         self.txtPrixBalise = prix[4]
+        self.txtPrixMineUpgrade = prix[5]
+        self.txtPrixCentraleUpgrade = prix[6]
 
         self.prixMine.config(text=str(self.txtPrixMine) + " Ro")
         self.prixCentrale.config(text=str(self.txtPrixCentrale) + " Me")
@@ -387,18 +389,18 @@ class Vue():
         balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
         centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
 
-        prixMine = Label(frame, text=str(self.calculPrixUpgrade(id, "mine")) + " Ro", font='helvetica 10 bold', bg="grey11",
+        self.prixMineUpgrade = Label(frame, text=str(self.txtPrixMineUpgrade) + " Ro", font='helvetica 10 bold', bg="grey11",
                          fg="green")
-        prixCentrale = Label(frame, text=str(self.calculPrixUpgrade(id, "centrale")) + " Me", font='helvetica 10 bold',
+        self.prixCentraleUpgrade = Label(frame, text=str(self.txtPrixCentraleUpgrade) + " Me", font='helvetica 10 bold',
                              bg="grey11", fg="green")
 
 
         if self.joueur.niveau_bat["mine"] > 0 :
             mine.place(anchor="center", relx=.25, rely=.20)
-            prixMine.place(anchor="center", relx=.7, rely=.20)
+            self.prixMineUpgrade.place(anchor="center", relx=.7, rely=.20)
         if self.joueur.niveau_bat["centrale"] > 0:
             centrale.place(anchor="center", relx=.25, rely=.35)
-            prixCentrale.place(anchor="center", relx=.7, rely=.35)
+            self.prixCentraleUpgrade.place(anchor="center", relx=.7, rely=.35)
         if self.joueur.niveau_bat["usine"] > 0:
             usine.place(anchor="center", relx=.25, rely=.50)
         if self.joueur.niveau_bat["canon"] > 0:
@@ -422,14 +424,6 @@ class Vue():
         self.upgradeBat = frame
         self.upgradeBat.place(relx=.75, rely=.05)
 
-
-    def calculPrixUpgrade(self, id, type):
-        cost = 0
-        for planete in self.joueur.etoilescontrolees:
-            if planete.getId() == id:
-                if type == "mine" or type == "centrale":
-                    cost = (100 * pow(self.niveau_bat[type], 2)) + (50 * self.niveau_bat[type]) + 25
-        return cost
 
     def affichage_planete_selectionee(self, source, planete, state):
         self.state = state
@@ -771,8 +765,9 @@ class Vue():
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+
+                    self.idSelect = self.ma_selection[1] # get la planete selectionee
                     self.appel_update(self.idSelect)
-                    self.idSelect = self.ma_selection[1]  # get la planete selectionee
                     if (self.infoSelection):
                         self.infoSelection.pack_forget()
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:

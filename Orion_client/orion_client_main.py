@@ -232,7 +232,7 @@ class Controleur():
         self.vue.afficher_notif(type_notif)
 
     def update_prix_construction(self, prix):
-        self.vue.update_prix_construction(prix)
+        self.vue.update_prix_bat(prix)
 
     def update_prix(self, id):
         self.actionsrequises.append([self.mon_nom, "updateprix", id])

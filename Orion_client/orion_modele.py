@@ -536,6 +536,8 @@ class Joueur():  # *************************************************************
                 self.prix.append((len(planete.batiments["usine"]) + 1) * 100)
                 self.prix.append((len(planete.batiments["canon"]) + 1) * 150)
                 self.prix.append((len(planete.batiments["balise"]) + 1) * 300)
+                self.prix.append((100 * pow(self.niveau_bat["mine"], 2)) + (50 * self.niveau_bat["mine"]) + 25)
+                self.prix.append((100 * pow(self.niveau_bat["centrale"], 2)) + (50 * self.niveau_bat["centrale"]) + 25)
 
         print(self.prix)
         self.parent.parent.update_prix_construction(self.prix)
