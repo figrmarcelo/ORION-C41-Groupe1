@@ -82,33 +82,33 @@ class Vue():
     def creer_cadre_splash(self, urlserveur, mon_nom, msg_initial):
         self.cadre_splash = Frame(self.cadre_app)
         # un canvas est utilisé pour 'dessiner' les widgets de cette fenêtre voir 'create_window' plus bas
-        self.canevas_splash = Canvas(self.cadre_splash, width=600, height=480, bg="pink")
+        self.canevas_splash = Canvas(self.cadre_splash, width=600, height=480, bg="grey11")
         self.canevas_splash.pack()
 
         # creation ds divers widgets (champ de texte 'Entry' et boutons cliquables (Button)
-        self.etatdujeu = Label(text=msg_initial, font=("Arial", 18), borderwidth=2, relief=RIDGE)
-        self.nomsplash = Entry(font=("Arial", 14))
-        self.urlsplash = Entry(font=("Arial", 14), width=42)
-        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur)
+        self.etatdujeu = Label(text=msg_initial, font=("Arial", 18), relief=RAISED, bg="grey15", fg="green")
+        self.nomsplash = Entry(font=("Arial", 14), fg="green", bg="grey15")
+        self.urlsplash = Entry(font=("Arial", 14), width=42, fg="green", bg="grey15")
+        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur, bg="grey15", fg="green")
         # on insère les infos par défaut (nom url) et reçu au démarrage (dispo)
         self.nomsplash.insert(0, mon_nom)
         self.urlsplash.insert(0, urlserveur)
         # on les place sur le canevas_splash
         self.canevas_splash.create_window(320, 100, window=self.etatdujeu, width=400, height=30)
-        self.canevas_splash.create_window(320, 200, window=self.nomsplash, width=400, height=30)
-        self.canevas_splash.create_window(210, 250, window=self.urlsplash, width=360, height=30)
-        self.canevas_splash.create_window(480, 250, window=self.btnurlconnect, width=100, height=30)
+        self.canevas_splash.create_window(320, 175, window=self.nomsplash, width=400, height=30)
+        self.canevas_splash.create_window(320, 225, window=self.urlsplash, width=400, height=30)
+        self.canevas_splash.create_window(320, 275, window=self.btnurlconnect, width=100, height=30)
         # les boutons d'actions
-        self.btncreerpartie = Button(text="Creer partie", font=("Arial", 12), state=DISABLED, command=self.creer_partie)
-        self.btninscrirejoueur = Button(text="Inscrire joueur", font=("Arial", 12), state=DISABLED,
-                                        command=self.inscrire_joueur)
-        self.btnreset = Button(text="Reinitialiser partie", font=("Arial", 9), state=DISABLED,
-                               command=self.reset_partie)
+        self.btncreerpartie = Button(text="Creer partie", font="Arial 12 bold", state=DISABLED, command=self.creer_partie, bg="grey15", fg="green")
+        self.btninscrirejoueur = Button(text="Inscrire joueur", font="Arial 12 bold", state=DISABLED,
+                                        command=self.inscrire_joueur, bg="grey15", fg="green")
+        self.btnreset = Button(text="Reinitialiser partie", font="Arial 12 bold", state=DISABLED,
+                               command=self.reset_partie, bg="grey15", fg="green")
 
         # on place les autres boutons
-        self.canevas_splash.create_window(420, 350, window=self.btncreerpartie, width=200, height=30)
-        self.canevas_splash.create_window(420, 400, window=self.btninscrirejoueur, width=200, height=30)
-        self.canevas_splash.create_window(420, 450, window=self.btnreset, width=200, height=30)
+        self.canevas_splash.create_window(310, 350, window=self.btncreerpartie, width=200, height=30)
+        self.canevas_splash.create_window(310, 400, window=self.btninscrirejoueur, width=200, height=30)
+        self.canevas_splash.create_window(310, 450, window=self.btnreset, width=200, height=30)
 
         # on retourne ce cadre pour l'insérer dans le dictionnaires des cadres
         return self.cadre_splash
@@ -117,17 +117,18 @@ class Vue():
     def creer_cadre_lobby(self):
         # le cadre lobby, pour isncription des autres joueurs, remplace le splash
         self.cadrelobby = Frame(self.cadre_app)
-        self.canevaslobby = Canvas(self.cadrelobby, width=640, height=480, bg="lightblue")
+        self.canevaslobby = Canvas(self.cadrelobby, width=640, height=550, bg="grey11")
         self.canevaslobby.pack()
         # widgets du lobby
         # un listbox pour afficher les joueurs inscrit pour la partie à lancer
-        self.listelobby = Listbox(borderwidth=2, relief=GROOVE)
+        self.listelobby = Listbox(borderwidth=1, relief=GROOVE, bg="grey15", fg="green")
 
         # bouton pour lancer la partie, uniquement accessible à celui qui a creer la partie dans le splash
-        self.btnlancerpartie = Button(text="Lancer partie", state=DISABLED, command=self.lancer_partie)
+        self.btnlancerpartie = Button(text="Lancer partie", font="Arial 9 bold", state=DISABLED, command=self.lancer_partie,
+                                      bg="grey15", fg="green")
         # affichage des widgets dans le canevaslobby (similaire au splash)
-        self.canevaslobby.create_window(440, 240, window=self.listelobby, width=200, height=400)
-        self.canevaslobby.create_window(200, 400, window=self.btnlancerpartie, width=100, height=30)
+        self.canevaslobby.create_window(320, 240, window=self.listelobby, width=200, height=400)
+        self.canevaslobby.create_window(320, 500, window=self.btnlancerpartie, width=100, height=30)
         # on retourne ce cadre pour l'insérer dans le dictionnaires des cadres
         return self.cadrelobby
 
