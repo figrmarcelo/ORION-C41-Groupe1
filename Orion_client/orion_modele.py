@@ -355,10 +355,11 @@ class Vaisseau():
         if not self.cible.proprietaire:
             self.cible.proprietaire = self.proprietaire
         cible = self.cible
-        self.cible = 0
+        
         #if type de vaisseau == cargo ALORS afficher construction
         if self.type_vaisseau == Cargo:
-            self.parent.parent.parent.afficher_construction()
+            self.parent.parent.parent.afficher_construction(self.cible.id)
+        self.cible = 0
         return ["Etoile", cible]
 
     def arriver_porte(self):
@@ -403,7 +404,7 @@ class Cargo(Vaisseau):
         Vaisseau.__init__(self, parent, nom, x, y, Cargo)
         self.cargo = 1000
         self.taille = 6
-        self.vitesse = 1
+        self.vitesse = 3
         self.cible = 0
         self.ang = 0
         self.idPlanete = 0
@@ -533,7 +534,7 @@ class Joueur():  # *************************************************************
             if planete.getId() == id:
                 self.prix.append(len(planete.batiments["mine"]) * 100)
                 self.prix.append(len(planete.batiments["centrale"]) * 100)
-                self.prix.append((len(planete.batiments["usine"]) + 1) * 100)
+                self.prix.append((len(planete.batiments["usine"]) + 1) * 2)
                 self.prix.append((len(planete.batiments["canon"]) + 1) * 150)
                 self.prix.append((len(planete.batiments["balise"]) + 1) * 300)
                 self.prix.append((100 * pow(self.niveau_bat["mine"], 2)) + (50 * self.niveau_bat["mine"]) + 25)
@@ -648,7 +649,7 @@ class Joueur():  # *************************************************************
                 j = self.flotte[i][j]
                 rep = j.jouer_prochain_coup(chercher_nouveau)
                 if rep:
-                    if rep[0] == "Etoile" and i == "Combat" or i == "Explorer":
+                    if rep[0] == "Etoile" and i == "Combat" or i == "Cargo":
                         # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
                         #       quand on l'attribue aux etoilescontrolees
                         #       et que ce passe-t-il si l'etoile a un proprietaire ???

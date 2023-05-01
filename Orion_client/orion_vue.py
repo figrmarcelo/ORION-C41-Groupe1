@@ -13,6 +13,8 @@ import random
 
 class Vue():
     def __init__(self, parent, urlserveur, mon_nom, msg_initial):
+        
+        self.id_planete = ""
         self.parent = parent
         self.root = Tk()
         self.root.title("Je suis " + mon_nom)
@@ -241,6 +243,14 @@ class Vue():
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
         self.choixBat.pack()
+        
+    def afficher_create_batiment(self, id_planete, *args):
+        #self.id_planete = id_planete
+        self.appel_update(id_planete)
+        if self.upgradeBat:
+            self.upgradeBat.place_forget()
+        self.choixBat.place(relx=.75, rely=.05)
+        
 
     def afficher_crea_batiment(self, *args):
         if self.upgradeBat:
