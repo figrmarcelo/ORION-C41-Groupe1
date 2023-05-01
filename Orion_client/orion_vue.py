@@ -438,13 +438,13 @@ class Vue():
                                                                                                                 rely=.07)
         i = .15
         for k, v in planete.ressources.items():
-            txt = k.upper() + ' : ' + str(v)
+            txt = k.title() + ' : ' + str(v)
             Label(frame, text=txt, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
                                                                                                                 rely=i)
             i += .08
 
         for k, v in planete.batiments.items():
-            txt = k.upper() + ' : ' + str(len(v))
+            txt = k.title() + ' : ' + str(len(v))
             Label(frame, text=txt, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
                                                                                                                 rely=i)
             i += .08
