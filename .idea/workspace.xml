@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b538b7ee-aafb-4b45-b484-8fb3c37ebbe0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ORION-C41-Groupe1.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ORION-C41-Groupe1.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Orion_client/orion_modele.py" beforeDir="false" afterPath="$PROJECT_DIR$/Orion_client/orion_modele.py" afterDir="false" />
+    <list default="true" id="18b83e5b-777c-47d5-ba43-7fc1349b6a01" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Orion_client/orion_vue.py" beforeDir="false" afterPath="$PROJECT_DIR$/Orion_client/orion_vue.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RTS_serveur/RTS_serveur_DB.db" beforeDir="false" afterPath="$PROJECT_DIR$/RTS_serveur/RTS_serveur_DB.db" afterDir="false" />
     </list>
@@ -22,7 +17,7 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="2OYN6yM9GxoLA0oWp9zDdvC7pTE" />
+  <component name="ProjectId" id="2PBuha3s1yTfHj0m2LXmoJGPvtj" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -32,7 +27,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RunManager" selected="Python.orion_client_main">
     <configuration name="RTS_serveur_APP" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -87,11 +82,11 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="b538b7ee-aafb-4b45-b484-8fb3c37ebbe0" name="Changes" comment="" />
-      <created>1681733385394</created>
+      <changelist id="18b83e5b-777c-47d5-ba43-7fc1349b6a01" name="Changes" comment="" />
+      <created>1682942916554</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1681733385394</updated>
+      <updated>1682942916554</updated>
     </task>
     <servers />
   </component>
@@ -100,8 +95,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Orion_client/orion_vue.py</url>
-          <line>732</line>
-          <option name="timeStamp" value="1" />
+          <line>339</line>
+          <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

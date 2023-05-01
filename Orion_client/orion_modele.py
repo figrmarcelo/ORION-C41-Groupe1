@@ -410,11 +410,6 @@ class Joueur:  # ***************************************************************
                        "Explorer": {},
                        "Cargo": {}}
 
-        self.flotte = {"Vaisseau": {},
-                       "Combat": {},
-                       "Explorer": {},
-                       "Cargo": {}}
-
         self.niveau_bat = {
             "mine": 0,
             "centrale": 0,
