@@ -396,30 +396,30 @@ class Vue():
     def affichage_planete_selectionee(self, source, planete, state):
         self.state = state
         idSelect = planete.id
-        planeteSelect = planete
-        print(idSelect)
-        ressSelect = planeteSelect.getRessources()
-
-        frame = Frame(source, width=200, height=200, bg="grey11")
+    
+        frame = Frame(source, width=200, height=300, bg="grey11")
 
         txtPlanete = "Planete " + idSelect.split("_")[1]
-        txtRoche = "Roche : " + str(ressSelect['pierre'])
-        txtMetal = "Metal : " + str(ressSelect['metal'])
-        txtEnergie = "Energie : " + str(ressSelect['energie'])
-
-        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
-                                                                                                                rely=.1)
-        Label(frame, text=txtRoche, bg="grey11", fg="green").place(relx=.2, rely=.25)
-        Label(frame, text=txtMetal, bg="grey11", fg="green").place(relx=.2, rely=.40)
-        Label(frame, text=txtEnergie, bg="grey11", fg="green").place(relx=.2, rely=.55)
-
+        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green").pack()
+       
+        i = .25
+        for k, v in planete.ressources.items():
+            txt = k.title() + ' : ' + str(v)
+            Label(frame, text=txt, bg="grey11", fg="green").pack()
+            i += .15
+        
+        for k, v in planete.batiments.items():
+            txt = k.title() + ' : ' + str(len(v))
+            Label(frame, text=txt, bg="grey11", fg="green").pack()
+            i += .15
+        
         batiment = Button(frame, text="BATIMENTS", fg="green", width=9, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
-        batiment.place(anchor="center", rely=.9, relx=.25)
+        batiment.pack()
 
         vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
         vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
-        vaisseau.place(anchor="center", rely=.9, relx=.75)
+        vaisseau.pack()
 
         return frame
 
@@ -662,17 +662,19 @@ class Vue():
         # afficher asset des joueurs
         for i in mod.joueurs.keys():
             i = mod.joueurs[i]
-            vaisseau_local = []
+            
             for k in i.flotte:
                 for j in i.flotte[k]:
+                
                     j = i.flotte[k][j]
                     tailleF = j.taille * self.zoom
-                    if k == "Cargo":
-                        self.dessiner_cargo(j, tailleF, i, k)
-                    elif k == "Combat":
-                        self.dessiner_combat(j, tailleF, i, k)
-                    elif k == "Explorer":
-                        self.dessiner_explorer(j, tailleF, i, k)
+                    vaisseaux = {
+                        "Cargo": self.dessiner_cargo(j, tailleF, i, k),
+                        "Combat": self.dessiner_combat(j, tailleF, i, k),
+                        "Explorer": self.dessiner_explorer(j, tailleF, i, k)
+                    }
+                    vaisseaux.get(k)
+
         for t in self.modele.trou_de_vers:
             i = t.porte_a
             for i in [t.porte_a, t.porte_b]:
