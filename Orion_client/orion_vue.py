@@ -458,7 +458,7 @@ class Vue():
 
         batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
-        batiment.place(anchor="center", rely=.9, relx=.5)
+        batiment.place(anchor="center", rely=.8, relx=.5)
 
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == self.idSelect:
