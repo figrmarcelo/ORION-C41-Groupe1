@@ -240,13 +240,11 @@ class Vue():
 
         return frame
 
-
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
         self.choixBat.pack()
         
     def afficher_create_batiment(self, id_planete, *args):
-        #self.id_planete = id_planete
         self.appel_update(id_planete)
         if self.upgradeBat:
             self.upgradeBat.place_forget()
@@ -260,20 +258,20 @@ class Vue():
 
     def afficher_crea_vaisseau(self, *args):
 
-                    self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+        self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
 
-                    self.btncreercombat = Button(self.choixVaisseau, text="Combat")
-                    self.btncreercombat.bind("<Button>", self.creer_vaisseau)
-                    self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
-                    self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
-                    self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
-                    self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+        self.btncreercombat = Button(self.choixVaisseau, text="Combat")
+        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+        self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
+        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
+        self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
+        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
 
-                    self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
-                    self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
-                    self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+        self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
+        self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
+        self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
 
-                    self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+        self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
 
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
