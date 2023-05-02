@@ -476,42 +476,45 @@ class Joueur():  # *************************************************************
                         costMP = self.prix[0]
                         self.ressources["pierre"] -= costMP
                         bat = Mine(id_planete, self.nom)
-                        self.niveau_bat[type_batiment] += 1
+                        if self.niveau_bat[type_batiment] == 0:
+                            self.niveau_bat[type_batiment] += 1
                         self.experience += 100
                     elif type_batiment == "centrale" and self.ressources["metal"] >= self.prix[1]:
                         costMP = self.prix[1]
                         self.ressources["metal"] -= costMP
                         bat = Centrale(id_planete, self.nom)
-                        self.niveau_bat[type_batiment] += 1
+                        if self.niveau_bat[type_batiment] == 0:
+                            self.niveau_bat[type_batiment] += 1
                         self.experience += 100
-                elif type_batiment == "usine" or type_batiment == "canon":
-                    if type_batiment == "usine":
-                        cost = self.prix[2]
-                    else:
-                        cost = self.prix[3]
-
+                elif type_batiment == "usine":
+                    cost = self.prix[2]
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
-
-                        if type_batiment == "usine":
-                            bat = Usine(id_planete, self.nom)
-                        else:
-                            bat = Canon(id_planete, self.nom)
-
-                        self.niveau_bat[type_batiment] += 1
+                        bat = Usine(id_planete, self.nom)
+                        if self.niveau_bat[type_batiment] == 0:
+                            self.niveau_bat[type_batiment] += 1
                         self.experience += 250
-                elif type_batiment == "balise":
+                elif type_batiment == "canon":
+                    cost = self.prix[3]
+                    if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost and self.niveau >= 2:
+                        self.ressources["metal"] -= cost
+                        self.ressources["energie"] -= cost
+                        bat = Canon(id_planete, self.nom)
+                        if self.niveau_bat[type_batiment] == 0:
+                            self.niveau_bat[type_batiment] += 1
+                        self.experience += 250
+                elif type_batiment == "balise" and self.niveau >= 4:
                     cost = self.prix[4]
-
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
                         bat = Balise(id_planete, self.nom)
                         self.experience += 175
-                elif type_batiment == "cdr":
+                elif type_batiment == "cdr" and self.niveau >= 3:
                     bat = CentreRecherche(id_planete, self.nom)
-                    self.niveau_bat[type_batiment] += 1
+                    if self.niveau_bat[type_batiment] == 0:
+                        self.niveau_bat[type_batiment] += 1
 
                 if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
@@ -537,13 +540,11 @@ class Joueur():  # *************************************************************
                 self.prix.append((len(planete.batiments["usine"]) + 1) * 2)
                 self.prix.append((len(planete.batiments["canon"]) + 1) * 150)
                 self.prix.append((len(planete.batiments["balise"]) + 1) * 300)
+                self.prix.append((len(planete.batiments["centreRecherche"]) + 1) * 500)
                 self.prix.append((100 * pow(self.niveau_bat["mine"], 2)) + (50 * self.niveau_bat["mine"]) + 25)
                 self.prix.append((100 * pow(self.niveau_bat["centrale"], 2)) + (50 * self.niveau_bat["centrale"]) + 25)
 
-        print(self.prix)
         self.parent.parent.update_prix_construction(self.prix)
-
-        return self.prix
 
     def upgradebatiment(self, params):
         type = params[0].lower()
