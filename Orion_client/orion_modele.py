@@ -31,7 +31,7 @@ class Artefact:
         nom, bonus = self.nom[9:], self._get_bonus(liste_bonus)
         
         if nom == 'ressource':
-            if randint(0, 100) <= 1:
+            if randint(0, 10) <= 1:
                 for k, v in etoile.ressources.values():
                     v += liste_bonus[nom][k]
                 joueur.ressources += liste_bonus[nom]
