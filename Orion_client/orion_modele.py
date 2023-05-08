@@ -749,7 +749,7 @@ class Modele():
             p = random.choice(self.etoiles)
             if p not in etoile_occupee:
                 etoile_occupee.append(p)
-                self.etoiles.remove(p)
+                # jmd self.etoiles.remove(p)
                 np -= 1
 
         couleurs = ["red", "blue", "lightgreen", "yellow",

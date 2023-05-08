@@ -14,6 +14,8 @@ import random
 class Vue():
     def __init__(self, parent, urlserveur, mon_nom, msg_initial):
         
+        self.vaisseauSelect = ""
+        
         self.id_planete = ""
         self.parent = parent
         self.root = Tk()
@@ -651,6 +653,7 @@ class Vue():
 
     def afficher_jeu(self):
         mod = self.modele
+        self.canevas.delete("marqueur")
         self.canevas.delete("artefact")
         self.canevas.delete("objet_spatial")
         self.afficher_mini()
@@ -767,32 +770,35 @@ class Vue():
     def cliquer_cosmos(self, evt):
         t = self.canevas.gettags(CURRENT)
         if t:  # il y a des tags
-            if t[0] == self.mon_nom:  # et
+            if self.ma_selection:
+                if ("FlotteCargo" in self.ma_selection or "FlotteExplorer" in self.ma_selection or "FlotteCombat" in self.ma_selection):
+                    if ("Etoile" in t or "Porte_de_ver" in t):
+                        self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
+                    else:
+                        print("Vaisseau Selectionne + autre chose")
+                    
+            elif t[0] == self.mon_nom:
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
-                if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+                
+                if t[2] == "Etoile":
 
                     self.idSelect = self.ma_selection[1] # get la planete selectionee
                     self.appel_update(self.idSelect)
+                    
+                        
                     if (self.infoSelection):
                         self.infoSelection.pack_forget()
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
-
-                        #print(self.ma_selection[1])
+    
                         if i.id == self.idSelect:
                             self.etoile_select = i
-                            for info in i.batiments:
+                            
 
-                                print(info, " :", len(i.batiments[info]))
+                        
                                 
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.montrer_etoile_selection()
-            elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
-                if self.ma_selection:
-                    self.contour = False
-                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
-                self.ma_selection = None
-                self.contour = True
-                self.canevas.delete("marqueur")
+            
         else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
             print("Region inconnue")
             self.idSelect = None
@@ -806,6 +812,57 @@ class Vue():
             self.choixBat.place_forget()
 
             self.upgradeBat.place_forget()
+
+
+
+    def cliquer_cosmos1(self, evt):
+        t = self.canevas.gettags(CURRENT)
+        if t:  # il y a des tags
+            if t[0] == self.mon_nom:  # et
+                self.ma_selection = [self.mon_nom, t[1], t[2]]
+            if("    FlotteCargo" in t or "FlotteExplorer" in t or "FlotteCombat" in t):
+                    self.vaisseauSelect = t[2]
+            if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+
+                self.idSelect = self.ma_selection[1] # get la planete selectionee
+                self.appel_update(self.idSelect)
+                
+                    
+                if (self.infoSelection):
+                    self.infoSelection.pack_forget()
+                for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
+
+                    #print(self.ma_selection[1])
+                    if i.id == self.idSelect:
+                        self.etoile_select = i
+                        for info in i.batiments:
+
+                            print(info, " :", len(i.batiments[info]))
+                            
+                self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
+                self.montrer_etoile_selection()
+        elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
+            if self.ma_selection:
+                self.contour = False
+                self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
+            self.ma_selection = None
+            self.contour = True
+            self.canevas.delete("marqueur")
+        else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
+            print("Region inconnue")
+            self.idSelect = None
+            self.ma_selection = None
+            self.canevas.delete("marqueur")
+            self.infoSelection.pack_forget()
+
+            self.choixBat.place_forget()
+
+            self.choixVaisseau.place_forget()
+            self.choixBat.place_forget()
+
+            self.upgradeBat.place_forget()
+
+
 
 
     def montrer_etoile_selection(self):
