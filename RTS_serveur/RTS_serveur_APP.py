@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 app.secret_key = "qwerasdf1234"
 
+
 class Dbman():
     def __init__(self):
         self.conn = sqlite3.connect("RTS_serveur_DB.db")
@@ -17,12 +18,14 @@ class Dbman():
 
     def setpartiecourante(self, chose):
         self.vidertable("partiecourante")
-        self.curs.execute("Insert into partiecourante (etat) VALUES(?);", (chose,))
+        self.curs.execute(
+            "Insert into partiecourante (etat) VALUES(?);", (chose,))
         self.conn.commit()
 
     def setinitaleatoire(self, chose):
         self.vidertable("initaleatoire")
-        self.curs.execute("Insert into initaleatoire (initaleatoire) VALUES(?);", (chose,))
+        self.curs.execute(
+            "Insert into initaleatoire (initaleatoire) VALUES(?);", (chose,))
         self.conn.commit()
 
     def setnbrIA(self, chose):
@@ -32,7 +35,8 @@ class Dbman():
 
     def setcadrecourant(self, chose):
         self.vidertable("cadrecourant")
-        self.curs.execute("Insert into cadrecourant (cadrecourant) VALUES(?);", (chose,))
+        self.curs.execute(
+            "Insert into cadrecourant (cadrecourant) VALUES(?);", (chose,))
         self.conn.commit()
 
     def ajouterjoueur(self, nom):
@@ -40,7 +44,8 @@ class Dbman():
         self.conn.commit()
 
     def ajouteractionaujoueur(self, nom, cadrejeu, action):
-        self.curs.execute("Insert into actionsenattente (nom,cadrejeu,action) VALUES(?,?,?);", (nom, cadrejeu, action))
+        self.curs.execute(
+            "Insert into actionsenattente (nom,cadrejeu,action) VALUES(?,?,?);", (nom, cadrejeu, action))
         self.conn.commit()
 
     def getinfo(self, table):
@@ -56,18 +61,23 @@ class Dbman():
         return info
 
     def resetdb(self):
-        tables = ["partiecourante", "joueurs", "cadrecourant", "actionsenattente", "initaleatoire", "nbrIA"]
+        tables = ["partiecourante", "joueurs", "cadrecourant",
+                  "actionsenattente", "initaleatoire", "nbrIA"]
         for i in tables:
             self.vidertable(i)
 
-        self.curs.execute("Insert into partiecourante (etat) VALUES(?);", ("dispo",))
-        self.curs.execute("Insert into cadrecourant (cadrecourant) VALUES(?);", (0,))
-        self.curs.execute("Insert into initaleatoire (initaleatoire) VALUES(?);", (2020,))
+        self.curs.execute(
+            "Insert into partiecourante (etat) VALUES(?);", ("dispo",))
+        self.curs.execute(
+            "Insert into cadrecourant (cadrecourant) VALUES(?);", (0,))
+        self.curs.execute(
+            "Insert into initaleatoire (initaleatoire) VALUES(?);", (2020,))
         self.curs.execute("Insert into nbrIA (nbrIA) VALUES(?);", (0,))
         self.conn.commit()
 
     def effaceractionsjoueur(self, joueur):
-        self.curs.execute("DELETE from actionsenattente WHERE  nom=?", (joueur,))
+        self.curs.execute(
+            "DELETE from actionsenattente WHERE  nom=?", (joueur,))
         self.conn.commit()
 
     def vidertable(self, table):
@@ -101,6 +111,7 @@ def reset_jeu():
 
     return Response(json.dumps(info), mimetype='application/json')
 
+
 @app.route("/creer_partie", methods=["GET", "POST"])
 def creer_partie():
     db = Dbman()
@@ -117,6 +128,7 @@ def creer_partie():
             # return repr([joueurs,valoptions])
     else:
         return str("banane")
+
 
 @app.route("/inscrire_joueur", methods=["GET", "POST"])
 def inscrire_joueur():
@@ -154,6 +166,7 @@ def boucler_sur_lobby():
         return Response(json.dumps(info), mimetype='application/json')
         # return repr(info)
 
+
 @app.route("/lancer_partie", methods=["GET", "POST"])
 def lancer_partie():
     db = Dbman()
@@ -177,7 +190,7 @@ def boucler_sur_jeu():
     cadrejeu = int(request.form["cadrejeu"])
     actionsrequises = request.form["actionsrequises"]
     ####################################################################
-    ## test pour attendre les joueurs retardataires
+    # test pour attendre les joueurs retardataires
 
     db.updatejoueur(nom, cadrejeu)
 
@@ -208,6 +221,7 @@ def boucler_sur_jeu():
     db.fermerdb()
 
     return Response(json.dumps(maliste), mimetype='application/json')
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)

@@ -6,6 +6,7 @@ from tkinter.simpledialog import *
 from tkinter.messagebox import *
 from helper import Helper as hlp
 import math
+from threading import Timer
 
 import random
 
@@ -20,6 +21,9 @@ class Vue():
         self.taille_minimap = 240
         self.zoom = 2
         self.ma_selection = None
+        self.dernier_selection = None
+        self.contour = True
+        self.etoile_select = None
         self.cadre_actif = None
         # cadre principal de l'application
         self.cadre_app = Frame(self.root, width=500, height=400, bg="red")
@@ -33,9 +37,26 @@ class Vue():
 
         # # sera charge apres l'initialisation de la partie, contient les donnees pour mettre l'interface a jour
         self.modele = None
+        self.joueur = None
         # # variable pour suivre le trace du multiselect
         self.debut_selection = []
         self.selecteur_actif = None
+        self.idSelect = ''
+        self.choixBat = self.choix_batiments()
+        self.choixVaisseau = None
+        self.upgradeBat = None
+        self.premier = 0
+
+        self.update_data = 0
+        self.del_notif = 0
+        self.message = Label(self.cadrejeu, text="", background="grey11", fg="green")
+
+
+        self.txtPrixMine = 0
+        self.txtPrixCentrale = 0
+        self.txtPrixUsine = 0
+        self.txtPrixCanon = 0
+        self.txtPrixBalise = 0
 
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
@@ -61,33 +82,33 @@ class Vue():
     def creer_cadre_splash(self, urlserveur, mon_nom, msg_initial):
         self.cadre_splash = Frame(self.cadre_app)
         # un canvas est utilisé pour 'dessiner' les widgets de cette fenêtre voir 'create_window' plus bas
-        self.canevas_splash = Canvas(self.cadre_splash, width=600, height=480, bg="pink")
+        self.canevas_splash = Canvas(self.cadre_splash, width=600, height=480, bg="grey11")
         self.canevas_splash.pack()
 
         # creation ds divers widgets (champ de texte 'Entry' et boutons cliquables (Button)
-        self.etatdujeu = Label(text=msg_initial, font=("Arial", 18), borderwidth=2, relief=RIDGE)
-        self.nomsplash = Entry(font=("Arial", 14))
-        self.urlsplash = Entry(font=("Arial", 14), width=42)
-        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur)
+        self.etatdujeu = Label(text=msg_initial, font=("Arial", 18), relief=RAISED, bg="grey15", fg="green")
+        self.nomsplash = Entry(font=("Arial", 14), fg="green", bg="grey15")
+        self.urlsplash = Entry(font=("Arial", 14), width=42, fg="green", bg="grey15")
+        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur, bg="grey15", fg="green")
         # on insère les infos par défaut (nom url) et reçu au démarrage (dispo)
         self.nomsplash.insert(0, mon_nom)
         self.urlsplash.insert(0, urlserveur)
         # on les place sur le canevas_splash
         self.canevas_splash.create_window(320, 100, window=self.etatdujeu, width=400, height=30)
-        self.canevas_splash.create_window(320, 200, window=self.nomsplash, width=400, height=30)
-        self.canevas_splash.create_window(210, 250, window=self.urlsplash, width=360, height=30)
-        self.canevas_splash.create_window(480, 250, window=self.btnurlconnect, width=100, height=30)
+        self.canevas_splash.create_window(320, 175, window=self.nomsplash, width=400, height=30)
+        self.canevas_splash.create_window(320, 225, window=self.urlsplash, width=400, height=30)
+        self.canevas_splash.create_window(320, 275, window=self.btnurlconnect, width=100, height=30)
         # les boutons d'actions
-        self.btncreerpartie = Button(text="Creer partie", font=("Arial", 12), state=DISABLED, command=self.creer_partie)
-        self.btninscrirejoueur = Button(text="Inscrire joueur", font=("Arial", 12), state=DISABLED,
-                                        command=self.inscrire_joueur)
-        self.btnreset = Button(text="Reinitialiser partie", font=("Arial", 9), state=DISABLED,
-                               command=self.reset_partie)
+        self.btncreerpartie = Button(text="Creer partie", font="Arial 12 bold", state=DISABLED, command=self.creer_partie, bg="grey15", fg="green")
+        self.btninscrirejoueur = Button(text="Inscrire joueur", font="Arial 12 bold", state=DISABLED,
+                                        command=self.inscrire_joueur, bg="grey15", fg="green")
+        self.btnreset = Button(text="Reinitialiser partie", font="Arial 12 bold", state=DISABLED,
+                               command=self.reset_partie, bg="grey15", fg="green")
 
         # on place les autres boutons
-        self.canevas_splash.create_window(420, 350, window=self.btncreerpartie, width=200, height=30)
-        self.canevas_splash.create_window(420, 400, window=self.btninscrirejoueur, width=200, height=30)
-        self.canevas_splash.create_window(420, 450, window=self.btnreset, width=200, height=30)
+        self.canevas_splash.create_window(310, 350, window=self.btncreerpartie, width=200, height=30)
+        self.canevas_splash.create_window(310, 400, window=self.btninscrirejoueur, width=200, height=30)
+        self.canevas_splash.create_window(310, 450, window=self.btnreset, width=200, height=30)
 
         # on retourne ce cadre pour l'insérer dans le dictionnaires des cadres
         return self.cadre_splash
@@ -96,17 +117,18 @@ class Vue():
     def creer_cadre_lobby(self):
         # le cadre lobby, pour isncription des autres joueurs, remplace le splash
         self.cadrelobby = Frame(self.cadre_app)
-        self.canevaslobby = Canvas(self.cadrelobby, width=640, height=480, bg="lightblue")
+        self.canevaslobby = Canvas(self.cadrelobby, width=640, height=550, bg="grey11")
         self.canevaslobby.pack()
         # widgets du lobby
         # un listbox pour afficher les joueurs inscrit pour la partie à lancer
-        self.listelobby = Listbox(borderwidth=2, relief=GROOVE)
+        self.listelobby = Listbox(borderwidth=1, relief=GROOVE, bg="grey15", fg="green")
 
         # bouton pour lancer la partie, uniquement accessible à celui qui a creer la partie dans le splash
-        self.btnlancerpartie = Button(text="Lancer partie", state=DISABLED, command=self.lancer_partie)
+        self.btnlancerpartie = Button(text="Lancer partie", font="Arial 9 bold", state=DISABLED, command=self.lancer_partie,
+                                      bg="grey15", fg="green")
         # affichage des widgets dans le canevaslobby (similaire au splash)
-        self.canevaslobby.create_window(440, 240, window=self.listelobby, width=200, height=400)
-        self.canevaslobby.create_window(200, 400, window=self.btnlancerpartie, width=100, height=30)
+        self.canevaslobby.create_window(320, 240, window=self.listelobby, width=200, height=400)
+        self.canevaslobby.create_window(320, 500, window=self.btnlancerpartie, width=100, height=30)
         # on retourne ce cadre pour l'insérer dans le dictionnaires des cadres
         return self.cadrelobby
 
@@ -114,7 +136,7 @@ class Vue():
         self.cadrepartie = Frame(self.cadre_app, width=600, height=200, bg="yellow")
         self.cadrejeu = Frame(self.cadrepartie, width=600, height=200, bg="teal")
 
-        self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL)
+        self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL, bg="grey11")
         self.scrollY = Scrollbar(self.cadrejeu, orient=VERTICAL)
         self.canevas = Canvas(self.cadrejeu, width=800, height=600,
                               xscrollcommand=self.scrollX.set,
@@ -144,10 +166,14 @@ class Vue():
         self.creer_cadre_outils()
 
         self.cadrejeu.pack(side=LEFT, expand=1, fill=BOTH)
+
+        # self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu, 0, 0, {'pierre' : 0, 'metal' : 0, 'energie': 0}, 0, 0)
+        # self.cadreinfoglobale.grid(row=2, sticky="nsew")
+
         return self.cadrepartie
 
     def creer_cadre_outils(self):
-        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="darkgrey")
+        self.cadreoutils = Frame(self.cadrepartie, width=200, height=200, bg="grey11")
         self.cadreoutils.pack(side=LEFT, fill=Y)
 
         self.cadreinfo = Frame(self.cadreoutils, width=200, height=200, bg="darkgrey")
@@ -158,18 +184,9 @@ class Vue():
         self.labid = Label(self.cadreinfogen, text="Inconnu")
         self.labid.bind("<Button>", self.centrer_planemetemere)
         self.labid.pack()
-        self.btnmini = Button(self.cadreinfogen, text="MINI")
-        self.btnmini.bind("<Button>", self.afficher_mini)
-        self.btnmini.pack()
 
-        self.cadreinfochoix = Frame(self.cadreinfo, height=200, width=200, bg="grey30")
-        self.btncreervaisseau = Button(self.cadreinfochoix, text="Vaisseau")
-        self.btncreervaisseau.bind("<Button>", self.creer_vaisseau)
-        self.btncreercargo = Button(self.cadreinfochoix, text="Cargo")
-        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+        self.infoSelection = None
 
-        self.btncreervaisseau.pack()
-        self.btncreercargo.pack()
 
         self.cadreinfoliste = Frame(self.cadreinfo)
 
@@ -186,7 +203,8 @@ class Vue():
 
         self.cadreminimap = Frame(self.cadreoutils, height=200, width=200, bg="black")
         self.canevas_minimap = Canvas(self.cadreminimap, width=self.taille_minimap, height=self.taille_minimap,
-                                      bg="pink")
+                                      bg="black")
+
         self.canevas_minimap.bind("<Button>", self.positionner_minicanevas)
         self.canevas_minimap.pack()
         self.cadreminimap.pack(side=BOTTOM)
@@ -194,6 +212,255 @@ class Vue():
         self.cadres["jeu"] = self.cadrepartie
         # fonction qui affiche le nombre d'items sur le jeu
         self.canevas.bind("<Shift-Button-3>", self.calc_objets)
+
+    def afficher_info_generales(self, source, niveau, exp, res, planetes, vaisseaux):
+        frame = Frame(source, width=400, height=30, bg="grey11")
+
+        labelNiveau = Label(frame, text="Niveau : " + str(niveau), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelExp = Label(frame, text=str(exp) + " XP", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelMetal = Label(frame, text="Me : " + str(res['metal']), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelRoche = Label(frame, text="Ro : " + str(res['pierre']), bg="grey11", fg="green", font='helvetica 10 bold')
+        labelEnergie = Label(frame, text="En : " + str(res['energie']), bg="grey11", fg="green",
+                             font='helvetica 10 bold')
+        labelPlanetes = Label(frame, text="Planete conquise : " + str(planetes), bg="grey11", fg="green",
+                              font='helvetica 10 bold')
+        labelNbVaisseau = Label(frame, text="Vaisseau : " + str(vaisseaux), bg="grey11", fg="green",
+                                font='helvetica 10 bold')
+
+        labelNiveau.place(relx=.05, rely=.5, anchor="center")
+        labelExp.place(relx=.15, rely=.5, anchor="center")
+        labelMetal.place(relx=.35, rely=.5, anchor="center")
+        labelRoche.place(relx=.45, rely=.5, anchor="center")
+        labelEnergie.place(relx=.55, rely=.5, anchor="center")
+        labelPlanetes.place(relx=.75, rely=.5, anchor="center")
+        labelNbVaisseau.place(relx=.9, rely=.5, anchor="center")
+
+        return frame
+
+
+    def afficher_batiment(self, source):
+        self.infoSelection.pack_forget()
+        self.choixBat.pack()
+
+    def afficher_crea_batiment(self, *args):
+        if self.upgradeBat:
+            self.upgradeBat.place_forget()
+        self.choixBat.place(relx=.75, rely=.05)
+
+    def afficher_crea_vaisseau(self, *args):
+
+                    self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+
+                    self.btncreercombat = Button(self.choixVaisseau, text="Combat")
+                    self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+                    self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
+                    self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
+                    self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
+                    self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+
+                    self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
+                    self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
+                    self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+
+                    self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+
+    def retour_construction(self, *args):
+        self.upgradeBat.place_forget()
+
+    def creer_batiment(self, evt):
+        type = evt.widget.cget("text")
+        print(type)
+        self.parent.creer_batiment([self.idSelect, type])
+        self.choixBat.place_forget()
+
+    def choix_batiments(self):
+        frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
+
+        mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
+        centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
+        usine = Button(frame, text="Usine", fg="green", width=6, height=1, bg="grey19")
+        canon = Button(frame, text="Canon", fg="green", width=6, height=1, bg="grey19")
+        balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
+        centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
+
+        titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
+        titre.place(anchor="center", rely=.1, relx=.5)
+
+        mine.place(anchor="center", relx=.3, rely=.35)
+        centrale.place(anchor="center", relx=.7, rely=.35)
+        usine.place(anchor="center", relx=.3, rely=.60)
+        canon.place(anchor="center", relx=.7, rely=.60)
+        balise.place(anchor="center", relx=.3, rely=.85)
+        centreRecherche.place(anchor="center", relx=.7, rely=.85)
+
+        self.prixMine = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixCentrale = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixUsine = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixCanon = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixBalise = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+
+        mine.place(anchor="center", relx=.3, rely=.25)
+        centrale.place(anchor="center", relx=.7, rely=.25)
+        usine.place(anchor="center", relx=.3, rely=.45)
+        canon.place(anchor="center", relx=.7, rely=.45)
+        balise.place(anchor="center", relx=.3, rely=.65)
+        centreRecherche.place(anchor="center", relx=.7, rely=.65)
+
+        mine.place(anchor="center", relx=.25, rely=.25)
+        self.prixMine.place(anchor="center", relx=.7, rely=.25)
+
+        centrale.place(anchor="center", relx=.25, rely=.35)
+        self.prixCentrale.place(anchor="center", relx=.7, rely=.35)
+
+        usine.place(anchor="center", relx=.25, rely=.45)
+        self.prixUsine.place(anchor="center", relx=.7, rely=.45)
+
+        canon.place(anchor="center", relx=.25, rely=.55)
+        self.prixCanon.place(anchor="center", relx=.7, rely=.55)
+
+        balise.place(anchor="center", relx=.25, rely=.65)
+        self.prixBalise.place(anchor="center", relx=.7, rely=.65)
+
+        centreRecherche.place(anchor="center", relx=.25, rely=.75)
+
+        upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
+        upgradeBat.bind('<Button>', self.affichage_upgrade)
+        upgradeBat.place(anchor="center", rely=.9, relx=.5)
+        
+        mine.bind('<Button>', self.creer_batiment)
+        centrale.bind('<Button>', self.creer_batiment)
+        usine.bind('<Button>', self.creer_batiment)
+        canon.bind('<Button>', self.creer_batiment)
+        balise.bind('<Button>', self.creer_batiment)
+        centreRecherche.bind('<Button>', self.creer_batiment)
+
+        return frame
+
+    def appel_update(self, id):
+        self.parent.update_prix(id)
+
+    def update_prix_bat(self, prix):
+        self.txtPrixMine = prix[0]
+        self.txtPrixCentrale = prix[1]
+        self.txtPrixUsine = prix[2]
+        self.txtPrixCanon = prix[3]
+        self.txtPrixBalise = prix[4]
+        self.txtPrixMineUpgrade = prix[5]
+        self.txtPrixCentraleUpgrade = prix[6]
+
+        self.prixMine.config(text=str(self.txtPrixMine) + " Ro")
+        self.prixCentrale.config(text=str(self.txtPrixCentrale) + " Me")
+        self.prixUsine.config(text=str(self.txtPrixUsine) + " Me / " + str(self.txtPrixUsine) + " En")
+        self.prixCanon.config(text=str(self.txtPrixCanon)+ " Me / " + str(self.txtPrixCanon) + " En")
+        self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
+
+    def afficher_notif(self, type_notif):
+
+        if type_notif == 1:
+            text = "Construction terminee"
+            self.message.config(text= text)
+        elif type_notif == 2:
+            text = "Pas assez de ressources"
+            self.message.config(text= text)
+        elif type_notif == 3:
+            text = "Nouveau niveau atteint"
+            self.message.config(text= text)
+        self.message.place(anchor="w", relx=.02, rely=.04)
+
+
+
+    def upgrade_batiment(self, evt):
+        type = evt.widget.cget("text")
+        print(type)
+        self.parent.upgrade_batiment([type])
+        self.upgradeBat.place_forget()
+
+    def affichage_upgrade(self, *args):
+        self.choixBat.place_forget()
+        frame = Frame(self.cadrepartie, width=200, height=250, bg="grey11", highlightthickness=2,
+                      highlightbackground="darkgrey")
+
+        titre = Label(frame, text="UPGRADE", font='helvetica 10 bold', bg="grey11", fg="green")
+        titre.place(anchor="center", rely=.05, relx=.5)
+
+        mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
+        centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
+        usine = Button(frame, text="Usine", fg="green", width=6, height=1, bg="grey19")
+        canon = Button(frame, text="Canon", fg="green", width=6, height=1, bg="grey19")
+        balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
+        centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
+
+        self.prixMineUpgrade = Label(frame, text=str(self.txtPrixMineUpgrade) + " Ro", font='helvetica 10 bold', bg="grey11",
+                         fg="green")
+        self.prixCentraleUpgrade = Label(frame, text=str(self.txtPrixCentraleUpgrade) + " Me", font='helvetica 10 bold',
+                             bg="grey11", fg="green")
+
+
+        if self.joueur.niveau_bat["mine"] > 0 :
+            mine.place(anchor="center", relx=.25, rely=.20)
+            self.prixMineUpgrade.place(anchor="center", relx=.7, rely=.20)
+        if self.joueur.niveau_bat["centrale"] > 0:
+            centrale.place(anchor="center", relx=.25, rely=.35)
+            self.prixCentraleUpgrade.place(anchor="center", relx=.7, rely=.35)
+        if self.joueur.niveau_bat["usine"] > 0:
+            usine.place(anchor="center", relx=.25, rely=.50)
+        if self.joueur.niveau_bat["canon"] > 0:
+            canon.place(anchor="center", relx=.25, rely=.65)
+        if self.joueur.niveau_bat["balise"] > 0:
+            balise.place(anchor="center", relx=.25, rely=.80)
+        if self.joueur.niveau_bat["centreRecherche"] > 0:
+            centreRecherche.place(anchor="center", relx=.25, rely=.95)
+
+        balise.bind('<Button>', self.upgrade_batiment)
+        centreRecherche.bind('<Button>', self.upgrade_batiment)
+        canon.bind('<Button>', self.upgrade_batiment)
+        usine.bind('<Button>', self.upgrade_batiment)
+        centrale.bind('<Button>', self.upgrade_batiment)
+        mine.bind('<Button>', self.upgrade_batiment)
+
+        retourConstruction = Button(frame, text="RETOUR", fg="green", width=9, height=1, bg="grey19")
+        retourConstruction.bind('<Button>', self.afficher_crea_batiment)
+        retourConstruction.place(anchor="center", rely=.9, relx=.5)
+
+        self.upgradeBat = frame
+        self.upgradeBat.place(relx=.75, rely=.05)
+
+
+    def affichage_planete_selectionee(self, source, planete, state):
+        self.state = state
+        idSelect = planete.id
+    
+        frame = Frame(source, width=200, height=350, bg="grey11")
+
+        txtPlanete = "Planete " + idSelect.split("_")[1]
+  
+        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
+                                                                                                                rely=.07)
+        i = .15
+        for k, v in planete.ressources.items():
+            txt = k.title() + ' : ' + str(v)
+            Label(frame, text=txt, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
+                                                                                                                rely=i)
+            i += .08
+
+        for k, v in planete.batiments.items():
+            txt = k.title() + ' : ' + str(len(v))
+            Label(frame, text=txt, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
+                                                                                                                rely=i)
+            i += .08
+    
+        batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
+        batiment.bind('<Button>', self.afficher_crea_batiment)
+        batiment.place(anchor="center", rely=.9, relx=.5)
+
+        for planete in self.joueur.etoilescontrolees:
+            if planete.getId() == self.idSelect:
+                if (len(planete.batiments["usine"]) > 0):
+                    vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
+                    vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
+                    vaisseau.place(anchor="center", rely=.95, relx=.5)
+
+        return frame
 
     def connecter_serveur(self):
         self.btninscrirejoueur.config(state=NORMAL)
@@ -275,6 +542,7 @@ class Vue():
     def initialiser_avec_modele(self, modele):
         self.mon_nom = self.parent.mon_nom
         self.modele = modele
+        self.joueur = self.modele.joueurs[self.mon_nom]
         self.canevas.config(scrollregion=(0, 0, modele.largeur, modele.hauteur))
 
         self.labid.config(text=self.mon_nom)
@@ -323,25 +591,25 @@ class Vue():
                 # on affiche dans minimap
                 minix = j.x / self.modele.largeur * self.taille_minimap
                 miniy = j.y / self.modele.hauteur * self.taille_minimap
-                self.canevas_minimap.create_rectangle(minix, miniy, minix + 3, miniy + 3,
-                                                      fill=mod.joueurs[i].couleur,
+                self.canevas_minimap.create_rectangle(minix, miniy, minix + 5, miniy + 5,
+                                                      fill=mod.joueurs[i].couleur, outline=mod.joueurs[i].couleur,
                                                       tags=(j.proprietaire, str(j.id), "Etoile"))
 
-    def afficher_mini(self, evt):  # univers(self, mod):
+    def afficher_mini(self):  # univers(self, mod):
         self.canevas_minimap.delete("mini")
         for j in self.modele.etoiles:
             minix = j.x / self.modele.largeur * self.taille_minimap
             miniy = j.y / self.modele.hauteur * self.taille_minimap
             self.canevas_minimap.create_rectangle(minix, miniy, minix + 0, miniy + 0,
-                                                  fill="black",
+                                                  fill="yellow", outline="white",
                                                   tags=("mini", "Etoile"))
         # # affichage des etoiles possedees par les joueurs
         # for i in mod.joueurs.keys():
-        #     for j in mod.joueurs[i].etoilescontrolees:
-        #         t = j.taille * self.zoom
-        #         self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
-        #                                  fill=mod.joueurs[i].couleur,
-        #                                  tags=(j.proprietaire, str(j.id),  "Etoile"))
+        #   for j in mod.joueurs[i].etoilescontrolees:
+        #        t = j.taille * self.zoom
+        #        self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
+        #                                 fill=mod.joueurs[i].couleur,
+        #                                 tags=(j.proprietaire, str(j.id),  "Etoile"))
 
     def centrer_planemetemere(self, evt):
         self.centrer_objet(self.modele.joueurs[self.mon_nom].etoilemere)
@@ -374,7 +642,8 @@ class Vue():
 
     def creer_vaisseau(self, evt):
         type_vaisseau = evt.widget.cget("text")
-        self.parent.creer_vaisseau(type_vaisseau)
+        self.parent.creer_vaisseau(type_vaisseau, self.etoile_select.x, 
+                                   self.etoile_select.y)
         self.ma_selection = None
         self.canevas.delete("marqueur")
         self.cadreinfochoix.pack_forget()
@@ -383,8 +652,28 @@ class Vue():
         mod = self.modele
         self.canevas.delete("artefact")
         self.canevas.delete("objet_spatial")
+        self.afficher_mini()
+        joueur = mod.joueurs[self.mon_nom]
 
-        if self.ma_selection != None:
+        if self.del_notif > 100:
+            self.message.place_forget()
+            self.del_notif = 0
+        self.del_notif += 1
+
+        if  self.update_data > 8:
+            # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
+            self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
+                                                                 joueur.niveau, joueur.experience,
+                                                                 joueur.ressources,
+                                                                 len(joueur.etoilescontrolees),
+                                                                 len(joueur.flotte['Combat']) + len(joueur.flotte['Explorer']) +
+                                                                 len(joueur.flotte['Cargo']))
+            self.cadreinfoglobale.grid(row=2, sticky="nsew")
+            self.update_data = 0
+
+        self.update_data += 1
+
+        if self.ma_selection != None and self.contour == True:
             joueur = mod.joueurs[self.ma_selection[0]]
             if self.ma_selection[2] == "Etoile":
                 for i in joueur.etoilescontrolees:
@@ -395,7 +684,7 @@ class Vue():
                         self.canevas.create_oval(x - t, y - t, x + t, y + t,
                                                  dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
                                                  tags=("multiselection", "marqueur"))
-            elif self.ma_selection[2] == "Flotte":
+            elif self.ma_selection[2] == "FlotteCombat" or self.ma_selection[2] == "FlotteCargo":
                 for j in joueur.flotte:
                     for i in joueur.flotte[j]:
                         i = joueur.flotte[j][i]
@@ -403,27 +692,37 @@ class Vue():
                             x = i.x
                             y = i.y
                             t = 10 * self.zoom
-                            self.canevas.create_rectangle(x - t, y - t, x + t, y + t,
+                            self.canevas.create_polygon(x, y - t, x - t, y + t - 5, x + t, y + t - 5,
+                                                        dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur, fill='',
+                                                        tags=("multiselection", "marqueur"))
+            elif self.ma_selection[2] == "FlotteExplorer":
+                for j in joueur.flotte:
+                    for i in joueur.flotte[j]:
+                        i = joueur.flotte[j][i]
+                        if i.id == self.ma_selection[1]:
+                            x = i.x
+                            y = i.y
+                            t = 10 * self.zoom
+                            self.canevas.create_rectangle(x - t, (y - (t - (2 * self.zoom))), x + t,
+                                                          (y + (t - (5 * self.zoom))),
                                                           dash=(2, 2), outline=mod.joueurs[self.mon_nom].couleur,
                                                           tags=("multiselection", "marqueur"))
         # afficher asset des joueurs
         for i in mod.joueurs.keys():
             i = mod.joueurs[i]
-            vaisseau_local = []
+            
             for k in i.flotte:
                 for j in i.flotte[k]:
+                
                     j = i.flotte[k][j]
                     tailleF = j.taille * self.zoom
-                    if k == "Vaisseau":
-                        self.canevas.create_rectangle((j.x - tailleF), (j.y - tailleF),
-                                                      (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                                      tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
-                    elif k == "Cargo":
-                        # self.dessiner_cargo(j,tailleF,i,k)
-                        self.dessiner_cargo(j, tailleF, i, k)
-                        # self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                        #                          (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                        #                          tags=(j.proprietaire, str(j.id), "Flotte",k,"artefact"))
+                    vaisseaux = {
+                        "Cargo": self.dessiner_cargo(j, tailleF, i, k),
+                        "Combat": self.dessiner_combat(j, tailleF, i, k),
+                        "Explorer": self.dessiner_explorer(j, tailleF, i, k)
+                    }
+                    vaisseaux.get(k)
+
         for t in self.modele.trou_de_vers:
             i = t.porte_a
             for i in [t.porte_a, t.porte_b]:
@@ -435,44 +734,83 @@ class Vue():
                                          i.x + i.pulse, i.y + i.pulse, outline=i.couleur, width=2, fill="grey15",
                                          tags=("", i.id, "Porte_de_ver", "objet_spatial"))
 
+    def dessiner_combat(self, obj, tailleF, joueur, type_obj):
+
+        t = obj.taille * self.zoom
+        x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
+        dt = t / 2
+
+        self.canevas.create_polygon(obj.x,
+                                    (obj.y - tailleF),
+                                    (obj.x - tailleF),
+                                    (obj.y + tailleF),
+                                    (obj.x + tailleF),
+                                    (obj.y + tailleF),
+                                    fill=joueur.couleur, outline='black',
+                                    tags=(obj.proprietaire, str(obj.id), "FlotteCombat", type_obj, "artefact"))
+
+    def dessiner_explorer(self, obj, tailleF, joueur, type_obj):
+        self.canevas.create_rectangle((obj.x - tailleF), (obj.y - tailleF),
+                                      (obj.x + tailleF), (obj.y + tailleF - 5), fill=joueur.couleur,
+                                      tags=(obj.proprietaire, str(obj.id), "FlotteExplorer", type_obj, "artefact"))
+
     def dessiner_cargo(self, obj, tailleF, joueur, type_obj):
         t = obj.taille * self.zoom
-        a = obj.ang
         x, y = hlp.getAngledPoint(obj.angle_cible, int(t / 4 * 3), obj.x, obj.y)
         dt = t / 2
         self.canevas.create_oval((obj.x - tailleF), (obj.y - tailleF),
                                  (obj.x + tailleF), (obj.y + tailleF), fill=joueur.couleur,
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
+                                 tags=(obj.proprietaire, str(obj.id), "FlotteCargo", type_obj, "artefact"))
         self.canevas.create_oval((x - dt), (y - dt),
                                  (x + dt), (y + dt), fill="yellow",
-                                 tags=(obj.proprietaire, str(obj.id), "Flotte", type_obj, "artefact"))
-
-    def dessiner_cargo1(self, j, tailleF, i, k):
-        self.canevas.create_oval((j.x - tailleF), (j.y - tailleF),
-                                 (j.x + tailleF), (j.y + tailleF), fill=i.couleur,
-                                 tags=(j.proprietaire, str(j.id), "Flotte", k, "artefact"))
+                                 tags=(obj.proprietaire, str(obj.id), "FlotteCargo", type_obj, "artefact"))
 
     def cliquer_cosmos(self, evt):
         t = self.canevas.gettags(CURRENT)
         if t:  # il y a des tags
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
-                if t[2] == "Etoile":
+                if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+
+                    self.idSelect = self.ma_selection[1] # get la planete selectionee
+                    self.appel_update(self.idSelect)
+                    if (self.infoSelection):
+                        self.infoSelection.pack_forget()
+                    for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
+
+                        #print(self.ma_selection[1])
+                        if i.id == self.idSelect:
+                            self.etoile_select = i
+                            for info in i.batiments:
+
+                                print(info, " :", len(i.batiments[info]))
+                                
+                    self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.montrer_etoile_selection()
-                elif t[2] == "Flotte":
-                    self.montrer_flotte_selection()
             elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
                 if self.ma_selection:
-                    self.parent.cibler_flotte(self.ma_selection[1], t[1], t[2])
+                    self.contour = False
+                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
                 self.ma_selection = None
+                self.contour = True
                 self.canevas.delete("marqueur")
         else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
             print("Region inconnue")
+            self.idSelect = None
             self.ma_selection = None
             self.canevas.delete("marqueur")
+            self.infoSelection.pack_forget()
+
+            self.choixBat.place_forget()
+
+            self.choixVaisseau.place_forget()
+            self.choixBat.place_forget()
+
+            self.upgradeBat.place_forget()
+
 
     def montrer_etoile_selection(self):
-        self.cadreinfochoix.pack(fill=BOTH)
+        self.infoSelection.pack(fill=BOTH)
 
     def montrer_flotte_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)
