@@ -580,14 +580,7 @@ class Vue():
             self.canevas_minimap.create_rectangle(minix, miniy, minix + 0, miniy + 0,
                                                   fill="yellow", outline="white",
                                                   tags=("mini", "Etoile"))
-        # # affichage des etoiles possedees par les joueurs
-        # for i in mod.joueurs.keys():
-        #   for j in mod.joueurs[i].etoilescontrolees:
-        #        t = j.taille * self.zoom
-        #        self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
-        #                                 fill=mod.joueurs[i].couleur,
-        #                                 tags=(j.proprietaire, str(j.id),  "Etoile"))
-
+    
     def centrer_planemetemere(self, evt):
         self.centrer_objet(self.modele.joueurs[self.mon_nom].etoilemere)
 

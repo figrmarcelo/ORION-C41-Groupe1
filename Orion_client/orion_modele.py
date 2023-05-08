@@ -449,8 +449,7 @@ class Joueur:  # ***************************************************************
             "creerbatiment": self.creerbatiment,
             "upgradebatiment": self.upgradebatiment,
             "recolterressources": self.recolterressources,
-            "updateprix": self.calcul_prix_construction,
-            "afficher_bonus": self.afficher_bonus
+            "updateprix": self.calcul_prix_construction
         }
 
         
