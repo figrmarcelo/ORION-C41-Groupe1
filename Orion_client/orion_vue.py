@@ -147,14 +147,15 @@ class Vue():
         self.canevas.bind("<Button>", self.cliquer_cosmos)
         self.canevas.tag_bind(ALL, "<Button>", self.cliquer_cosmos)
 
+
         # faire une multiselection
         self.canevas.bind("<Shift-Button-1>", self.debuter_multiselection)
         self.canevas.bind("<Shift-B1-Motion>", self.afficher_multiselection)
         self.canevas.bind("<Shift-ButtonRelease-1>", self.terminer_multiselection)
 
         # scroll avec roulette
-        self.canevas.bind("<ButtonPress-1>", self.scroll_start)
-        self.canevas.bind("<B1-Motion>", self.scroll_move)
+        self.canevas.bind("<ButtonPress-3>", self.scroll_start)
+        self.canevas.bind("<B3-Motion>", self.scroll_move)
 
         self.creer_cadre_outils()
 
@@ -475,6 +476,7 @@ class Vue():
     def scroll_start(self, evt):
         self.canevas.scan_mark(evt.x, evt.y)
 
+
     def scroll_move(self, evt):
         self.canevas.scan_dragto(evt.x, evt.y)
 
@@ -783,6 +785,10 @@ class Vue():
 
     def montrer_etoile_selection(self):
         self.infoSelection.pack(fill=BOTH)
+
+    def masquer_etoile_selection(self):
+        if self.idSelect != None:
+            self.infoSelection.pack_forget()
 
     def montrer_flotte_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)
