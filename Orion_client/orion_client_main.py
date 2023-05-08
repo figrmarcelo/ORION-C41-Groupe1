@@ -237,9 +237,6 @@ class Controleur():
     def update_prix(self, id):
         self.actionsrequises.append([self.mon_nom, "updateprix", id])
         
-    def afficher_bonus(self, joueur):
-        self.vue.show_bonus(joueur)
-
 
 if __name__ == "__main__":
     c = Controleur()
