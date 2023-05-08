@@ -516,7 +516,7 @@ class Joueur():  # *************************************************************
                         self.ressources["energie"] -= cost
                         bat = Balise(id_planete, self.nom)
                         self.experience += 175
-                elif type_batiment == "cdr" and self.niveau >= 3:
+                elif type_batiment == "centreRecherche" and self.niveau >= 3:
                     bat = CentreRecherche(id_planete, self.nom)
                     if self.niveau_bat[type_batiment] == 0:
                         self.niveau_bat[type_batiment] += 1
