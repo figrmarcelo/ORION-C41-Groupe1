@@ -13,6 +13,8 @@ import random
 
 class Vue():
     def __init__(self, parent, urlserveur, mon_nom, msg_initial):
+        
+        self.id_planete = ""
         self.parent = parent
         self.root = Tk()
         self.root.title("Je suis " + mon_nom)
@@ -38,6 +40,7 @@ class Vue():
         # # sera charge apres l'initialisation de la partie, contient les donnees pour mettre l'interface a jour
         self.modele = None
         self.joueur = None
+        self.niveau = 1
         # # variable pour suivre le trace du multiselect
         self.debut_selection = []
         self.selecteur_actif = None
@@ -237,10 +240,16 @@ class Vue():
 
         return frame
 
-
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
         self.choixBat.pack()
+        
+    def afficher_create_batiment(self, id_planete, *args):
+        self.appel_update(id_planete)
+        if self.upgradeBat:
+            self.upgradeBat.place_forget()
+        self.choixBat.place(relx=.75, rely=.05)
+        
 
     def afficher_crea_batiment(self, *args):
         if self.upgradeBat:
@@ -249,20 +258,20 @@ class Vue():
 
     def afficher_crea_vaisseau(self, *args):
 
-                    self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+        self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
 
-                    self.btncreercombat = Button(self.choixVaisseau, text="Combat")
-                    self.btncreercombat.bind("<Button>", self.creer_vaisseau)
-                    self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
-                    self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
-                    self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
-                    self.btncreercargo.bind("<Button>", self.creer_vaisseau)
+        self.btncreercombat = Button(self.choixVaisseau, text="Combat")
+        self.btncreercombat.bind("<Button>", self.creer_vaisseau)
+        self.btncreerexplorer = Button(self.choixVaisseau, text="Explorer")
+        self.btncreerexplorer.bind("<Button>", self.creer_vaisseau)
+        self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
+        self.btncreercargo.bind("<Button>", self.creer_vaisseau)
 
-                    self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
-                    self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
-                    self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+        self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
+        self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
+        self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
 
-                    self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+        self.choixVaisseau.place(anchor="center", relx=.5, rely=.05)
 
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
@@ -279,32 +288,19 @@ class Vue():
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
         usine = Button(frame, text="Usine", fg="green", width=6, height=1, bg="grey19")
-        canon = Button(frame, text="Canon", fg="green", width=6, height=1, bg="grey19")
-        balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
-        centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
+        self.canon = Button(frame, text="Canon", fg="green", width=6, height=1, bg="grey19")
+        self.balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
+        self.centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
 
         titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
-
-        mine.place(anchor="center", relx=.3, rely=.35)
-        centrale.place(anchor="center", relx=.7, rely=.35)
-        usine.place(anchor="center", relx=.3, rely=.60)
-        canon.place(anchor="center", relx=.7, rely=.60)
-        balise.place(anchor="center", relx=.3, rely=.85)
-        centreRecherche.place(anchor="center", relx=.7, rely=.85)
 
         self.prixMine = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
         self.prixCentrale = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
         self.prixUsine = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
         self.prixCanon = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
         self.prixBalise = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
-
-        mine.place(anchor="center", relx=.3, rely=.25)
-        centrale.place(anchor="center", relx=.7, rely=.25)
-        usine.place(anchor="center", relx=.3, rely=.45)
-        canon.place(anchor="center", relx=.7, rely=.45)
-        balise.place(anchor="center", relx=.3, rely=.65)
-        centreRecherche.place(anchor="center", relx=.7, rely=.65)
+        self.prixCDR = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
 
         mine.place(anchor="center", relx=.25, rely=.25)
         self.prixMine.place(anchor="center", relx=.7, rely=.25)
@@ -315,24 +311,17 @@ class Vue():
         usine.place(anchor="center", relx=.25, rely=.45)
         self.prixUsine.place(anchor="center", relx=.7, rely=.45)
 
-        canon.place(anchor="center", relx=.25, rely=.55)
-        self.prixCanon.place(anchor="center", relx=.7, rely=.55)
-
-        balise.place(anchor="center", relx=.25, rely=.65)
-        self.prixBalise.place(anchor="center", relx=.7, rely=.65)
-
-        centreRecherche.place(anchor="center", relx=.25, rely=.75)
-
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
         upgradeBat.bind('<Button>', self.affichage_upgrade)
-        upgradeBat.place(anchor="center", rely=.9, relx=.5)
+        if self.joueur != None and self.joueur.niveau_bat["centreRecherche"] > 0:
+            upgradeBat.place(anchor="center", rely=.9, relx=.5)
         
         mine.bind('<Button>', self.creer_batiment)
         centrale.bind('<Button>', self.creer_batiment)
         usine.bind('<Button>', self.creer_batiment)
-        canon.bind('<Button>', self.creer_batiment)
-        balise.bind('<Button>', self.creer_batiment)
-        centreRecherche.bind('<Button>', self.creer_batiment)
+        self.canon.bind('<Button>', self.creer_batiment)
+        self.balise.bind('<Button>', self.creer_batiment)
+        self.centreRecherche.bind('<Button>', self.creer_batiment)
 
         return frame
 
@@ -345,26 +334,41 @@ class Vue():
         self.txtPrixUsine = prix[2]
         self.txtPrixCanon = prix[3]
         self.txtPrixBalise = prix[4]
-        self.txtPrixMineUpgrade = prix[5]
-        self.txtPrixCentraleUpgrade = prix[6]
+        self.txtPrixCDR = prix[5]
+        self.txtPrixMineUpgrade = prix[6]
+        self.txtPrixCentraleUpgrade = prix[7]
 
         self.prixMine.config(text=str(self.txtPrixMine) + " Ro")
         self.prixCentrale.config(text=str(self.txtPrixCentrale) + " Me")
         self.prixUsine.config(text=str(self.txtPrixUsine) + " Me / " + str(self.txtPrixUsine) + " En")
-        self.prixCanon.config(text=str(self.txtPrixCanon)+ " Me / " + str(self.txtPrixCanon) + " En")
-        self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
 
-    def afficher_notif(self, type_notif):
+        if self.niveau >= 2:
+            self.canon.place(anchor="center", relx=.25, rely=.55)
+            self.prixCanon.place(anchor="center", relx=.7, rely=.55)
+            self.prixCanon.config(text=str(self.txtPrixCanon) + " Me / " + str(self.txtPrixCanon) + " En")
+        if self.niveau >= 3:
+            self.centreRecherche.place(anchor="center", relx=.25, rely=.65)
+            self.prixCDR.place(anchor="center", relx=.7, rely=.65)
+            self.prixCDR.config(text=str(self.txtPrixCDR) + " Me / " + str(self.txtPrixCDR) + " En")
+        if self.niveau >= 4:
+            self.balise.place(anchor="center", relx=.25, rely=.75)
+            self.prixBalise.place(anchor="center", relx=.7, rely=.75)
+            self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
+
+    def afficher_notif(self, type_notif, message):
 
         if type_notif == 1:
-            text = "Construction terminee"
-            self.message.config(text= text)
+            # text = "Construction terminee"
+            self.message.config(text=message)
         elif type_notif == 2:
-            text = "Pas assez de ressources"
-            self.message.config(text= text)
+            # text = "Pas assez de ressources"
+            self.message.config(text=message)
         elif type_notif == 3:
-            text = "Nouveau niveau atteint"
-            self.message.config(text= text)
+            # text = "Nouveau niveau atteint"
+            self.niveau += 1
+            self.message.config(text=message)
+        elif type_notif == 4:
+            self.message.config(text=message)
         self.message.place(anchor="w", relx=.02, rely=.04)
 
 
@@ -451,7 +455,7 @@ class Vue():
     
         batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
-        batiment.place(anchor="center", rely=.9, relx=.5)
+        batiment.place(anchor="center", rely=.8, relx=.5)
 
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == self.idSelect:
