@@ -16,7 +16,7 @@ from ressource import Ressource
 
 class Artefact:
     """Liste de noms de bonus qu'un artéfact peut avoir"""
-    noms = ['mine', 'ressource'] 
+    noms = ['mine', 'ressource', 'centrale'] 
     
     def __init__(self):
         self.nom = 'Artefact ' + choice(Artefact.noms)
@@ -24,6 +24,7 @@ class Artefact:
     def activate_bonus(self, etoile: Etoile, joueur: Joueur) -> None:
         liste_bonus = {
             'mine': Mine(etoile, joueur),
+            'centrale': Centrale(etoile, joueur),
             'ressource': Ressource(randint(10, 1000), randint(10, 1000), 
                                    randint(10, 1000))
         }
@@ -51,7 +52,7 @@ class Artefact:
     def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Ressource]:
         return liste_bonus.get(self.nom[9:])
 
-class Batiment():
+class Batiment:
     """
     Classe batiment --> classe parent pour les batiments d'une planete. 
     
@@ -155,7 +156,7 @@ class Centrale(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-    def upgrade(self, ressources):
+    def upgrade(self):
         cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
 
         return cost
@@ -226,7 +227,7 @@ class AccelerateurParticule(Batiment):
         pass
 
 
-class Porte_de_vers():
+class Porte_de_vers:
     def __init__(self, parent, x, y, couleur, taille):
         self.parent = parent
         self.id = get_prochain_id()
@@ -242,7 +243,7 @@ class Porte_de_vers():
             self.pulse = 0
 
 
-class Trou_de_vers():
+class Trou_de_vers:
     def __init__(self, x1, y1, x2, y2):
         self.id = get_prochain_id()
         taille = random.randrange(6, 20)
@@ -255,7 +256,7 @@ class Trou_de_vers():
         self.porte_b.jouer_prochain_coup()
 
 
-class Astre():
+class Astre:
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
         self.id = get_prochain_id()
         self.parent = parent
@@ -307,7 +308,7 @@ class Nuage(Astre):
         super().__init__(parent, x, y, random.randrange(12, 8))
 
 
-class Vaisseau():
+class Vaisseau:
     def __init__(self, parent: Joueur, nom: str, x: int, y: int, vaisseau = Class):
         self.type_vaisseau = vaisseau
         self.parent = parent
@@ -341,14 +342,13 @@ class Vaisseau():
         self.angle_cible = hlp.calcAngle(self.x, self.y, self.cible.x, self.cible.y)
 
     def avancer(self):
-        if self.cible != 0:
-            x = self.cible.x
-            y = self.cible.y
-            self.x, self.y = hlp.getAngledPoint(self.angle_cible, self.vitesse, self.x, self.y)
-            if hlp.calcDistance(self.x, self.y, x, y) <= self.vitesse:
-                type_obj = type(self.cible).__name__
-                rep = self.arriver[type_obj]()
-                return rep
+        x = self.cible.x
+        y = self.cible.y
+        self.x, self.y = hlp.getAngledPoint(self.angle_cible, self.vitesse, self.x, self.y)
+        if hlp.calcDistance(self.x, self.y, x, y) <= self.vitesse:
+            type_obj = type(self.cible).__name__
+            rep = self.arriver[type_obj]()
+            return rep
 
     def arriver_etoile(self):
         #mettre methode construire batiment -------------------------*****************************----------------------------------
@@ -412,7 +412,7 @@ class Cargo(Vaisseau):
         self.idPlanete = 0
 
 
-class Joueur():  # **************************************************************** --- JOUEUR --- **********************************************************
+class Joueur:  # **************************************************************** --- JOUEUR --- **********************************************************
     def __init__(self, parent, nom, etoilemere, couleur):
         self.id = get_prochain_id()
         self.parent = parent
@@ -423,6 +423,7 @@ class Joueur():  # *************************************************************
         self.log = []
         self.etoilescontrolees = [etoilemere]
         self.prix = []
+        self.artefacts = []
 
         self.flotte = {"Combat": {},
                        "Explorer": {},
@@ -445,12 +446,14 @@ class Joueur():  # *************************************************************
 
         self.experience = 0
         self.niveau = 1
-        self.actions = {"creervaisseau": self.creervaisseau,
-                        "cibleretoile": self.cibleretoile,
-                        "creerbatiment": self.creerbatiment,
-                        "upgradebatiment": self.upgradebatiment,
-                        "recolterressources": self.recolterressources,
-                        "updateprix": self.calcul_prix_construction}
+        self.actions = {
+            "creervaisseau": self.creervaisseau,
+            "cibleretoile": self.cibleretoile,
+            "creerbatiment": self.creerbatiment,
+            "upgradebatiment": self.upgradebatiment,
+            "recolterressources": self.recolterressources,
+            "updateprix": self.calcul_prix_construction
+        }
 
     def appel_notification(self, type, message):
         self.parent.parent.afficher_notif(type, message)
@@ -691,12 +694,6 @@ class IA(Joueur):
         self.cooldown = 20
 
     def jouer_prochain_coup(self):
-        # for i in self.flotte:
-        #     for j in self.flotte[i]:
-        #         j=self.flotte[i][j]
-        #         rep=j.jouer_prochain_coup(1)
-        #         if rep:
-        #             self.etoilescontrolees.append(rep[1])
         self.avancer_flotte(1)
 
         if self.cooldown == 0:
@@ -708,7 +705,7 @@ class IA(Joueur):
             self.cooldown -= 1
 
 
-class Modele():
+class Modele:
     def __init__(self, parent, joueurs):
         self.parent = parent
         self.largeur = 9000
