@@ -236,7 +236,7 @@ class Controleur():
 
     def update_prix(self, id):
         self.actionsrequises.append([self.mon_nom, "updateprix", id])
-
+        
 
 if __name__ == "__main__":
     c = Controleur()
