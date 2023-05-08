@@ -60,7 +60,7 @@ class Vue():
         self.txtPrixUsine = 0
         self.txtPrixCanon = 0
         self.txtPrixBalise = 0
-
+        
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
         if rep:
@@ -139,19 +139,9 @@ class Vue():
         self.cadrepartie = Frame(self.cadre_app, width=600, height=200, bg="yellow")
         self.cadrejeu = Frame(self.cadrepartie, width=600, height=200, bg="teal")
 
-        self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL, bg="grey11")
-        self.scrollY = Scrollbar(self.cadrejeu, orient=VERTICAL)
-        self.canevas = Canvas(self.cadrejeu, width=800, height=600,
-                              xscrollcommand=self.scrollX.set,
-                              yscrollcommand=self.scrollY.set, bg="grey11")
-
-        self.scrollX.config(command=self.canevas.xview)
-        self.scrollY.config(command=self.canevas.yview)
-
+        self.canevas = Canvas(self.cadrejeu, width=800, height=600, bg="grey11")
         self.canevas.grid(column=0, row=0, sticky=W + E + N + S)
-        self.scrollX.grid(column=0, row=1, sticky=W + E)
-        self.scrollY.grid(column=1, row=0, sticky=N + S)
-
+        
         self.cadrejeu.columnconfigure(0, weight=1)
         self.cadrejeu.rowconfigure(0, weight=1)
         self.canevas.bind("<Button>", self.cliquer_cosmos)
@@ -163,8 +153,8 @@ class Vue():
         self.canevas.bind("<Shift-ButtonRelease-1>", self.terminer_multiselection)
 
         # scroll avec roulette
-        self.canevas.bind("<MouseWheel>", self.defiler_vertical)
-        self.canevas.bind("<Control-MouseWheel>", self.defiler_horizon)
+        self.canevas.bind("<ButtonPress-1>", self.scroll_start)
+        self.canevas.bind("<B1-Motion>", self.scroll_move)
 
         self.creer_cadre_outils()
 
@@ -485,21 +475,11 @@ class Vue():
     def calc_objets(self, evt):
         print("Univers = ", len(self.canevas.find_all()))
 
-    def defiler_vertical(self, evt):
-        rep = self.scrollY.get()[0]
-        if evt.delta < 0:
-            rep = rep + 0.01
-        else:
-            rep = rep - 0.01
-        self.canevas.yview_moveto(rep)
+    def scroll_start(self, evt):
+        self.canevas.scan_mark(evt.x, evt.y)
 
-    def defiler_horizon(self, evt):
-        rep = self.scrollX.get()[0]
-        if evt.delta < 0:
-            rep = rep + 0.02
-        else:
-            rep = rep - 0.02
-        self.canevas.xview_moveto(rep)
+    def scroll_move(self, evt):
+        self.canevas.scan_dragto(evt.x, evt.y)
 
     ##### FONCTIONS DU SPLASH #########################################################################
 
@@ -607,14 +587,7 @@ class Vue():
             self.canevas_minimap.create_rectangle(minix, miniy, minix + 0, miniy + 0,
                                                   fill="yellow", outline="white",
                                                   tags=("mini", "Etoile"))
-        # # affichage des etoiles possedees par les joueurs
-        # for i in mod.joueurs.keys():
-        #   for j in mod.joueurs[i].etoilescontrolees:
-        #        t = j.taille * self.zoom
-        #        self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
-        #                                 fill=mod.joueurs[i].couleur,
-        #                                 tags=(j.proprietaire, str(j.id),  "Etoile"))
-
+    
     def centrer_planemetemere(self, evt):
         self.centrer_objet(self.modele.joueurs[self.mon_nom].etoilemere)
 
