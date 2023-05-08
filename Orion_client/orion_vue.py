@@ -271,7 +271,7 @@ class Vue():
         self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
         self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
 
-        self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+        self.choixVaisseau.place(anchor="center", relx=.5, rely=.05)
 
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
@@ -355,18 +355,20 @@ class Vue():
             self.prixBalise.place(anchor="center", relx=.7, rely=.75)
             self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
 
-    def afficher_notif(self, type_notif):
+    def afficher_notif(self, type_notif, message):
 
         if type_notif == 1:
-            text = "Construction terminee"
-            self.message.config(text= text)
+            # text = "Construction terminee"
+            self.message.config(text=message)
         elif type_notif == 2:
-            text = "Pas assez de ressources"
-            self.message.config(text= text)
+            # text = "Pas assez de ressources"
+            self.message.config(text=message)
         elif type_notif == 3:
-            text = "Nouveau niveau atteint"
+            # text = "Nouveau niveau atteint"
             self.niveau += 1
-            self.message.config(text= text)
+            self.message.config(text=message)
+        elif type_notif == 4:
+            self.message.config(text=message)
         self.message.place(anchor="w", relx=.02, rely=.04)
 
 

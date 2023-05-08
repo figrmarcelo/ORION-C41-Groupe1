@@ -31,7 +31,7 @@ class Artefact:
         nom, bonus = self.nom[9:], self._get_bonus(liste_bonus)
         
         if nom == 'ressource':
-            if randint(0, 10) <= 1:
+            if randint(0, 100) <= 1:
                 for k, v in etoile.ressources.values():
                     v += liste_bonus[nom][k]
                 joueur.ressources += liste_bonus[nom]
@@ -39,11 +39,13 @@ class Artefact:
                 k, v = choice(list(etoile.ressources.items()))
                 nb_res = liste_bonus[nom][k]
                 v += nb_res
-                print(f'Vous avez gagné {nb_res} {k}s')
+                message = f'Vous avez gagné {nb_res} {k}s'
+                joueur.appel_notification(4, message)
                 joueur.ressources[k] += nb_res
         else:
             etoile.batiments[nom][bonus.id] = bonus
-            print(f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}')
+            message = f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}'
+            joueur.appel_notification(4, message)
             
 
     def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Ressource]:
@@ -450,6 +452,9 @@ class Joueur():  # *************************************************************
                         "recolterressources": self.recolterressources,
                         "updateprix": self.calcul_prix_construction}
 
+    def appel_notification(self, type, message):
+        self.parent.parent.afficher_notif(type, message)
+
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
         id_planete = params
         for planete in self.etoilescontrolees:
@@ -518,13 +523,13 @@ class Joueur():  # *************************************************************
 
                 if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
-                    print("batiment construit")
-                    self.parent.parent.afficher_notif(1)
+                    print("Construction terminée")
+                    self.appel_notification(1, "Construction terminée")
                     self.calcul_prix_construction(id_planete)
                 else:
                     print(self.ressources)
                     print("Pas assez de ressource")
-                    self.parent.parent.afficher_notif(2)
+                    self.appel_notification(2, "Pas assez de ressource")
 
 
     def calcul_prix_construction(self, params):
@@ -535,12 +540,12 @@ class Joueur():  # *************************************************************
         self.prix.clear()
         for planete in self.etoilescontrolees:
             if planete.getId() == id:
-                self.prix.append(len(planete.batiments["mine"]) * 100)
-                self.prix.append(len(planete.batiments["centrale"]) * 100)
-                self.prix.append((len(planete.batiments["usine"]) + 1) * 2)
-                self.prix.append((len(planete.batiments["canon"]) + 1) * 150)
-                self.prix.append((len(planete.batiments["balise"]) + 1) * 300)
-                self.prix.append((len(planete.batiments["centreRecherche"]) + 1) * 500)
+                self.prix.append(len(planete.batiments["mine"]) * 7)
+                self.prix.append(len(planete.batiments["centrale"]) * 7)
+                self.prix.append((len(planete.batiments["usine"]) + 1) * 10)
+                self.prix.append((len(planete.batiments["canon"]) + 1) * 15)
+                self.prix.append((len(planete.batiments["balise"]) + 1) * 30)
+                self.prix.append((len(planete.batiments["centreRecherche"]) + 1) * 50)
                 self.prix.append((100 * pow(self.niveau_bat["mine"], 2)) + (50 * self.niveau_bat["mine"]) + 25)
                 self.prix.append((100 * pow(self.niveau_bat["centrale"], 2)) + (50 * self.niveau_bat["centrale"]) + 25)
 
@@ -630,19 +635,16 @@ class Joueur():  # *************************************************************
     def levelUp(self):
         if self.niveau == 1 and self.experience >= 1000:
             self.niveau += 1
-            self.parent.parent.afficher_notif(3)
+            self.appel_notification(3, "Vous avez atteint le niveau 2 !")
         elif self.niveau == 2 and self.experience >= 2500:
             self.niveau += 1
-            self.parent.parent.afficher_notif(3)
+            self.appel_notification(3, "Vous avez atteint le niveau 3 !")
         elif self.niveau == 3 and self.experience >= 4500:
             self.niveau += 1
-            self.parent.parent.afficher_notif(3)
+            self.appel_notification(3, "Vous avez atteint le niveau 4 !")
         elif self.niveau == 4 and self.experience >= 7000:
             self.niveau += 1
-            self.parent.parent.afficher_notif(3)
-        elif self.niveau == 5 and self.experience >= 10000:
-            self.niveau += 1
-            self.parent.parent.afficher_notif(3)
+            self.appel_notification(3, "Vous avez atteint le niveau 5 !")
     
     def avancer_flotte(self, chercher_nouveau=0):
         for i in self.flotte:
