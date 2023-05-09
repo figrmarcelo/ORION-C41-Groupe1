@@ -352,7 +352,9 @@ class Vaisseau:
         self.parent.log.append(
             ["Arrive:", self.parent.parent.cadre_courant, "Etoile", self.id, self.cible.id, self.cible.proprietaire])
         if not self.cible.proprietaire:
+            #self.etoilescontrolees.append(cible)
             self.cible.proprietaire = self.proprietaire
+            
         cible = self.cible
         
         #if type de vaisseau == cargo ALORS afficher construction
@@ -664,7 +666,8 @@ class Joueur:  # ***************************************************************
                         # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
                         #       quand on l'attribue aux etoilescontrolees
                         #       et que ce passe-t-il si l'etoile a un proprietaire ???
-                        self.etoilescontrolees.append(rep[1])
+                        if rep[1] not in self.etoilescontrolees:
+                            self.etoilescontrolees.append(rep[1])
                         if rep[1].artefact:
                             rep[1].artefact.activate_bonus(rep[1], self)
                             rep[1].artefact = None
