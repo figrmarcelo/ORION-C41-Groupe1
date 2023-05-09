@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Orion_client/orion_modele.py" beforeDir="false" afterPath="$PROJECT_DIR$/Orion_client/orion_modele.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Orion_client/orion_vue.py" beforeDir="false" afterPath="$PROJECT_DIR$/Orion_client/orion_vue.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RTS_serveur/RTS_serveur_DB.db" beforeDir="false" afterPath="$PROJECT_DIR$/RTS_serveur/RTS_serveur_DB.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

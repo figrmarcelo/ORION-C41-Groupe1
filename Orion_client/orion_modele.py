@@ -33,7 +33,7 @@ class Artefact:
         
         if nom == 'ressource':
             if randint(0, 10) <= 1:
-                for k, v in etoile.ressources.values():
+                for k, v in etoile.ressources.items():
                     v += liste_bonus[nom][k]
                 joueur.ressources += liste_bonus[nom]
             else:
@@ -300,7 +300,7 @@ class Etoile(Astre):
     
     def _add_artefact(self) -> Artefact | None:
         num = random.randint(0, 10)
-        return Artefact() if num < 10 else None
+        return Artefact() if num < 2 else None
 
 
 class Nuage(Astre):
@@ -666,6 +666,7 @@ class Joueur:  # ***************************************************************
                         self.etoilescontrolees.append(rep[1])
                         if rep[1].artefact:
                             rep[1].artefact.activate_bonus(rep[1], self)
+                            rep[1].artefact = None
                             
                         self.parent.parent.afficher_etoile(self.nom, rep[1])
                     elif rep[0] == "Porte_de_ver":
@@ -750,7 +751,7 @@ class Modele:
             p = random.choice(self.etoiles)
             if p not in etoile_occupee:
                 etoile_occupee.append(p)
-                self.etoiles.remove(p)
+                # jmd self.etoiles.remove(p)
                 np -= 1
 
         couleurs = ["red", "blue", "lightgreen", "yellow",
