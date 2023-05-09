@@ -239,6 +239,7 @@ class Vue():
         
     def afficher_create_batiment(self, id_planete, *args):
         self.appel_update(id_planete)
+        self.idSelect = id_planete
         if self.upgradeBat:
             self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
@@ -274,6 +275,7 @@ class Vue():
         print(type)
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
+        
 
     def choix_batiments(self):
         frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
@@ -758,6 +760,7 @@ class Vue():
                     else:
                         print("Vaisseau Selectionne + autre chose")
                         self.contour = True
+                        
             elif t[0] == self.mon_nom:
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 
@@ -772,6 +775,7 @@ class Vue():
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
                         if i.id == self.idSelect:
                             self.etoile_select = i
+                            
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.montrer_etoile_selection()
             
