@@ -282,6 +282,7 @@ class Vue():
         self.canon = Button(frame, text="Canon", fg="green", width=6, height=1, bg="grey19")
         self.balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
         self.centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
+        self.accelerateurParticule = Button(frame, text="Accel. de particules", fg="green", width=6, height=1, bg="grey19")
 
         titre = Label(frame, text="CONSTRUCTION", font='helvetica 10 bold', bg="grey11", fg="green")
         titre.place(anchor="center", rely=.1, relx=.5)
@@ -292,6 +293,7 @@ class Vue():
         self.prixCanon = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
         self.prixBalise = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
         self.prixCDR = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
+        self.prixAccelParticule = Label(frame, text="-", font='helvetica 10 bold', bg="grey11", fg="green")
 
         mine.place(anchor="center", relx=.25, rely=.25)
         self.prixMine.place(anchor="center", relx=.7, rely=.25)
@@ -313,6 +315,7 @@ class Vue():
         self.canon.bind('<Button>', self.creer_batiment)
         self.balise.bind('<Button>', self.creer_batiment)
         self.centreRecherche.bind('<Button>', self.creer_batiment)
+        self.accelerateurParticule.bind('<Button>', self.creer_batiment)
 
         return frame
 
@@ -328,6 +331,7 @@ class Vue():
         self.txtPrixCDR = prix[5]
         self.txtPrixMineUpgrade = prix[6]
         self.txtPrixCentraleUpgrade = prix[7]
+        self.txtPrixAccelParticule = prix[8]
 
         self.prixMine.config(text=str(self.txtPrixMine) + " Ro")
         self.prixCentrale.config(text=str(self.txtPrixCentrale) + " Me")

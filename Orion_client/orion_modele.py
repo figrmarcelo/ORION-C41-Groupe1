@@ -523,6 +523,9 @@ class Joueur:  # ***************************************************************
                     bat = CentreRecherche(id_planete, self.nom)
                     if self.niveau_bat[type_batiment] == 0:
                         self.niveau_bat[type_batiment] += 1
+                elif type_batiment == "accelerateurParticule" and self.niveau >= 5:
+                    bat = AccelerateurParticule(id_planete, self.nom)
+
 
                 if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
@@ -551,6 +554,7 @@ class Joueur:  # ***************************************************************
                 self.prix.append((len(planete.batiments["centreRecherche"]) + 1) * 50)
                 self.prix.append((100 * pow(self.niveau_bat["mine"], 2)) + (50 * self.niveau_bat["mine"]) + 25)
                 self.prix.append((100 * pow(self.niveau_bat["centrale"], 2)) + (50 * self.niveau_bat["centrale"]) + 25)
+                self.prix.append(10000)
 
         self.parent.parent.update_prix_construction(self.prix)
 
