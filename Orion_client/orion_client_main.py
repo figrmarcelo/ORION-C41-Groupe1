@@ -239,6 +239,7 @@ class Controleur():
 
     def fin_de_partie(self, nom):
         self.vue.fin_de_partie(nom)
+
         
 
 if __name__ == "__main__":

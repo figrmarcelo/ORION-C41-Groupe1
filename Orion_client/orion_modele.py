@@ -491,8 +491,6 @@ class Joueur:  # ***************************************************************
                         if self.niveau_bat[type_batiment] == 0:
                             self.niveau_bat[type_batiment] += 1
                         self.experience += 100
-                        # TEST POUR FIN DE PARTIE
-                        # self.parent.parent.fin_de_partie(self.nom)
                 elif type_batiment == "usine":
                     cost = self.prix[2]
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:

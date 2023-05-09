@@ -770,13 +770,8 @@ class Vue():
                     if (self.infoSelection):
                         self.infoSelection.pack_forget()
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
-    
                         if i.id == self.idSelect:
                             self.etoile_select = i
-                            
-
-                        
-                                
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.montrer_etoile_selection()
             
@@ -886,8 +881,9 @@ class Vue():
     ### FIN du multiselect
 
     def fin_de_partie(self, nom):
-        self.fdg = Frame(self.root, width=500, height=400, bg="red").place(anchor="center", relx=.55, rely=.5)
+        self.msgFinGame = Label(self.cadrepartie, text=f'La partie est terminee, {nom} est le vainqueur !',
+                                font='courier 15 bold', fg="green", bg="grey19")\
+            .place(anchor="center", relx=.5, rely=.5)
 
-
-
-        Label()
+        self.reset = Button(self.cadrepartie, text="Quitter", fg="green",command=quit, width=12, height=3, bg="grey19")
+        self.reset.place(anchor="center", relx=.5, rely=.65)
