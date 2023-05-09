@@ -751,10 +751,13 @@ class Vue():
             if self.ma_selection:
                 if ("FlotteCargo" in self.ma_selection or "FlotteExplorer" in self.ma_selection or "FlotteCombat" in self.ma_selection):
                     if ("Etoile" in t or "Porte_de_ver" in t):
+                        self.contour = False
                         self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
+                        self.ma_selection = None
+                        
                     else:
                         print("Vaisseau Selectionne + autre chose")
-                    
+                        self.contour = True
             elif t[0] == self.mon_nom:
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
                 
