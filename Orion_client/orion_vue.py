@@ -484,7 +484,6 @@ class Vue():
     def scroll_start(self, evt):
         self.canevas.scan_mark(evt.x, evt.y)
 
-
     def scroll_move(self, evt):
         self.canevas.scan_dragto(evt.x, evt.y)
 
@@ -802,7 +801,7 @@ class Vue():
         if t:  # il y a des tags
             if t[0] == self.mon_nom:  # et
                 self.ma_selection = [self.mon_nom, t[1], t[2]]
-            if("    FlotteCargo" in t or "FlotteExplorer" in t or "FlotteCombat" in t):
+            if("FlotteCargo" in t or "FlotteExplorer" in t or "FlotteCombat" in t):
                     self.vaisseauSelect = t[2]
             if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
 
@@ -885,3 +884,10 @@ class Vue():
             self.canevas.delete("selecteur")
 
     ### FIN du multiselect
+
+    def fin_de_partie(self, nom):
+        self.fdg = Frame(self.root, width=500, height=400, bg="red").place(anchor="center", relx=.55, rely=.5)
+
+
+
+        Label()

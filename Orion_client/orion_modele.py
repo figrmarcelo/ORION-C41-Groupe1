@@ -223,9 +223,6 @@ class AccelerateurParticule(Batiment):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-    def end_game(self):
-        pass
-
 
 class Porte_de_vers:
     def __init__(self, parent, x, y, couleur, taille):
@@ -494,6 +491,8 @@ class Joueur:  # ***************************************************************
                         if self.niveau_bat[type_batiment] == 0:
                             self.niveau_bat[type_batiment] += 1
                         self.experience += 100
+                        # TEST POUR FIN DE PARTIE
+                        # self.parent.parent.fin_de_partie(self.nom)
                 elif type_batiment == "usine":
                     cost = self.prix[2]
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
@@ -520,11 +519,13 @@ class Joueur:  # ***************************************************************
                         bat = Balise(id_planete, self.nom)
                         self.experience += 175
                 elif type_batiment == "centreRecherche" and self.niveau >= 3:
+                    cost = self.prix[5]
                     bat = CentreRecherche(id_planete, self.nom)
-                    if self.niveau_bat[type_batiment] == 0:
+                    if self.niveau_bat[type_batiment] == 0 and self.ressources["energie"] >= cost and self.ressources["metal"] >= cost:
                         self.niveau_bat[type_batiment] += 1
                 elif type_batiment == "accelerateurParticule" and self.niveau >= 5:
                     bat = AccelerateurParticule(id_planete, self.nom)
+                    self.parent.parent.fin_de_partie(self.nom)
 
 
                 if bat != None:
