@@ -287,7 +287,7 @@ class Etoile(Astre):
             "usine":{},
             "canon": {},
             "balise": {},
-            "centreRecherche": {},
+            "cdr": {},
         }
 
         self.artefact = self._add_artefact()
@@ -440,7 +440,7 @@ class Joueur:  # ***************************************************************
             "canon": 0,
             "usine": 0,
             "balise": 0,
-            "centreRecherche": 0
+            "cdr": 0
         }
 
         self.experience = 0
@@ -468,17 +468,14 @@ class Joueur:  # ***************************************************************
                     planete.ressource_dispo[ressource] = 0
 
     def creerbatiment(self, params):  # methode joueur pour creer un batiment dans une planete
-
         id_planete = params[0]
         type_batiment = params[1]
         type_batiment = type_batiment.lower()
         bat = None
-
         for planete in self.etoilescontrolees:
             if planete.getId() == id_planete:
                 self.calcul_prix_construction(id_planete)
                 if type_batiment == "mine" or type_batiment == "centrale":
-
                     if type_batiment == "mine" and self.ressources["pierre"] >= self.prix[0]:
                         costMP = self.prix[0]
                         self.ressources["pierre"] -= costMP
@@ -518,15 +515,16 @@ class Joueur:  # ***************************************************************
                         self.ressources["energie"] -= cost
                         bat = Balise(id_planete, self.nom)
                         self.experience += 175
-                elif type_batiment == "centreRecherche" and self.niveau >= 3:
+                elif type_batiment == "cdr" and self.niveau >= 3:
                     cost = self.prix[5]
-                    bat = CentreRecherche(id_planete, self.nom)
                     if self.niveau_bat[type_batiment] == 0 and self.ressources["energie"] >= cost and self.ressources["metal"] >= cost:
+                        bat = CentreRecherche(id_planete, self.nom)
+                        self.ressources["energie"] -= cost
+                        self.ressources["metal"] -= cost
                         self.niveau_bat[type_batiment] += 1
                 elif type_batiment == "accelerateurParticule" and self.niveau >= 5:
                     bat = AccelerateurParticule(id_planete, self.nom)
                     self.parent.parent.fin_de_partie(self.nom)
-
 
                 if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
@@ -552,7 +550,7 @@ class Joueur:  # ***************************************************************
                 self.prix.append((len(planete.batiments["usine"]) + 1) * 10)
                 self.prix.append((len(planete.batiments["canon"]) + 1) * 15)
                 self.prix.append((len(planete.batiments["balise"]) + 1) * 30)
-                self.prix.append((len(planete.batiments["centreRecherche"]) + 1) * 50)
+                self.prix.append((len(planete.batiments["cdr"]) + 1) * 50)
                 self.prix.append((100 * pow(self.niveau_bat["mine"], 2)) + (50 * self.niveau_bat["mine"]) + 25)
                 self.prix.append((100 * pow(self.niveau_bat["centrale"], 2)) + (50 * self.niveau_bat["centrale"]) + 25)
                 self.prix.append(10000)
@@ -565,7 +563,6 @@ class Joueur:  # ***************************************************************
 
         if type == "mine" or type == "centrale":
             cost = (100 * pow(self.niveau_bat[type], 2)) + (50 * self.niveau_bat[type]) + 25
-
             if type == "mine" and self.ressources["pierre"] >= cost:
                 self.ressources["pierre"] -= cost
                 self.niveau_bat[type] += 1

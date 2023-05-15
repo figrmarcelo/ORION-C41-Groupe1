@@ -310,7 +310,7 @@ class Vue():
 
         upgradeBat = Button(frame, text="UPGRADE", fg="green", width=9, height=1, bg="grey19")
         upgradeBat.bind('<Button>', self.affichage_upgrade)
-        if self.joueur != None and self.joueur.niveau_bat["centreRecherche"] > 0:
+        if self.joueur != None and self.joueur.niveau_bat["cdr"] > 0:
             upgradeBat.place(anchor="center", rely=.9, relx=.5)
         
         mine.bind('<Button>', self.creer_batiment)
@@ -353,6 +353,11 @@ class Vue():
             self.balise.place(anchor="center", relx=.25, rely=.75)
             self.prixBalise.place(anchor="center", relx=.7, rely=.75)
             self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
+
+        # Affichage du bouton upgrade -- a revoir
+        # if self.joueur != None and self.joueur.niveau_bat["cdr"] > 0:
+        #     self.choixBat = self.choix_batiments()
+        #     self.appel_update(self.idSelect)
 
     def afficher_notif(self, type_notif, message):
 
