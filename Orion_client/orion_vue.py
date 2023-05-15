@@ -415,30 +415,37 @@ class Vue():
         self.upgradeBat = frame
         self.upgradeBat.place(relx=.75, rely=.05)
 
-
+    def afficher_infos_planete(self, info:dict, rel_y: int, is_res: bool, frame: Frame):
+        for k, v in info.items():
+            info_value = str(v) if is_res else str(len(v))
+            Label(frame, text=k.title() + ' : ' + info_value, 
+                  font='helvetica 10 bold',
+                  bg="grey11", fg="green").place(relx=.3, rely=rel_y)
+            rel_y += .08
+            
+        return rel_y
+    
     def affichage_planete_selectionee(self, source, planete, state):
         self.state = state
         idSelect = planete.id
-        planeteSelect = planete
-        print(idSelect)
-        ressSelect = planeteSelect.getRessources()
-
-        frame = Frame(source, width=200, height=200, bg="grey11")
+        ressources = planete.ressources
+        batiments = planete.batiments
+        
+        frame = Frame(source, width=250, height=250, bg="grey11")
 
         txtPlanete = "Planete " + idSelect.split("_")[1]
-        txtRoche = "Roche : " + str(ressSelect['pierre'])
-        txtMetal = "Metal : " + str(ressSelect['metal'])
-        txtEnergie = "Energie : " + str(ressSelect['energie'])
-
-        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
-                                                                                                                rely=.1)
-        Label(frame, text=txtRoche, bg="grey11", fg="green").place(relx=.2, rely=.25)
-        Label(frame, text=txtMetal, bg="grey11", fg="green").place(relx=.2, rely=.40)
-        Label(frame, text=txtEnergie, bg="grey11", fg="green").place(relx=.2, rely=.55)
-
+        rel_y = .15
+    
+        Label(frame, text=txtPlanete, font='helvetica 10 bold', 
+              bg="grey11", fg="green").place(anchor="center", relx=.5, rely=.1)
+        
+        rel_y = self.afficher_infos_planete(ressources, rel_y, True, frame)
+        rel_y = self.afficher_infos_planete(batiments, rel_y, False, frame)
+    
+       
         batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
-        batiment.place(anchor="center", rely=.8, relx=.5)
+        batiment.place(anchor="center", rely=0.95, relx=.5)
 
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == self.idSelect:

@@ -279,7 +279,8 @@ class Etoile(Astre):
         self.ressources_dispo = {
             "pierre": 0,
             "metal": 0,
-            "energie": 0}
+            "energie": 0
+        }
 
         # Pour chaque bat, faire un dict de bat comme pour les vaisseau
         self.batiments = {
