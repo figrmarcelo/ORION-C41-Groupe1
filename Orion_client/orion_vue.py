@@ -344,18 +344,22 @@ class Vue():
         self.prixCanon.config(text=str(self.txtPrixCanon)+ " Me / " + str(self.txtPrixCanon) + " En")
         self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
 
-    def afficher_notif(self, type_notif):
-
+    def afficher_notif(self, type_notif, message):
+    
         if type_notif == 1:
-            text = "Construction terminee"
-            self.message.config(text= text)
+            # text = "Construction terminee"
+            self.message.config(text=message)
         elif type_notif == 2:
-            text = "Pas assez de ressources"
-            self.message.config(text= text)
+            # text = "Pas assez de ressources"
+            self.message.config(text=message)
         elif type_notif == 3:
-            text = "Nouveau niveau atteint"
-            self.message.config(text= text)
+            # text = "Nouveau niveau atteint"
+            self.niveau += 1
+            self.message.config(text=message)
+        elif type_notif == 4:
+            self.message.config(text=message)
         self.message.place(anchor="w", relx=.02, rely=.04)
+
 
 
 
