@@ -225,17 +225,21 @@ class Controleur():
     def upgrade_batiment(self, type_batiment):
         self.actionsrequises.append([self.mon_nom, "upgradebatiment", type_batiment])
         
-    def afficher_construction(self):
-        self.vue.afficher_crea_batiment()
+    def afficher_construction(self, id_planete):
+        self.vue.afficher_create_batiment(id_planete)
 
-    def afficher_notif(self, type_notif):
-        self.vue.afficher_notif(type_notif)
+    def afficher_notif(self, type_notif, message):
+        self.vue.afficher_notif(type_notif, message)
 
     def update_prix_construction(self, prix):
         self.vue.update_prix_bat(prix)
 
     def update_prix(self, id):
         self.actionsrequises.append([self.mon_nom, "updateprix", id])
+
+    def fin_de_partie(self, nom):
+        self.vue.fin_de_partie(nom)
+
         
 
 if __name__ == "__main__":

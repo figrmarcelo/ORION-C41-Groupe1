@@ -310,12 +310,8 @@ class Nuage(Astre):
 
 
 class Vaisseau:
-<<<<<<< HEAD
-    def __init__(self, parent: Joueur, nom: str, x: int, y: int, taille: int, vitesse: int):
-=======
     def __init__(self, parent: Joueur, nom: str, x: int, y: int, vaisseau = Class):
         self.type_vaisseau = vaisseau
->>>>>>> prodPaul2
         self.parent = parent
         self.id: int = get_prochain_id()
         self.proprietaire = nom
@@ -410,11 +406,6 @@ class Joueur:  # ***************************************************************
         self.couleur = couleur
         self.log = []
         self.etoilescontrolees = [etoilemere]
-<<<<<<< HEAD
-=======
-        self.prix = []
-        self.artefacts = []
->>>>>>> prodPaul2
 
         self.flotte = {"Combat": {},
                        "Explorer": {},
@@ -431,24 +422,12 @@ class Joueur:  # ***************************************************************
         self.ressources = Ressource()
 
         self.experience = 0
-<<<<<<< HEAD
         self.niveau = 0
         self.actions = {"creervaisseau": self.creervaisseau,
                         "cibleretoile": self.cibleretoile,
                         "creerbatiment": self.creerbatiment,
                         "upgradebatiment": self.upgradebatiment,
                         "recolterressources": self.recolterressources}
-=======
-        self.niveau = 1
-        self.actions = {
-            "creervaisseau": self.creervaisseau,
-            "cibleretoile": self.cibleretoile,
-            "creerbatiment": self.creerbatiment,
-            "upgradebatiment": self.upgradebatiment,
-            "recolterressources": self.recolterressources,
-            "updateprix": self.calcul_prix_construction
-        }
->>>>>>> prodPaul2
 
         
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
