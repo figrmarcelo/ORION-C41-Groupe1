@@ -310,8 +310,7 @@ class Nuage(Astre):
 
 
 class Vaisseau:
-    def __init__(self, parent: Joueur, nom: str, x: int, y: int, vaisseau = Class):
-        self.type_vaisseau = vaisseau
+    def __init__(self, parent: Joueur, nom: str, x: int, y: int, taille, vitesse):
         self.parent = parent
         self.id: int = get_prochain_id()
         self.proprietaire = nom
@@ -322,8 +321,10 @@ class Vaisseau:
         self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
-        self.arriver = {"Etoile": self.arriver_etoile,
-                        "Porte_de_vers": self.arriver_porte}
+        self.arriver = {
+            "Etoile": self.arriver_etoile,
+            "Porte_de_vers": self.arriver_porte
+        }
 
         self.niveau = 1  # ajout de niveau du vaisseau
         self.pdv = 100 * self.niveau  # ajout de point de vie du vaisseau
