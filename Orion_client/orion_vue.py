@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ##  version 2022 14 mars - jmd
-
+import time
 from tkinter import *
 from tkinter.simpledialog import *
 from tkinter.messagebox import *
@@ -13,7 +13,7 @@ import random
 
 class Vue():
     def __init__(self, parent, urlserveur, mon_nom, msg_initial):
-        
+
         self.id_planete = ""
         self.parent = parent
         self.root = Tk()
@@ -47,6 +47,7 @@ class Vue():
         self.idSelect = ''
         self.choixBat = self.choix_batiments()
         self.choixVaisseau = None
+        self.statutcombat = None
         self.upgradeBat = None
         self.premier = 0
 
@@ -54,13 +55,22 @@ class Vue():
         self.del_notif = 0
         self.message = Label(self.cadrejeu, text="", background="grey11", fg="green")
 
-
         self.txtPrixMine = 0
         self.txtPrixCentrale = 0
         self.txtPrixUsine = 0
         self.txtPrixCanon = 0
         self.txtPrixBalise = 0
-        
+
+        self.pointscombat = 0
+        self.etatcombat = ""
+        self.etatupgrade = ""
+        self.boolattaquer = False
+        self.boolexplorer = False
+        self.attaquer = NONE
+        self.lacouleur = ""
+        self.etoileclickid = 0
+        self.cliquerattaquer = False
+
     def demander_abandon(self):
         rep = askokcancel("Vous voulez vraiment quitter?")
         if rep:
@@ -92,7 +102,8 @@ class Vue():
         self.etatdujeu = Label(text=msg_initial, font=("Arial", 18), relief=RAISED, bg="grey15", fg="green")
         self.nomsplash = Entry(font=("Arial", 14), fg="green", bg="grey15")
         self.urlsplash = Entry(font=("Arial", 14), width=42, fg="green", bg="grey15")
-        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur, bg="grey15", fg="green")
+        self.btnurlconnect = Button(text="Connecter", font=("Arial", 12), command=self.connecter_serveur, bg="grey15",
+                                    fg="green")
         # on insère les infos par défaut (nom url) et reçu au démarrage (dispo)
         self.nomsplash.insert(0, mon_nom)
         self.urlsplash.insert(0, urlserveur)
@@ -102,7 +113,8 @@ class Vue():
         self.canevas_splash.create_window(320, 225, window=self.urlsplash, width=400, height=30)
         self.canevas_splash.create_window(320, 275, window=self.btnurlconnect, width=100, height=30)
         # les boutons d'actions
-        self.btncreerpartie = Button(text="Creer partie", font="Arial 12 bold", state=DISABLED, command=self.creer_partie, bg="grey15", fg="green")
+        self.btncreerpartie = Button(text="Creer partie", font="Arial 12 bold", state=DISABLED,
+                                     command=self.creer_partie, bg="grey15", fg="green")
         self.btninscrirejoueur = Button(text="Inscrire joueur", font="Arial 12 bold", state=DISABLED,
                                         command=self.inscrire_joueur, bg="grey15", fg="green")
         self.btnreset = Button(text="Reinitialiser partie", font="Arial 12 bold", state=DISABLED,
@@ -127,7 +139,8 @@ class Vue():
         self.listelobby = Listbox(borderwidth=1, relief=GROOVE, bg="grey15", fg="green")
 
         # bouton pour lancer la partie, uniquement accessible à celui qui a creer la partie dans le splash
-        self.btnlancerpartie = Button(text="Lancer partie", font="Arial 9 bold", state=DISABLED, command=self.lancer_partie,
+        self.btnlancerpartie = Button(text="Lancer partie", font="Arial 9 bold", state=DISABLED,
+                                      command=self.lancer_partie,
                                       bg="grey15", fg="green")
         # affichage des widgets dans le canevaslobby (similaire au splash)
         self.canevaslobby.create_window(320, 240, window=self.listelobby, width=200, height=400)
@@ -139,9 +152,19 @@ class Vue():
         self.cadrepartie = Frame(self.cadre_app, width=600, height=200, bg="yellow")
         self.cadrejeu = Frame(self.cadrepartie, width=600, height=200, bg="teal")
 
-        self.canevas = Canvas(self.cadrejeu, width=800, height=600, bg="grey11")
+        self.scrollX = Scrollbar(self.cadrejeu, orient=HORIZONTAL, bg="grey11")
+        self.scrollY = Scrollbar(self.cadrejeu, orient=VERTICAL)
+        self.canevas = Canvas(self.cadrejeu, width=800, height=600,
+                              xscrollcommand=self.scrollX.set,
+                              yscrollcommand=self.scrollY.set, bg="grey11")
+
+        self.scrollX.config(command=self.canevas.xview)
+        self.scrollY.config(command=self.canevas.yview)
+
         self.canevas.grid(column=0, row=0, sticky=W + E + N + S)
-        
+        self.scrollX.grid(column=0, row=1, sticky=W + E)
+        self.scrollY.grid(column=1, row=0, sticky=N + S)
+
         self.cadrejeu.columnconfigure(0, weight=1)
         self.cadrejeu.rowconfigure(0, weight=1)
         self.canevas.bind("<Button>", self.cliquer_cosmos)
@@ -153,8 +176,8 @@ class Vue():
         self.canevas.bind("<Shift-ButtonRelease-1>", self.terminer_multiselection)
 
         # scroll avec roulette
-        self.canevas.bind("<ButtonPress-1>", self.scroll_start)
-        self.canevas.bind("<B1-Motion>", self.scroll_move)
+        self.canevas.bind("<MouseWheel>", self.defiler_vertical)
+        self.canevas.bind("<Control-MouseWheel>", self.defiler_horizon)
 
         self.creer_cadre_outils()
 
@@ -179,7 +202,6 @@ class Vue():
         self.labid.pack()
 
         self.infoSelection = None
-
 
         self.cadreinfoliste = Frame(self.cadreinfo)
 
@@ -211,6 +233,8 @@ class Vue():
 
         labelNiveau = Label(frame, text="Niveau : " + str(niveau), bg="grey11", fg="green", font='helvetica 10 bold')
         labelExp = Label(frame, text=str(exp) + " XP", bg="grey11", fg="green", font='helvetica 10 bold')
+        labelCombatPoints = Label(frame, text="Points combat :" + str(self.pointscombat), bg="grey11", fg="green",
+                                  font='helvetica 10 bold')
         labelMetal = Label(frame, text="Me : " + str(res['metal']), bg="grey11", fg="green", font='helvetica 10 bold')
         labelRoche = Label(frame, text="Ro : " + str(res['pierre']), bg="grey11", fg="green", font='helvetica 10 bold')
         labelEnergie = Label(frame, text="En : " + str(res['energie']), bg="grey11", fg="green",
@@ -219,12 +243,12 @@ class Vue():
                               font='helvetica 10 bold')
         labelNbVaisseau = Label(frame, text="Vaisseau : " + str(vaisseaux), bg="grey11", fg="green",
                                 font='helvetica 10 bold')
-
         labelNiveau.place(relx=.05, rely=.5, anchor="center")
-        labelExp.place(relx=.15, rely=.5, anchor="center")
-        labelMetal.place(relx=.35, rely=.5, anchor="center")
-        labelRoche.place(relx=.45, rely=.5, anchor="center")
-        labelEnergie.place(relx=.55, rely=.5, anchor="center")
+        labelExp.place(relx=.13, rely=.5, anchor="center")
+        labelCombatPoints.place(relx=.25, rely=.5, anchor="center")
+        labelMetal.place(relx=.38, rely=.5, anchor="center")
+        labelRoche.place(relx=.48, rely=.5, anchor="center")
+        labelEnergie.place(relx=.58, rely=.5, anchor="center")
         labelPlanetes.place(relx=.75, rely=.5, anchor="center")
         labelNbVaisseau.place(relx=.9, rely=.5, anchor="center")
 
@@ -233,13 +257,12 @@ class Vue():
     def afficher_batiment(self, source):
         self.infoSelection.pack_forget()
         self.choixBat.pack()
-        
+
     def afficher_create_batiment(self, id_planete, *args):
         self.appel_update(id_planete)
         if self.upgradeBat:
             self.upgradeBat.place_forget()
         self.choixBat.place(relx=.75, rely=.05)
-        
 
     def afficher_crea_batiment(self, *args):
         if self.upgradeBat:
@@ -257,11 +280,188 @@ class Vue():
         self.btncreercargo = Button(self.choixVaisseau, text="Cargo")
         self.btncreercargo.bind("<Button>", self.creer_vaisseau)
 
-        self.btncreercombat.place(anchor="center" ,relx=.15, rely=.5)
-        self.btncreerexplorer.place(anchor="center" ,relx=.5, rely=.5)
-        self.btncreercargo.place(anchor="center" ,relx=.85, rely=.5)
+        self.btncreercombat.place(anchor="center", relx=.15, rely=.5)
+        self.btncreerexplorer.place(anchor="center", relx=.5, rely=.5)
+        self.btncreercargo.place(anchor="center", relx=.85, rely=.5)
 
-        self.choixVaisseau.place(anchor="center", relx=.5, rely=.05)
+        self.choixVaisseau.place(anchor="center", relx=.35, rely=.05)
+
+    def afficher_attaquer(self, *args):
+        self.cliquerattaquer = True
+        self.attaquer = Frame(self.cadrepartie, width=300, height=50, bg="grey11")
+
+        self.btnattaquer = Button(self.attaquer, text="ATTAQUER!")
+        self.btnattaquer.bind("<Button>", self.TRUEattaquer)
+        self.btnupgradevaisseau = Button(self.attaquer, text="UPGRADE")
+        self.btnupgradevaisseau.bind("<Button>", self.upgrade_vaisseau)
+        self.btncancel = Button(self.attaquer, text="CANCEL")
+        self.btncancel.bind("<Button>", self.cancel)
+
+        self.btnattaquer.place(anchor="center", relx=.15, rely=.5)
+        self.btnupgradevaisseau.place(anchor="center", relx=.5, rely=.5)
+        self.btncancel.place(anchor="center", relx=.85, rely=.5)
+
+        self.attaquer.place(anchor="center", relx=.60, rely=.87)
+
+    def afficher_explorer(self, *args):
+        self.cliquerattaquer = False
+
+        self.explorer = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+
+        self.btnexplorer = Button(self.explorer, text="EXPLORER")
+        self.btnexplorer.bind("<Button>", self.TRUEexplorer)
+        self.btncancel = Button(self.explorer, text="CANCEL")
+        self.btncancel.bind("<Button>", self.cancel)
+
+        self.btnexplorer.place(anchor="center", relx=.2, rely=.5)
+        self.btncancel.place(anchor="center", relx=.6, rely=.5)
+
+        self.explorer.place(anchor="center", relx=.60, rely=.87)
+
+    def etatcombatshow(self, *args):
+        self.etatbox = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+        if self.etatcombat == "Attaque Gagnée":
+            couleur = "green"
+
+        elif self.etatcombat == "Attaque Nulle":
+            couleur = "black"
+
+        elif self.etatcombat == "Attaque Perdue":
+            couleur = "red"
+        self.etat = Label(self.etatbox, text=self.etatcombat, fg=couleur)
+        self.etat.place(anchor="center", relx=.3, rely=.4)
+        self.etatbox.place(anchor="center", relx=.60, rely=.87)
+        self.cadrepartie.after(5000, self.etatbox.destroy)
+
+    def ressourceslist(self, *args):
+
+        justnumber = self.etoileclickid.split("_")[1]
+        realid = int(justnumber)
+
+        if realid == 0 or realid == 1:
+            realid -= 1
+        elif realid >= 4 and realid <= 112:
+            realid -= 2
+        elif realid >= 114 and realid <= 162:
+            realid -= 3
+        elif realid >= 164 and realid <= 168:
+            realid -= 4
+
+        self.listbox = Frame(self.cadrepartie, width=100, height= 450, bg="grey11")
+
+        self.btnfermer = Button(self.listbox, text="X")
+        self.btnfermer.bind("<Button>", self.fermerlist)
+        self.label_titre = Label(self.listbox, text="Liste des ressources")
+        self.label_pierre = Label(self.listbox, text="pierre:    "+ str(self.modele.etoiles[realid].ressources["pierre"]))
+        self.label_metal = Label(self.listbox, text="metal:    " + str(self.modele.etoiles[realid].ressources["metal"]))
+        self.label_bois = Label(self.listbox, text="energie:    " + str(self.modele.etoiles[realid].ressources["energie"]))
+
+        # Use grid layout to position the labels
+        self.btnfermer.grid(row=1, column=1)
+        self.label_titre.grid(row=1,column=0)
+        self.label_pierre.grid(row=2, column=0)
+        self.label_metal.grid(row=3, column=0)
+        self.label_bois.grid(row=4, column=0)
+
+
+        self.listbox.place(anchor="center", relx=.6, rely=.8)
+
+    def choisir_planete(self, *args):
+        self.choisir = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+        self.textchoisir = Label(self.choisir, text="Choisissez la planete!")
+        self.textchoisir.place(anchor="center", relx=.3, rely=.4)
+        self.choisir.place(anchor="center", relx=.60, rely=.87)
+
+    def fermerlist(self, evt):
+        self.listbox.destroy()
+        self.idSelect = None
+        self.ma_selection = None
+        self.canevas.delete("marqueur")
+        self.infoSelection.pack_forget()
+        self.pointscombat = 0
+        self.choixBat.place_forget()
+
+        self.choixVaisseau.place_forget()
+        self.choixBat.place_forget()
+
+        self.upgradeBat.place_forget()
+
+    def cancel(self, evt):
+        if self.cliquerattaquer:
+            self.attaquer.destroy()
+        else:
+            self.explorer.destroy()
+        self.idSelect = None
+        self.ma_selection = None
+        self.canevas.delete("marqueur")
+        self.infoSelection.pack_forget()
+        self.pointscombat = 0
+        self.choixBat.place_forget()
+
+        self.choixVaisseau.place_forget()
+        self.choixBat.place_forget()
+
+        self.upgradeBat.place_forget()
+
+    def upgrade_vaisseau(self, evt):
+        if self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].niveau == 1:
+            if self.joueur.ressources['metal'] >= 50:
+                self.joueur.ressources['metal'] -= 50
+                self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].points_combat += 50
+                self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].niveau += 1
+                self.etatupgrade = "Upgrade Réussie"
+            else:
+                self.etatupgrade = "Manque de matériel"
+        elif self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].niveau == 2:
+            if self.joueur.ressources['metal'] >= 100:
+                self.joueur.ressources['metal'] -= 100
+                self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].points_combat += 50
+                self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].niveau += 1
+                self.etatupgrade = "Upgrade Réussie"
+            else:
+                self.etatupgrade = "Manque de matériel"
+        else:
+            if self.joueur.ressources['metal'] >= 300:
+                self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].points_combat += 25
+                self.modele.joueurs[self.mon_nom].flotte["Combat"][self.ma_selection[1]].niveau += 1
+                self.etatupgrade = "Upgrade Réussie"
+            else:
+                self.etatupgrade = "Manque de matériel"
+        self.attaquer.destroy()
+        self.upgradeetat()
+
+    def upgradeetat(self, *args):
+        self.upgradebox = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
+        if self.etatupgrade == "Upgrade Réussie":
+            self.lacouleur = "green"
+
+        elif self.etatupgrade == "Manque de matériel":
+            self.lacouleur = "red"
+        self.upgr = Label(self.upgradebox, text=self.etatupgrade, fg=self.lacouleur)
+        self.upgr.place(anchor="center", relx=.3, rely=.4)
+        self.upgradebox.place(anchor="center", relx=.60, rely=.87)
+        self.cadrepartie.after(5000, self.upgradebox.destroy)
+        self.idSelect = None
+        self.ma_selection = None
+        self.canevas.delete("marqueur")
+        self.infoSelection.pack_forget()
+        self.pointscombat = 0
+        self.choixBat.place_forget()
+
+        self.choixVaisseau.place_forget()
+        self.choixBat.place_forget()
+
+        self.upgradeBat.place_forget()
+
+    def TRUEattaquer(self, evt):
+        self.boolattaquer = True;
+        self.attaquer.destroy()
+        self.choisir_planete()
+
+    def TRUEexplorer(self, evt):
+        self.boolexplorer = True;
+        self.explorer.destroy()
+        self.choisir_planete()
 
     def retour_construction(self, *args):
         self.upgradeBat.place_forget()
@@ -273,7 +473,8 @@ class Vue():
         self.choixBat.place_forget()
 
     def choix_batiments(self):
-        frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
+        frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2,
+                      highlightbackground="darkgrey")
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
         centrale = Button(frame, text="Centrale", fg="green", width=6, height=1, bg="grey19")
@@ -305,7 +506,7 @@ class Vue():
         upgradeBat.bind('<Button>', self.affichage_upgrade)
         if self.joueur != None and self.joueur.niveau_bat["centreRecherche"] > 0:
             upgradeBat.place(anchor="center", rely=.9, relx=.5)
-        
+
         mine.bind('<Button>', self.creer_batiment)
         centrale.bind('<Button>', self.creer_batiment)
         usine.bind('<Button>', self.creer_batiment)
@@ -345,23 +546,19 @@ class Vue():
             self.prixBalise.place(anchor="center", relx=.7, rely=.75)
             self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
 
-    def afficher_notif(self, type_notif, message):
+    def afficher_notif(self, type_notif):
 
         if type_notif == 1:
-            # text = "Construction terminee"
-            self.message.config(text=message)
+            text = "Construction terminee"
+            self.message.config(text=text)
         elif type_notif == 2:
-            # text = "Pas assez de ressources"
-            self.message.config(text=message)
+            text = "Pas assez de ressources"
+            self.message.config(text=text)
         elif type_notif == 3:
-            # text = "Nouveau niveau atteint"
+            text = "Nouveau niveau atteint"
             self.niveau += 1
-            self.message.config(text=message)
-        elif type_notif == 4:
-            self.message.config(text=message)
+            self.message.config(text=text)
         self.message.place(anchor="w", relx=.02, rely=.04)
-
-
 
     def upgrade_batiment(self, evt):
         type = evt.widget.cget("text")
@@ -384,13 +581,13 @@ class Vue():
         balise = Button(frame, text="Balise", fg="green", width=6, height=1, bg="grey19")
         centreRecherche = Button(frame, text="CdR", fg="green", width=6, height=1, bg="grey19")
 
-        self.prixMineUpgrade = Label(frame, text=str(self.txtPrixMineUpgrade) + " Ro", font='helvetica 10 bold', bg="grey11",
-                         fg="green")
+        self.prixMineUpgrade = Label(frame, text=str(self.txtPrixMineUpgrade) + " Ro", font='helvetica 10 bold',
+                                     bg="grey11",
+                                     fg="green")
         self.prixCentraleUpgrade = Label(frame, text=str(self.txtPrixCentraleUpgrade) + " Me", font='helvetica 10 bold',
-                             bg="grey11", fg="green")
+                                         bg="grey11", fg="green")
 
-
-        if self.joueur.niveau_bat["mine"] > 0 :
+        if self.joueur.niveau_bat["mine"] > 0:
             mine.place(anchor="center", relx=.25, rely=.20)
             self.prixMineUpgrade.place(anchor="center", relx=.7, rely=.20)
         if self.joueur.niveau_bat["centrale"] > 0:
@@ -419,40 +616,35 @@ class Vue():
         self.upgradeBat = frame
         self.upgradeBat.place(relx=.75, rely=.05)
 
-
     def affichage_planete_selectionee(self, source, planete, state):
         self.state = state
         idSelect = planete.id
-    
-        frame = Frame(source, width=200, height=350, bg="grey11")
+        planeteSelect = planete
+        print(idSelect)
+        ressSelect = planeteSelect.getRessources()
+
+        frame = Frame(source, width=200, height=200, bg="grey11")
 
         txtPlanete = "Planete " + idSelect.split("_")[1]
-  
-        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
-                                                                                                                rely=.07)
-        i = .15
-        for k, v in planete.ressources.items():
-            txt = k.title() + ' : ' + str(v)
-            Label(frame, text=txt, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
-                                                                                                                rely=i)
-            i += .08
+        txtRoche = "Roche : " + str(ressSelect['pierre'])
+        txtMetal = "Metal : " + str(ressSelect['metal'])
+        txtEnergie = "Energie : " + str(ressSelect['energie'])
 
-        for k, v in planete.batiments.items():
-            txt = k.title() + ' : ' + str(len(v))
-            Label(frame, text=txt, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
-                                                                                                                rely=i)
-            i += .08
-    
+        Label(frame, text=txtPlanete, font='helvetica 10 bold', bg="grey11", fg="green").place(anchor="center", relx=.5,
+                                                                                               rely=.1)
+        Label(frame, text=txtRoche, bg="grey11", fg="green").place(relx=.2, rely=.25)
+        Label(frame, text=txtMetal, bg="grey11", fg="green").place(relx=.2, rely=.40)
+        Label(frame, text=txtEnergie, bg="grey11", fg="green").place(relx=.2, rely=.55)
+
         batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
         batiment.place(anchor="center", rely=.8, relx=.5)
 
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == self.idSelect:
-                if (len(planete.batiments["usine"]) > 0):
-                    vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
-                    vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
-                    vaisseau.place(anchor="center", rely=.95, relx=.5)
+                vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
+                vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
+                vaisseau.place(anchor="center", rely=.95, relx=.5)
 
         return frame
 
@@ -475,11 +667,21 @@ class Vue():
     def calc_objets(self, evt):
         print("Univers = ", len(self.canevas.find_all()))
 
-    def scroll_start(self, evt):
-        self.canevas.scan_mark(evt.x, evt.y)
+    def defiler_vertical(self, evt):
+        rep = self.scrollY.get()[0]
+        if evt.delta < 0:
+            rep = rep + 0.01
+        else:
+            rep = rep - 0.01
+        self.canevas.yview_moveto(rep)
 
-    def scroll_move(self, evt):
-        self.canevas.scan_dragto(evt.x, evt.y)
+    def defiler_horizon(self, evt):
+        rep = self.scrollX.get()[0]
+        if evt.delta < 0:
+            rep = rep + 0.02
+        else:
+            rep = rep - 0.02
+        self.canevas.xview_moveto(rep)
 
     ##### FONCTIONS DU SPLASH #########################################################################
 
@@ -564,7 +766,7 @@ class Vue():
             t = i.taille * self.zoom
             self.canevas.create_oval(i.x - t, i.y - t, i.x + t, i.y + t,
                                      fill="grey80", outline=col,
-                                     tags=(i.proprietaire, str(i.id), "Etoile",))
+                                     tags=(i.proprietaire, str(i.id), "Etoile", i.points_defense))
         # affichage des etoiles possedees par les joueurs
         for i in mod.joueurs.keys():
             for j in mod.joueurs[i].etoilescontrolees:
@@ -587,7 +789,14 @@ class Vue():
             self.canevas_minimap.create_rectangle(minix, miniy, minix + 0, miniy + 0,
                                                   fill="yellow", outline="white",
                                                   tags=("mini", "Etoile"))
-    
+        # # affichage des etoiles possedees par les joueurs
+        # for i in mod.joueurs.keys():
+        #   for j in mod.joueurs[i].etoilescontrolees:
+        #        t = j.taille * self.zoom
+        #        self.canevas.create_oval(j.x - t, j.y - t, j.x + t, j.y + t,
+        #                                 fill=mod.joueurs[i].couleur,
+        #                                 tags=(j.proprietaire, str(j.id),  "Etoile"))
+
     def centrer_planemetemere(self, evt):
         self.centrer_objet(self.modele.joueurs[self.mon_nom].etoilemere)
 
@@ -611,7 +820,7 @@ class Vue():
         id = cible.id
         couleur = joueur1.couleur
         self.canevas.itemconfig(id, fill=couleur)
-        self.canevas.itemconfig(id, tags=(joueur, id, "Etoile",))
+        self.canevas.itemconfig(id, tags=(joueur, id, "Etoile", cible.points_defense))
 
     # ajuster la liste des vaisseaux
     def lister_objet(self, obj, id):
@@ -619,8 +828,15 @@ class Vue():
 
     def creer_vaisseau(self, evt):
         type_vaisseau = evt.widget.cget("text")
-        self.parent.creer_vaisseau(type_vaisseau, self.etoile_select.x, 
+        self.parent.creer_vaisseau(type_vaisseau, self.etoile_select.x,
                                    self.etoile_select.y)
+        self.ma_selection = None
+        self.canevas.delete("marqueur")
+        self.choixVaisseau.destroy()
+        self.cadreinfochoix.pack_forget()
+
+    def delete_vaisseau(self, id):
+        self.parent.delete_vaisseau(id)
         self.ma_selection = None
         self.canevas.delete("marqueur")
         self.cadreinfochoix.pack_forget()
@@ -637,13 +853,14 @@ class Vue():
             self.del_notif = 0
         self.del_notif += 1
 
-        if  self.update_data > 8:
+        if self.update_data > 8:
             # Affichage actualisé des informations du joueur (Mis a jour a chaque appel de la boucle jeu)
             self.cadreinfoglobale = self.afficher_info_generales(self.cadrejeu,
                                                                  joueur.niveau, joueur.experience,
                                                                  joueur.ressources,
                                                                  len(joueur.etoilescontrolees),
-                                                                 len(joueur.flotte['Combat']) + len(joueur.flotte['Explorer']) +
+                                                                 len(joueur.flotte['Combat']) + len(
+                                                                     joueur.flotte['Explorer']) +
                                                                  len(joueur.flotte['Cargo']))
             self.cadreinfoglobale.grid(row=2, sticky="nsew")
             self.update_data = 0
@@ -687,19 +904,17 @@ class Vue():
         # afficher asset des joueurs
         for i in mod.joueurs.keys():
             i = mod.joueurs[i]
-            
+            vaisseau_local = []
             for k in i.flotte:
                 for j in i.flotte[k]:
-                
                     j = i.flotte[k][j]
                     tailleF = j.taille * self.zoom
-                    vaisseaux = {
-                        "Cargo": self.dessiner_cargo(j, tailleF, i, k),
-                        "Combat": self.dessiner_combat(j, tailleF, i, k),
-                        "Explorer": self.dessiner_explorer(j, tailleF, i, k)
-                    }
-                    vaisseaux.get(k)
-
+                    if k == "Cargo":
+                        self.dessiner_cargo(j, tailleF, i, k)
+                    elif k == "Combat":
+                        self.dessiner_combat(j, tailleF, i, k)
+                    elif k == "Explorer":
+                        self.dessiner_explorer(j, tailleF, i, k)
         for t in self.modele.trou_de_vers:
             i = t.porte_a
             for i in [t.porte_a, t.porte_b]:
@@ -724,7 +939,8 @@ class Vue():
                                     (obj.x + tailleF),
                                     (obj.y + tailleF),
                                     fill=joueur.couleur, outline='black',
-                                    tags=(obj.proprietaire, str(obj.id), "FlotteCombat", type_obj, "artefact"))
+                                    tags=(obj.proprietaire, str(obj.id), "FlotteCombat", obj.points_combat, type_obj,
+                                          "artefact"))
 
     def dessiner_explorer(self, obj, tailleF, joueur, type_obj):
         self.canevas.create_rectangle((obj.x - tailleF), (obj.y - tailleF),
@@ -745,51 +961,87 @@ class Vue():
     def cliquer_cosmos(self, evt):
         t = self.canevas.gettags(CURRENT)
         if t:  # il y a des tags
-            if t[0] == self.mon_nom:  # et
-                self.ma_selection = [self.mon_nom, t[1], t[2]]
-                if t[2] == "Etoile" and self.ma_selection[1] != self.idSelect:
+            if self.ma_selection:
+                if (
+                        "FlotteCargo" in self.ma_selection or "FlotteExplorer" in self.ma_selection or "FlotteCombat" in self.ma_selection):
+                    if ("Etoile" in t or "Porte_de_ver" in t):
+                        if self.ma_selection[2] == "FlotteCombat":
+                            vaisseaupoint = int(self.ma_selection[3])
+                            etoilepoint = int(t[3])
 
-                    self.idSelect = self.ma_selection[1] # get la planete selectionee
+                            if self.boolattaquer:
+                                self.attaquer.destroy()
+                                self.choisir.destroy()
+                                self.canevas.delete("marqueur")
+
+                                if vaisseaupoint > etoilepoint:
+                                    self.etatcombat = "Attaque Gagnée"
+                                    self.modele.joueurs[self.mon_nom].peutenvahir = True
+                                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
+                                elif vaisseaupoint == etoilepoint:
+                                    self.etatcombat = "Attaque Nulle"
+                                    self.modele.joueurs[self.mon_nom].peutenvahir = False
+                                elif vaisseaupoint < etoilepoint:
+                                    nom = str(self.mon_nom)
+                                    self.modele.joueurs[self.mon_nom].peutenvahir = False
+                                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
+                                    self.etatcombat = "Attaque Perdue"
+                                    self.etatcombatshow()
+                                    self.contour = False
+                                    self.ma_selection = None
+                                    self.delete_vaisseau(self.ma_selection[1])
+                                self.etatcombatshow()
+                                self.contour = False
+                                self.ma_selection = None
+                        elif self.ma_selection[2] == "FlotteExplorer":
+                            if self.boolexplorer:
+                                self.explorer.destroy()
+                                self.choisir.destroy()
+                                self.canevas.delete("marqueur")
+                                self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
+                            self.etoileclickid = t[1]
+                            self.ressourceslist()
+                            print(self.modele.etoiles[0].ressources["pierre"])
+                            self.contour = False
+                            self.ma_selection = None
+                        self.boolattaquer = False
+                        self.boolexplorer = False
+
+                    else:
+                        print("Vaisseau Selectionne + autre chose")
+                        self.contour = True
+            elif t[0] == self.mon_nom:
+                self.ma_selection = [self.mon_nom, t[1], t[2], t[3]]
+
+                if t[2] == "Etoile":
+
+                    self.idSelect = self.ma_selection[1]  # get la planete selectionee
                     self.appel_update(self.idSelect)
+
                     if (self.infoSelection):
                         self.infoSelection.pack_forget()
                     for i in self.modele.joueurs[self.ma_selection[0]].etoilescontrolees:
 
-                        #print(self.ma_selection[1])
                         if i.id == self.idSelect:
                             self.etoile_select = i
-                            for info in i.batiments:
 
-                                print(info, " :", len(i.batiments[info]))
-                                
                     self.infoSelection = self.affichage_planete_selectionee(self.cadreoutils, self.etoile_select, True)
                     self.montrer_etoile_selection()
-            elif ("Etoile" in t or "Porte_de_ver" in t) and t[0] != self.mon_nom:
-                if self.ma_selection:
-                    self.contour = False
-                    self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
-                self.ma_selection = None
-                self.contour = True
-                self.canevas.delete("marqueur")
+                elif "FlotteCombat" == t[2]:
+                    self.afficher_attaquer()
+                    self.pointscombat = int(t[3])
+                elif "FlotteExplorer" == t[2]:
+                    self.afficher_explorer()
         else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
             print("Region inconnue")
-            self.idSelect = None
-            self.ma_selection = None
-            self.canevas.delete("marqueur")
-            self.infoSelection.pack_forget()
-
-            self.choixBat.place_forget()
-
-            self.choixVaisseau.place_forget()
-            self.choixBat.place_forget()
-
-            self.upgradeBat.place_forget()
-
 
     def montrer_etoile_selection(self):
         self.infoSelection.pack(fill=BOTH)
 
-    def montrer_flotte_selection(self):
+    def montrer_combat_selection(self):
+        print("À IMPLANTER - FLOTTE de ", self.mon_nom)
+
+    def montrer_explorer_selection(self):
         print("À IMPLANTER - FLOTTE de ", self.mon_nom)
 
     # Methodes pour multiselect#########################################################

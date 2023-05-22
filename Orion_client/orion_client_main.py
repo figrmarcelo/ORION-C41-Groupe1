@@ -228,15 +228,18 @@ class Controleur():
     def afficher_construction(self, id_planete):
         self.vue.afficher_create_batiment(id_planete)
 
-    def afficher_notif(self, type_notif, message):
-        self.vue.afficher_notif(type_notif, message)
+    def afficher_notif(self, type_notif):
+        self.vue.afficher_notif(type_notif)
 
     def update_prix_construction(self, prix):
         self.vue.update_prix_bat(prix)
 
     def update_prix(self, id):
         self.actionsrequises.append([self.mon_nom, "updateprix", id])
-        
+
+    def delete_vaisseau(self, id):
+        self.actionsrequises.append([self.mon_nom, "deletevaisseau", id])
+
 
 if __name__ == "__main__":
     c = Controleur()
