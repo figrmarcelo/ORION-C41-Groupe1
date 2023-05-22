@@ -987,9 +987,10 @@ class Vue():
                                     self.parent.cibler_etoile(self.ma_selection[1], t[1], t[2])
                                     self.etatcombat = "Attaque Perdue"
                                     self.etatcombatshow()
+                                    asupprimer = self.ma_selection[1]
                                     self.contour = False
                                     self.ma_selection = None
-                                    self.delete_vaisseau(self.ma_selection[1])
+                                    self.delete_vaisseau(asupprimer)
                                 self.etatcombatshow()
                                 self.contour = False
                                 self.ma_selection = None

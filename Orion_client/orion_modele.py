@@ -294,7 +294,7 @@ class Etoile(Astre):
         }
 
         self.artefact = self._add_artefact()
-        self.points_defense = 150
+        self.points_defense = 25
 
     def getRessources(self):
         return self.ressources.get()
