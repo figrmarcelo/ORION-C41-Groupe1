@@ -210,6 +210,7 @@ class Vue():
         self.canevas.bind("<Shift-Button-3>", self.calc_objets)
 
     def afficher_info_generales(self, source, niveau, exp, res, planetes, vaisseaux):
+        # Affiche les informations du joueur
         frame = Frame(source, width=400, height=30, bg="grey11")
 
         labelNiveau = Label(frame, text="Niveau : " + str(niveau), bg="grey11", fg="green", font='helvetica 10 bold')
@@ -238,7 +239,8 @@ class Vue():
         self.choixBat.pack()
         
     def afficher_create_batiment(self, id_planete, *args):
-        self.appel_update(id_planete)
+        # Affiche la liste des batiments possible de creer sur une planete
+        self.appel_update(id_planete) # Recupere les prix actualisé pour les reafficher au client
         self.idSelect = id_planete
         if self.upgradeBat:
             self.upgradeBat.place_forget()
@@ -251,7 +253,6 @@ class Vue():
         self.choixBat.place(relx=.75, rely=.05)
 
     def afficher_crea_vaisseau(self, *args):
-
         self.choixVaisseau = Frame(self.cadrepartie, width=200, height=50, bg="grey11")
 
         self.btncreercombat = Button(self.choixVaisseau, text="Combat")
@@ -273,11 +274,13 @@ class Vue():
     def creer_batiment(self, evt):
         type = evt.widget.cget("text")
         print(type)
+        # Envoi du type de batiment a creer au controleur (puis serveur)
         self.parent.creer_batiment([self.idSelect, type])
         self.choixBat.place_forget()
         
 
     def choix_batiments(self):
+        # Creation initiale du frame qui affiche le menu de constructions
         frame = Frame(self.cadrepartie, width=200, height=300, bg="grey11", highlightthickness=2, highlightbackground="darkgrey")
 
         mine = Button(frame, text="Mine", fg="green", width=6, height=1, bg="grey19")
@@ -324,9 +327,11 @@ class Vue():
         return frame
 
     def appel_update(self, id):
+        # Permet de demander au serveur de calculer les prix des constructions et des les renvoyer pour mettre a jour l'affichage
         self.parent.update_prix(id)
 
     def update_prix_bat(self, prix):
+        # Met a jour les prix de construction
         self.txtPrixMine = prix[0]
         self.txtPrixCentrale = prix[1]
         self.txtPrixUsine = prix[2]
@@ -341,6 +346,8 @@ class Vue():
         self.prixCentrale.config(text=str(self.txtPrixCentrale) + " Me")
         self.prixUsine.config(text=str(self.txtPrixUsine) + " Me / " + str(self.txtPrixUsine) + " En")
 
+        # Determine si un batiment est disponnible a la construction selon le niveau du joueur
+        # (De nouveaux type de batiments sont débloqué apres chaque niveau)
         if self.niveau >= 2:
             self.canon.place(anchor="center", relx=.25, rely=.55)
             self.prixCanon.place(anchor="center", relx=.7, rely=.55)
@@ -355,27 +362,21 @@ class Vue():
             self.prixBalise.config(text=str(self.txtPrixBalise) + " Me / " + str(self.txtPrixBalise) + " En")
 
         # Affichage du bouton upgrade -- a revoir
-        # if self.joueur != None and self.joueur.niveau_bat["cdr"] > 0:
-        #     self.choixBat = self.choix_batiments()
-        #     self.appel_update(self.idSelect)
+        if self.joueur != None and self.joueur.niveau_bat["cdr"] > 0:
+            self.choixBat = self.choix_batiments()
+            self.appel_update(self.idSelect)
 
     def afficher_notif(self, type_notif, message):
-
         if type_notif == 1:
-            # text = "Construction terminee"
             self.message.config(text=message)
         elif type_notif == 2:
-            # text = "Pas assez de ressources"
             self.message.config(text=message)
         elif type_notif == 3:
-            # text = "Nouveau niveau atteint"
             self.niveau += 1
             self.message.config(text=message)
         elif type_notif == 4:
             self.message.config(text=message)
         self.message.place(anchor="w", relx=.02, rely=.04)
-
-
 
     def upgrade_batiment(self, evt):
         type = evt.widget.cget("text")
@@ -384,6 +385,7 @@ class Vue():
         self.upgradeBat.place_forget()
 
     def affichage_upgrade(self, *args):
+        # Creation initiale du menu d'amelioration des batiments
         self.choixBat.place_forget()
         frame = Frame(self.cadrepartie, width=200, height=250, bg="grey11", highlightthickness=2,
                       highlightbackground="darkgrey")
@@ -435,7 +437,7 @@ class Vue():
 
     def afficher_infos_planete(self, info:dict, rel_y: int, is_res: bool, frame: Frame):
         for k, v in info.items():
-            info_value = str(v) if is_res else str(len(v))
+            info_value = str(round(v)) if is_res else str(len(v))
             Label(frame, text=k.title() + ' : ' + info_value, 
                   font='helvetica 10 bold',
                   bg="grey11", fg="green").place(relx=.3, rely=rel_y)
@@ -458,12 +460,12 @@ class Vue():
               bg="grey11", fg="green").place(anchor="center", relx=.5, rely=.1)
         
         rel_y = self.afficher_infos_planete(ressources, rel_y, True, frame)
-        rel_y = self.afficher_infos_planete(batiments, rel_y, False, frame)
+        # rel_y = self.afficher_infos_planete(batiments, rel_y, False, frame)
     
        
         batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
-        batiment.place(anchor="center", rely=0.95, relx=.5)
+        batiment.place(anchor="center", rely=0.80, relx=.5)
 
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == self.idSelect:
