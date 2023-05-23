@@ -176,8 +176,8 @@ class Vue():
         self.canevas.bind("<Shift-ButtonRelease-1>", self.terminer_multiselection)
 
         # scroll avec roulette
-        self.canevas.bind("<ButtonPress-3>", self.scroll_start)
-        self.canevas.bind("<B3-Motion>", self.scroll_move)
+        self.canevas.bind("<MouseWheel>", self.defiler_vertical)
+        self.canevas.bind("<Control-MouseWheel>", self.defiler_horizon)
 
         self.creer_cadre_outils()
 
@@ -623,12 +623,12 @@ class Vue():
 
     def afficher_infos_planete(self, info:dict, rel_y: int, is_res: bool, frame: Frame):
         for k, v in info.items():
-            info_value = str(v) if is_res else str(len(v))
-            Label(frame, text=k.title() + ' : ' + info_value, 
+            info_value = str(round(v)) if is_res else str(len(v))
+            Label(frame, text=k.title() + ' : ' + info_value,
                   font='helvetica 10 bold',
                   bg="grey11", fg="green").place(relx=.3, rely=rel_y)
             rel_y += .08
-            
+
         return rel_y
     
     def affichage_planete_selectionee(self, source, planete, state):
@@ -646,18 +646,19 @@ class Vue():
               bg="grey11", fg="green").place(anchor="center", relx=.5, rely=.1)
         
         rel_y = self.afficher_infos_planete(ressources, rel_y, True, frame)
-        rel_y = self.afficher_infos_planete(batiments, rel_y, False, frame)
+        # rel_y = self.afficher_infos_planete(batiments, rel_y, False, frame)
     
        
         batiment = Button(frame, text="CONSTRUCTIONS", fg="green", width=14, height=1, bg="grey19")
         batiment.bind('<Button>', self.afficher_crea_batiment)
-        batiment.place(anchor="center", rely=0.95, relx=.5)
+        batiment.place(anchor="center", rely=0.80, relx=.5)
 
         for planete in self.joueur.etoilescontrolees:
             if planete.getId() == self.idSelect:
-                vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
-                vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
-                vaisseau.place(anchor="center", rely=.95, relx=.5)
+                if self.joueur.niveau_bat["usine"] > 0 :
+                    vaisseau = Button(frame, text="VAISSEAUX", fg="green", width=9, height=1, bg="grey19")
+                    vaisseau.bind('<Button>', self.afficher_crea_vaisseau)
+                    vaisseau.place(anchor="center", rely=.95, relx=.5)
 
         return frame
 
@@ -1049,6 +1050,17 @@ class Vue():
                     self.afficher_explorer()
         else:  # aucun tag => rien sous la souris - sinon au minimum il y aurait CURRENT
             print("Region inconnue")
+            self.idSelect = None
+            self.ma_selection = None
+            self.canevas.delete("marqueur")
+            self.infoSelection.pack_forget()
+
+            self.choixBat.place_forget()
+
+            self.choixVaisseau.place_forget()
+            self.choixBat.place_forget()
+
+            self.upgradeBat.place_forget()
 
 
     def cliquer_cosmos1(self, evt):
