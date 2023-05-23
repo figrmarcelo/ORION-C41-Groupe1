@@ -14,9 +14,12 @@ from threading import Timer
 
 from ressource import Ressource
 
+from orion_vue import *
+
+
 class Artefact:
     """Liste de noms de bonus qu'un artéfact peut avoir"""
-    noms = ['mine', 'ressource', 'centrale'] 
+    noms = ['mine', 'ressource'] 
     
     def __init__(self):
         self.nom = 'Artefact ' + choice(Artefact.noms)
@@ -24,7 +27,6 @@ class Artefact:
     def activate_bonus(self, etoile: Etoile, joueur: Joueur) -> None:
         liste_bonus = {
             'mine': Mine(etoile, joueur),
-            'centrale': Centrale(etoile, joueur),
             'ressource': Ressource(randint(10, 1000), randint(10, 1000), 
                                    randint(10, 1000))
         }
@@ -40,19 +42,17 @@ class Artefact:
                 k, v = choice(list(etoile.ressources.items()))
                 nb_res = liste_bonus[nom][k]
                 v += nb_res
-                message = f'Vous avez gagné {nb_res} {k}s'
-                joueur.appel_notification(4, message)
+                print(f'Vous avez gagné {nb_res} {k}s')
                 joueur.ressources[k] += nb_res
         else:
             etoile.batiments[nom][bonus.id] = bonus
-            message = f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}'
-            joueur.appel_notification(4, message)
+            print(f'Vous avez gagné une nouvelle {liste_bonus[nom].__class__.__name__}')
             
 
     def _get_bonus(self, liste_bonus: dict) -> tuple[str, Mine | Ressource]:
         return liste_bonus.get(self.nom[9:])
 
-class Batiment:
+class Batiment():
     """
     Classe batiment --> classe parent pour les batiments d'une planete. 
     
@@ -156,7 +156,7 @@ class Centrale(Extraction):
     def __init__(self, planete, proprietaire):
         super().__init__(planete, proprietaire)
 
-    def upgrade(self):
+    def upgrade(self, ressources):
         cost = (100 * pow(self.niveau, 2)) + (50 * self.niveau) + 25
 
         return cost
@@ -224,7 +224,7 @@ class AccelerateurParticule(Batiment):
         super().__init__(planete, proprietaire)
 
 
-class Porte_de_vers:
+class Porte_de_vers():
     def __init__(self, parent, x, y, couleur, taille):
         self.parent = parent
         self.id = get_prochain_id()
@@ -240,7 +240,7 @@ class Porte_de_vers:
             self.pulse = 0
 
 
-class Trou_de_vers:
+class Trou_de_vers():
     def __init__(self, x1, y1, x2, y2):
         self.id = get_prochain_id()
         taille = random.randrange(6, 20)
@@ -253,7 +253,7 @@ class Trou_de_vers:
         self.porte_b.jouer_prochain_coup()
 
 
-class Astre:
+class Astre():
     def __init__(self, parent: Modele, x: int, y: int, taille: int):
         self.id = get_prochain_id()
         self.parent = parent
@@ -292,6 +292,7 @@ class Etoile(Astre):
         }
 
         self.artefact = self._add_artefact()
+        self.points_defense = 25
 
     def getRessources(self):
         return self.ressources.get()
@@ -306,7 +307,7 @@ class Nuage(Astre):
         super().__init__(parent, x, y, random.randrange(12, 8))
 
 
-class Vaisseau:
+class Vaisseau():
     def __init__(self, parent: Joueur, nom: str, x: int, y: int, vaisseau = Class):
         self.type_vaisseau = vaisseau
         self.parent = parent
@@ -319,6 +320,9 @@ class Vaisseau:
         self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
+        self.doitdestroy = False
+        self.destroyit = False
+        self.points_combat = 0
         self.arriver = {"Etoile": self.arriver_etoile,
                         "Porte_de_vers": self.arriver_porte}
 
@@ -329,10 +333,16 @@ class Vaisseau:
 
     def jouer_prochain_coup(self, trouver_nouveau=0):
         if self.cible != 0:
-            return self.avancer()
+            if self.type_vaisseau == Explorer:
+                return self.avancer()
+            else:
+                return self.attaquer()
         elif trouver_nouveau:
             cible = random.choice(self.parent.parent.etoiles)
             self.acquerir_cible(cible, "Etoile")
+
+
+
 
     def acquerir_cible(self, cible, type_cible):
         self.type_cible = type_cible
@@ -340,13 +350,26 @@ class Vaisseau:
         self.angle_cible = hlp.calcAngle(self.x, self.y, self.cible.x, self.cible.y)
 
     def avancer(self):
-        x = self.cible.x
-        y = self.cible.y
-        self.x, self.y = hlp.getAngledPoint(self.angle_cible, self.vitesse, self.x, self.y)
-        if hlp.calcDistance(self.x, self.y, x, y) <= self.vitesse:
-            type_obj = type(self.cible).__name__
-            rep = self.arriver[type_obj]()
-            return rep
+        if self.cible != 0:
+            x = self.cible.x
+            y = self.cible.y
+            self.x, self.y = hlp.getAngledPoint(self.angle_cible, self.vitesse, self.x, self.y)
+            if hlp.calcDistance(self.x, self.y, x, y) <= self.vitesse:
+                type_obj = type(self.cible).__name__
+                rep = self.arriver[type_obj]()
+                return rep
+
+    def attaquer(self):
+        if self.cible != 0:
+            x = self.cible.x
+            y = self.cible.y
+            self.x, self.y = hlp.getAngledPoint(self.angle_cible, self.vitesse, self.x, self.y)
+            if hlp.calcDistance(self.x, self.y, x, y) <= self.vitesse:
+                type_obj = type(self.cible).__name__
+                rep = self.arriver[type_obj]()
+                if self.doitdestroy:
+                    self.destroyit = True
+                return rep
 
     def arriver_etoile(self):
         #mettre methode construire batiment -------------------------*****************************----------------------------------
@@ -382,9 +405,9 @@ class Combat(Vaisseau):
 
     def __init__(self, parent, nom, x, y):
         Vaisseau.__init__(self, parent, nom, x, y, Combat)
-        self.combatpoints = 0
+        self.points_combat = 50
         self.taille: int = 5
-        self.vitesse: int = 2
+        self.vitesse: int = 4
         self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
@@ -394,8 +417,9 @@ class Explorer(Vaisseau):
 
     def __init__(self, parent, nom, x, y):
         Vaisseau.__init__(self, parent, nom, x, y, Explorer)
+        self.points_combat = 0
         self.taille: int = 5
-        self.vitesse: int = 2
+        self.vitesse: int = 10
         self.cible: int = 0
         self.type_cible = None
         self.angle_cible = 0
@@ -404,6 +428,7 @@ class Explorer(Vaisseau):
 class Cargo(Vaisseau):
     def __init__(self, parent, nom, x, y):
         Vaisseau.__init__(self, parent, nom, x, y, Cargo)
+        self.points_combat = 0
         self.cargo = 1000
         self.taille = 6
         self.vitesse = 3
@@ -412,7 +437,7 @@ class Cargo(Vaisseau):
         self.idPlanete = 0
 
 
-class Joueur:  # **************************************************************** --- JOUEUR --- **********************************************************
+class Joueur():  # **************************************************************** --- JOUEUR --- **********************************************************
     def __init__(self, parent, nom, etoilemere, couleur):
         self.id = get_prochain_id()
         self.parent = parent
@@ -423,7 +448,6 @@ class Joueur:  # ***************************************************************
         self.log = []
         self.etoilescontrolees = [etoilemere]
         self.prix = []
-        self.artefacts = []
 
         self.flotte = {"Combat": {},
                        "Explorer": {},
@@ -446,17 +470,15 @@ class Joueur:  # ***************************************************************
 
         self.experience = 0
         self.niveau = 1
-        self.actions = {
-            "creervaisseau": self.creervaisseau,
-            "cibleretoile": self.cibleretoile,
-            "creerbatiment": self.creerbatiment,
-            "upgradebatiment": self.upgradebatiment,
-            "recolterressources": self.recolterressources,
-            "updateprix": self.calcul_prix_construction
-        }
+        self.actions = {"creervaisseau": self.creervaisseau,
+                        "cibleretoile": self.cibleretoile,
+                        "creerbatiment": self.creerbatiment,
+                        "upgradebatiment": self.upgradebatiment,
+                        "recolterressources": self.recolterressources,
+                        "updateprix": self.calcul_prix_construction,
+                        "deletevaisseau": self.deletevaisseau}
 
-    def appel_notification(self, type, message):
-        self.parent.parent.afficher_notif(type, message)
+        self.peutenvahir = True
 
     def recolterressources(self, params):  # methode pour recolter les ressources dans une planete
         id_planete = params
@@ -488,6 +510,7 @@ class Joueur:  # ***************************************************************
                         costMP = self.prix[1]
                         self.ressources["metal"] -= costMP
                         bat = Centrale(id_planete, self.nom)
+                        planete.points_defense += 10
                         if self.niveau_bat[type_batiment] == 0:
                             self.niveau_bat[type_batiment] += 1
                         self.experience += 100
@@ -496,6 +519,7 @@ class Joueur:  # ***************************************************************
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
+                        planete.points_defense += 5
                         bat = Usine(id_planete, self.nom)
                         if self.niveau_bat[type_batiment] == 0:
                             self.niveau_bat[type_batiment] += 1
@@ -505,6 +529,7 @@ class Joueur:  # ***************************************************************
                     if self.ressources["metal"] >= cost and self.ressources["energie"] >= cost and self.niveau >= 2:
                         self.ressources["metal"] -= cost
                         self.ressources["energie"] -= cost
+                        planete.points_defense += 100
                         bat = Canon(id_planete, self.nom)
                         if self.niveau_bat[type_batiment] == 0:
                             self.niveau_bat[type_batiment] += 1
@@ -518,10 +543,11 @@ class Joueur:  # ***************************************************************
                         self.experience += 175
                 elif type_batiment == "cdr" and self.niveau >= 3:
                     cost = self.prix[5]
-                    if self.niveau_bat[type_batiment] == 0 and self.ressources["energie"] >= cost and self.ressources["metal"] >= cost:
+                    if self.ressources["energie"] >= cost and self.ressources["metal"] >= cost:
                         bat = CentreRecherche(id_planete, self.nom)
                         self.ressources["energie"] -= cost
                         self.ressources["metal"] -= cost
+                    if self.niveau_bat[type_batiment] == 0:
                         self.niveau_bat[type_batiment] += 1
                 elif type_batiment == "accelerateurParticule" and self.niveau >= 5:
                     bat = AccelerateurParticule(id_planete, self.nom)
@@ -529,13 +555,13 @@ class Joueur:  # ***************************************************************
 
                 if bat != None:
                     planete.batiments[type_batiment][bat.id] = bat
-                    print("Construction terminée")
-                    self.appel_notification(1, "Construction terminée")
+                    print("batiment construit")
+                    self.parent.parent.afficher_notif(1)
                     self.calcul_prix_construction(id_planete)
                 else:
                     print(self.ressources)
                     print("Pas assez de ressource")
-                    self.appel_notification(2, "Pas assez de ressource")
+                    self.parent.parent.afficher_notif(2)
 
 
     def calcul_prix_construction(self, params):
@@ -557,6 +583,12 @@ class Joueur:  # ***************************************************************
                 self.prix.append(10000)
 
         self.parent.parent.update_prix_construction(self.prix)
+
+    def deletevaisseau(self, vaisseau_id):
+        for type_vaisseau in self.flotte.keys():
+            if vaisseau_id in self.flotte[type_vaisseau]:
+                del self.flotte[type_vaisseau][vaisseau_id]
+                break
 
     def upgradebatiment(self, params):
         type = params[0].lower()
@@ -641,16 +673,19 @@ class Joueur:  # ***************************************************************
     def levelUp(self):
         if self.niveau == 1 and self.experience >= 1000:
             self.niveau += 1
-            self.appel_notification(3, "Vous avez atteint le niveau 2 !")
+            self.parent.parent.afficher_notif(3)
         elif self.niveau == 2 and self.experience >= 2500:
             self.niveau += 1
-            self.appel_notification(3, "Vous avez atteint le niveau 3 !")
+            self.parent.parent.afficher_notif(3)
         elif self.niveau == 3 and self.experience >= 4500:
             self.niveau += 1
-            self.appel_notification(3, "Vous avez atteint le niveau 4 !")
+            self.parent.parent.afficher_notif(3)
         elif self.niveau == 4 and self.experience >= 7000:
             self.niveau += 1
-            self.appel_notification(3, "Vous avez atteint le niveau 5 !")
+            self.parent.parent.afficher_notif(3)
+        elif self.niveau == 5 and self.experience >= 10000:
+            self.niveau += 1
+            self.parent.parent.afficher_notif(3)
     
     def avancer_flotte(self, chercher_nouveau=0):
         for i in self.flotte:
@@ -662,13 +697,12 @@ class Joueur:  # ***************************************************************
                         # NOTE  est-ce qu'on doit retirer l'etoile de la liste du modele
                         #       quand on l'attribue aux etoilescontrolees
                         #       et que ce passe-t-il si l'etoile a un proprietaire ???
-                        if rep[1] not in self.etoilescontrolees:
+                        if self.peutenvahir:
                             self.etoilescontrolees.append(rep[1])
-                        if rep[1].artefact:
-                            rep[1].artefact.activate_bonus(rep[1], self)
-                            rep[1].artefact = None
-                            
-                        self.parent.parent.afficher_etoile(self.nom, rep[1])
+                            if rep[1].artefact:
+                                rep[1].artefact.activate_bonus(rep[1], self)
+
+                            self.parent.parent.afficher_etoile(self.nom, rep[1])
                     elif rep[0] == "Porte_de_ver":
                         pass
 
@@ -699,6 +733,12 @@ class IA(Joueur):
         self.cooldown = 20
 
     def jouer_prochain_coup(self):
+        # for i in self.flotte:
+        #     for j in self.flotte[i]:
+        #         j=self.flotte[i][j]
+        #         rep=j.jouer_prochain_coup(1)
+        #         if rep:
+        #             self.etoilescontrolees.append(rep[1])
         self.avancer_flotte(1)
 
         if self.cooldown == 0:
@@ -710,7 +750,7 @@ class IA(Joueur):
             self.cooldown -= 1
 
 
-class Modele:
+class Modele():
     def __init__(self, parent, joueurs):
         self.parent = parent
         self.largeur = 9000
